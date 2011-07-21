@@ -538,7 +538,7 @@ var Unit = function (id, name, map, unitFacade) {
             if (backgroundPositionX === -350) {
                 window.clearInterval(_fireAction);
                 _fireAction = null;
-
+                $('#sound')[0].src = 'ak47.wav';
                 unitObject.trigger('attackEnemy');
                 return;
             }

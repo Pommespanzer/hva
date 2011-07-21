@@ -10,7 +10,7 @@ var ki = function(unitFacade, map) {
     	_mapObj.trigger('lock.userEvents');
     	
         if (_tmp == 0) {
-            for (var i = 0; i < 20; i++) { 
+            for (var i = 0; i < 10; i++) { 
                 this.addEnemy();
                 _tmp++;
             }
