@@ -9,6 +9,7 @@
         <script type="text/javascript" src="Js/Unit.js"></script>
         <script type="text/javascript" src="Js/UnitFacade.js"></script>
         <script type="text/javascript" src="Js/UserInterface.js"></script>
+        <script type="text/javascript" src="Js/ControlPanel.js"></script>
         
         <script type="text/javascript" src="Js/Map.js"></script>
         <script type="text/javascript" src="Js/ki.js"></script>
@@ -16,9 +17,30 @@
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body>
-        <a href="javascript:;" class="finish-turn">Zug beenden</a>
         <div id="battlefield"></div>
 
+        <div id="control-panel">
+            <ul id="unit-actions">
+                <li></li>
+            </ul>
+            
+            <ul id="unit-status">
+                <li class="ammo">
+                    <span>Ammo:&nbsp;</span>
+                    <div class="total-ammo"><div class="current-ammo"></div></div>
+                </li>
+                <li class="weapon"></li>
+                <li class="actionPoints">
+                    <span>Action Points:&nbsp;</span>
+                    <div class="total-actionPoints"><div class="current-actionPoints"></div></div>
+                </li>
+            </ul>
+            
+            <ul id="common-actions">
+                <li><a href="javascript:;" class="finish-turn">Zug beenden</a></li>
+            </ul>
+        </div>
+        
         <script type="text/javascript">
             var ui = new UserInterface();
             ui.init();

@@ -3,6 +3,7 @@ var UserInterface = function() {
     var _selectedUnit = null;
     var _battlefieldMap = $('#battlefield');
     var _unitFacade = null;
+    var _controlPanel = null;
 
     var _addUnits = function() {
     	for (var i = 0; i < 6; i++) {
@@ -67,7 +68,8 @@ var UserInterface = function() {
         $('#' + unit.getId()).addClass('selected');
 
         _selectedUnit.renderFirerange(coordinates.x, coordinates.y);
-
+        _controlPanel.displayAmmo(_selectedUnit);
+        _controlPanel.displayMove(_selectedUnit);
     };
 
     this.initEventListeners = function () {
@@ -100,6 +102,15 @@ var UserInterface = function() {
         _battlefieldMap.bind('attack', function(event, enemy) {
         	_selectedUnit.attack(enemy);
         });
+        
+        _battlefieldMap.bind('updateControlPanel', function(event, unit) {
+            if (null === _selectedUnit || _selectedUnit.getId() !== unit.getId()) {
+                return;
+            }
+            
+            _controlPanel.displayAmmo(_selectedUnit);
+            _controlPanel.displayMove(_selectedUnit);
+        });
     };
 
     this.init = function() {
@@ -124,7 +135,10 @@ var UserInterface = function() {
 
         	_map.addHindrance(x, y);
         }
-
+        
+        _controlPanel = new ControlPanel();
+        _controlPanel.init();
+        
         _battlefieldMap.trigger('unlock.userEvents');
     };
 };

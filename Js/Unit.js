@@ -182,8 +182,6 @@ var Unit = function (id, name, map, unitFacade) {
             this._htmlEntity.remove();
             return;
         }
-
-        this.updateAmmo();
     };
 
     /**
@@ -194,23 +192,14 @@ var Unit = function (id, name, map, unitFacade) {
     this.getAmmo = function () {
         return _ammo;
     };
-
+    
     /**
-     * Update the view of the ammo of unit
-     *
-     * @return void
+     * Get the ammo quotient of the unit.
+     * 
+     * @return integer _ammoQuotient
      */
-    this.updateAmmo = function () {
-        var unitObject = this.getHtmlEntity();
-
-        if (!unitObject) {
-            return;
-        }
-
-        var obj = $('.ammo', unitObject);
-
-        var newWidth = _ammo * _ammoQuotient;
-        obj[0].style.width = newWidth + '%';
+    this.getAmmoQuotient = function () {
+        return _ammoQuotient;
     };
 
     /**
@@ -515,9 +504,15 @@ var Unit = function (id, name, map, unitFacade) {
             $.proxy(
                 function () {
                     this.setCurrentActionPoints((this.getCurrentActionPoints() - 1));
+                    
                     _map.updateUnitPosition(this, x, y);
+                    
+                    var mapObj = _map.getHtmlObject();
+                    mapObj.trigger('updateControlPanel', [this]);
+                    
                     _isAlreadyMoving = false;
                     this.renderFirerange(x, y);
+                    
                     this.move(wayPoints);
                 },
                 this
@@ -621,8 +616,15 @@ var Unit = function (id, name, map, unitFacade) {
                         if (enemy.getAmmo() <= 0) {
                             _map.removeUnit(enemyPosition.x, enemyPosition.y);
                         }
-
+                        
                         this.setCurrentActionPoints(this.getCurrentActionPoints() - selectedWeapon.actionPoints);
+                        
+                        var mapObj = _map.getHtmlObject();
+                        // if enemy attack user
+                        mapObj.trigger('updateControlPanel', [enemy]);
+                        // if user attack enemy
+                        mapObj.trigger('updateControlPanel', [this]);
+                        
                         _isAlreadyAttacking = false;
                         unitObject.trigger('stopFiring');
                     },
@@ -645,7 +647,6 @@ var Unit = function (id, name, map, unitFacade) {
         html.push('<div id="' + this.getId() + '" ' +
                        'class="' + this.getType() + ' unit' + (this.isEnemy ? ' enemy' : '') + '" ' +
                        'style="top: ' + (position.y * 50) + 'px; left: ' + (position.x * 50) + 'px;">');
-        html.push('<span style="background-color:red; width: 100%; height: 4px; display:block;"><span class="ammo" style="background-color: green; width: 100%; height: 4px; display:block;"></span></span>');
         html.push('</div>');
 
         var mapHtmlObject = _map.getHtmlObject();
