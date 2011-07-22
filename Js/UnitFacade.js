@@ -1,5 +1,5 @@
 var UnitFacade = new function () {
-    "use strict";
+    'use strict';
 
     /**
      * Checks if an enemy is in range to attack.

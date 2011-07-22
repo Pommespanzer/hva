@@ -1,5 +1,5 @@
 var Unit = function (id, name) {
-    "use strict";
+    'use strict';
 
     /**
      * unique id of unit

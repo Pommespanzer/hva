@@ -1,5 +1,5 @@
 var Map = new function () {
-    "use strict";
+    'use strict';
     
     /**
      * HTML - object of the battlefield
