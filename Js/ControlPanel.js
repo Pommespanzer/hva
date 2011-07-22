@@ -2,11 +2,16 @@ var ControlPanel = new function () {
     var _ammoSection = null;
     var _actionPointSection = null;
     var _weaponSection = null;
+    var _currentAmmo = null;
+    var _currentActionPoints = null;
     
     this.init = function () {
         _ammoSection = $('.ammo', $('#control-panel'));
         _actionPointSection = $('.actionPoints', $('#control-panel'));
         _weaponSection = $('.weapon', $('#control-panel'));
+        
+        _currentAmmo = $('.current-ammo', _ammoSection);
+        _currentActionPoints = $('.current-actionPoints', _actionPointSection);
     };
     
     this.displayAll = function (unit) {
@@ -17,7 +22,7 @@ var ControlPanel = new function () {
         }
         
         this.displayAmmo(unit);
-        this.displayMove(unit);
+        this.displayActionPoints(unit);
     };
     
     this.displayAmmo = function (unit) {
@@ -32,16 +37,12 @@ var ControlPanel = new function () {
         _weaponSection.removeClass('hide');
         
         var newWidth = unit.getAmmo() * unit.getAmmoQuotient();
-        
-        var currentAmmo = $('.current-ammo', _ammoSection);
-        currentAmmo.css('width', newWidth + '%');
+        _currentAmmo.css('width', newWidth + '%');
     };
     
-    this.displayMove = function (unit) {
+    this.displayActionPoints = function (unit) {
         var onePercent = 100 / unit.getTotalActionPoints();
         var newWidth = onePercent * unit.getCurrentActionPoints();
-        
-        var currentMove = $('.current-actionPoints', _actionPointSection);
-        currentMove.css('width', newWidth + '%');
+        _currentActionPoints.css('width', newWidth + '%');
     };
 }();
