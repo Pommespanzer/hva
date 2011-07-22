@@ -58,19 +58,19 @@ var Map = new function () {
      */
     this.addUnit = function (unit, x, y) {
         if (typeof unit !== 'object') {
-            throw Error('Map: Unit object is missing.');
+            throw new Error('Map: Unit object is missing.');
         }
 
         x = parseInt(x, 10);
         y = parseInt(y, 10);
 
         if (x < 0 || y < 0) {
-            throw Error('Map: Invalid coordinates.');
+            throw new Error('Map: Invalid coordinates.');
         }
 
         var coordinates = x + '-' + y;
 
-        if (coordinates in _units || coordinates in _obstacles) {
+        if (_units.hasOwnProperty(coordinates) || _obstacles.hasOwnProperty(coordinates)) {
             return false;
         }
 
@@ -93,26 +93,26 @@ var Map = new function () {
      */
     this.updateUnitPosition = function (unit, x, y) {
         if (typeof unit !== 'object') {
-            throw Error('Map: Unit object is missing.');
+            throw new Error('Map: Unit object is missing.');
         }
 
         x = parseInt(x, 10);
         y = parseInt(y, 10);
 
         if (x < 0 || y < 0) {
-            throw Error('Map: Invalid coordinates.');
+            throw new Error('Map: Invalid coordinates.');
         }
 
         var oldPosition = unit.getPosition();
         var oldCoordinates = oldPosition.x + '-' + oldPosition.y;
 
-        if (! (oldCoordinates in _units)) {
+        if (!_units.hasOwnProperty(oldCoordinates)) {
             return;
         }
 
         var coordinates = x + '-' + y;
-        if (coordinates in _units) {
-            throw Error('Map: Goal position already set.');
+        if (_units.hasOwnProperty(coordinates)) {
+            throw new Error('Map: Goal position already set.');
         }
 
         delete _units[oldCoordinates];
@@ -134,12 +134,12 @@ var Map = new function () {
         y = parseInt(y, 10);
 
         if (x < 0 || y < 0) {
-            throw Error('Map: Invalid coordinates.');
+            throw new Error('Map: Invalid coordinates.');
         }
 
         var coordinates = x + '-' + y;
 
-        if (! (coordinates in _units)) {
+        if (!_units.hasOwnProperty(coordinates)) {
             return false;
         }
 
@@ -159,12 +159,12 @@ var Map = new function () {
         y = parseInt(y, 10);
 
         if (x < 0 || y < 0) {
-            throw Error('Map: Invalid coordinates.');
+            throw new Error('Map: Invalid coordinates.');
         }
 
         var coordinates = x + '-' + y;
 
-        if (! (coordinates in _units)) {
+        if (!_units.hasOwnProperty(coordinates)) {
             return false;
         }
 
@@ -220,7 +220,7 @@ var Map = new function () {
      */
     this.setSelectedUnit = function (unit) {
         if (typeof unit !== 'object') {
-            throw Error('Map: Unit object is missing.');
+            throw new Error('Map: Unit object is missing.');
         }
 
         _selectedUnit = unit;
@@ -248,20 +248,19 @@ var Map = new function () {
         y = parseInt(y, 10);
 
         if (x < 0 || y < 0) {
-            throw Error('Map: Invalid coordinates.');
+            throw new Error('Map: Invalid coordinates.');
         }
 
         var coordinates = x + '-' + y;
 
-        if (coordinates in _units || coordinates in _obstacles) {
+        if (_units.hasOwnProperty(coordinates) || _obstacles.hasOwnProperty(coordinates)) {
             return false;
         }
 
         _obstacles[coordinates] = {x: x, y: y};
 
         var html = [];
-        html.push('<div class="obstacle" ' +
-                       'style="position: absolute; top: ' + (y * 50) + 'px; left: ' + (x * 50) + 'px;">') +
+        html.push('<div class="obstacle" style="position: absolute; top: ' + (y * 50) + 'px; left: ' + (x * 50) + 'px;">');
         html.push('</div>');
 
         _mapHtmlEntity.append(html.join(''));
@@ -281,12 +280,12 @@ var Map = new function () {
         y = parseInt(y, 10);
 
         if (x < 0 || y < 0) {
-            throw Error('Map: Invalid coordinates.');
+            throw new Error('Map: Invalid coordinates.');
         }
 
         var coordinates = x + '-' + y;
 
-        if (! (coordinates in _obstacles)) {
+        if (!_obstacles.hasOwnProperty(coordinates)) {
             return false;
         }
 

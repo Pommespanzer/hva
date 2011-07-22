@@ -179,7 +179,7 @@ var Unit = function (id, name) {
         _ammo = ammo;
 
         if (_ammo < 0) {
-            this._htmlEntity.remove();
+            _htmlEntity.remove();
             return;
         }
     };
