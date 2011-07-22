@@ -1,4 +1,4 @@
-var Unit = function (id, name, map, unitFacade) {
+var Unit = function (id, name) {
     "use strict";
 
     /**
@@ -14,20 +14,6 @@ var Unit = function (id, name, map, unitFacade) {
      * @var string name
      */
     var _name = name;
-
-    /**
-     * UnitFacade - Class
-     *
-     * @var object UnitFacade
-     */
-    var _unitFacade = unitFacade;
-
-    /**
-     * Map - Class
-     *
-     * @var object Map
-     */
-    var _map = map;
 
     /**
      * Type of unit
@@ -123,6 +109,20 @@ var Unit = function (id, name, map, unitFacade) {
      */
     var _isAlreadyMoving = false;
 
+    /**
+     * Object with sounds for moving, shooting and even die-ing;
+     * 
+     * @var obj _sounds
+     */
+    var _sounds = {};
+    
+    /**
+     * Musicplayer
+     * 
+     * @var object _soundObject
+     */
+    var _soundObject = null;
+    
     /**
      * Just a flag to decide between users units and computers units
      *
@@ -222,6 +222,39 @@ var Unit = function (id, name, map, unitFacade) {
      */
     this.getPosition = function () {
         return _position;
+    };
+    
+    /**
+     * Set all sounds for the unit.
+     * 
+     * @param object sounds
+     * 
+     * @return void
+     */
+    this.setSounds = function (sounds) {
+        _sounds = sounds;
+    };
+    
+    /**
+     * Get all sounds of the unit.
+     * 
+     * @return object _sounds
+     */
+    this.getSounds = function () {
+        return _sounds;
+    };
+    
+    /**
+     * Play the given sound.
+     * 
+     * @var string sound - sound file
+     */
+    this.playSound = function (sound) {
+        if (null === _soundObject) {
+            _soundObject = $('#sound');
+        }
+        
+        _soundObject[0].src = sound;
     };
 
     /**
@@ -359,6 +392,10 @@ var Unit = function (id, name, map, unitFacade) {
     this.startMovingSprite = function () {
         var value = 50;
         var unitObject = this.getHtmlEntity();
+        
+        var sounds = this.getSounds();
+        this.playSound(sounds.move);
+        
         _moveAction = window.setInterval($.proxy(function () {
             var backgroundPositionString = unitObject.css('background-position');
             var backgroundPositionArray = backgroundPositionString.split(' ');
@@ -450,7 +487,7 @@ var Unit = function (id, name, map, unitFacade) {
         var yPos = (y * 50 - (selectedWeapon.range * 50));
         var padding = selectedWeapon.range * 50;
 
-        var mapObj = _map.getHtmlObject();
+        var mapObj = Map.getHtmlEntity();
         mapObj.append('<div class="firerange" style="top: ' + yPos + 'px; left: ' + xPos + 'px; padding: ' + padding + 'px"></div>');
     };
 
@@ -463,23 +500,23 @@ var Unit = function (id, name, map, unitFacade) {
      */
     this.move = function (wayPoints) {
         if (true === _isAlreadyMoving) {
-        	return;
+            return;
         }
 
         _isAlreadyMoving = true;
 
-    	this.stopMovingSprite();
+        this.stopMovingSprite();
 
         var unitObject = this.getHtmlEntity();
         if (this.getCurrentActionPoints() === 0) {
-        	_isAlreadyMoving = false;
-        	unitObject.trigger('goalReached');
+            _isAlreadyMoving = false;
+            unitObject.trigger('goalReached');
             return false;
         }
 
         if (!wayPoints || wayPoints.length === 0) {
-        	_isAlreadyMoving = false;
-        	unitObject.trigger('goalReached');
+            _isAlreadyMoving = false;
+            unitObject.trigger('goalReached');
             return false;
         }
 
@@ -505,10 +542,9 @@ var Unit = function (id, name, map, unitFacade) {
                 function () {
                     this.setCurrentActionPoints((this.getCurrentActionPoints() - 1));
                     
-                    _map.updateUnitPosition(this, x, y);
+                    Map.updateUnitPosition(this, x, y);
                     
-                    var mapObj = _map.getHtmlObject();
-                    mapObj.trigger('updateControlPanel', [this]);
+                    ControlPanel.displayAll(this);
                     
                     _isAlreadyMoving = false;
                     this.renderFirerange(x, y);
@@ -529,7 +565,7 @@ var Unit = function (id, name, map, unitFacade) {
         var value = 50;
         var unitObject = this.getHtmlEntity();
 
-        _fireAction = window.setInterval(function () {
+        _fireAction = window.setInterval($.proxy(function () {
             var backgroundPositionString = unitObject.css('background-position');
             var backgroundPositionArray = backgroundPositionString.split(' ');
             var backgroundPositionX = parseInt(backgroundPositionArray[0], 10);
@@ -538,15 +574,18 @@ var Unit = function (id, name, map, unitFacade) {
             if (backgroundPositionX === -350) {
                 window.clearInterval(_fireAction);
                 _fireAction = null;
-                $('#sound')[0].src = 'ak47.wav';
+                
+                var sounds = this.getSounds();
+                this.playSound(sounds.attack);
+                
                 unitObject.trigger('attackEnemy');
                 return;
             }
 
             backgroundPositionX -= value;
 
-            unitObject.css('background-position', backgroundPositionX + 'px ' + backgroundPositionY +'px');
-        }, 100);
+            unitObject.css('background-position', backgroundPositionX + 'px ' + backgroundPositionY + 'px');
+        }, this), 100);
     };
 
     /**
@@ -557,32 +596,32 @@ var Unit = function (id, name, map, unitFacade) {
      * @return void
      */
     this.attack = function (enemy) {
-    	if (true === _isAlreadyAttacking) {
-        	return;
+        if (true === _isAlreadyAttacking) {
+            return;
         }
 
-    	_isAlreadyAttacking = true;
+        _isAlreadyAttacking = true;
 
         var selectedWeapon = this.getSelectedWeapon();
         var unitObject = this.getHtmlEntity();
 
         if (this.getCurrentActionPoints() < selectedWeapon.actionPoints) {
-        	_isAlreadyAttacking = false;
-        	unitObject.trigger('stopFiring');
+            _isAlreadyAttacking = false;
+            unitObject.trigger('stopFiring');
             return false;
         }
 
-        if (false === _unitFacade.inRange(this, enemy)) {
-        	_isAlreadyAttacking = false;
-        	unitObject.trigger('stopFiring');
+        if (false === UnitFacade.inRange(this, enemy)) {
+            _isAlreadyAttacking = false;
+            unitObject.trigger('stopFiring');
             return false;
         }
 
         var position = this.getPosition();
         var enemyPosition = enemy.getPosition();
-        if (false === _unitFacade.inFireposition(position.x, position.y, enemyPosition.x, enemyPosition.y)) {
-        	_isAlreadyAttacking = false;
-        	unitObject.trigger('stopFiring');
+        if (false === UnitFacade.inFireposition(position.x, position.y, enemyPosition.x, enemyPosition.y)) {
+            _isAlreadyAttacking = false;
+            unitObject.trigger('stopFiring');
             return false;
         }
 
@@ -594,7 +633,7 @@ var Unit = function (id, name, map, unitFacade) {
         var unique = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999);
         unitObject.unbind('attackEnemy').bind('attackEnemy', $.proxy(function () {
             var randValue = 25; //Math.floor(Math.random() * 40 + 10);
-            var mapObj = _map.getHtmlObject();
+            var mapObj = Map.getHtmlEntity();
 
             mapObj.append(
                 '<div class="shot ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + randValue) + 'px;"></div>'
@@ -614,16 +653,18 @@ var Unit = function (id, name, map, unitFacade) {
 
                         enemy.setAmmo(enemy.getAmmo() - selectedWeapon.firepower);
                         if (enemy.getAmmo() <= 0) {
-                            _map.removeUnit(enemyPosition.x, enemyPosition.y);
+                            Map.removeUnit(enemyPosition.x, enemyPosition.y);
+                            
+                            var sounds = enemy.getSounds();
+                            this.playSound(sounds.die);
                         }
                         
                         this.setCurrentActionPoints(this.getCurrentActionPoints() - selectedWeapon.actionPoints);
                         
-                        var mapObj = _map.getHtmlObject();
-                        // if enemy attack user
-                        mapObj.trigger('updateControlPanel', [enemy]);
-                        // if user attack enemy
-                        mapObj.trigger('updateControlPanel', [this]);
+                        var mapObj = Map.getHtmlEntity();
+                        
+                        ControlPanel.displayAll(enemy);
+                        ControlPanel.displayAll(this);
                         
                         _isAlreadyAttacking = false;
                         unitObject.trigger('stopFiring');
@@ -649,7 +690,7 @@ var Unit = function (id, name, map, unitFacade) {
                        'style="top: ' + (position.y * 50) + 'px; left: ' + (position.x * 50) + 'px;">');
         html.push('</div>');
 
-        var mapHtmlObject = _map.getHtmlObject();
+        var mapHtmlObject = Map.getHtmlEntity();
         mapHtmlObject.append(html.join(''));
 
         var unitObject = $('#' + this.getId(), mapHtmlObject);

@@ -1,4 +1,4 @@
-var ControlPanel = function () {
+var ControlPanel = new function () {
     var _ammoSection = null;
     var _actionPointSection = null;
     var _weaponSection = null;
@@ -7,6 +7,17 @@ var ControlPanel = function () {
         _ammoSection = $('.ammo', $('#control-panel'));
         _actionPointSection = $('.actionPoints', $('#control-panel'));
         _weaponSection = $('.weapon', $('#control-panel'));
+    };
+    
+    this.displayAll = function (unit) {
+        var selectedUnit = Map.getSelectedUnit();
+        
+        if (null === selectedUnit || selectedUnit.getId() !== unit.getId()) {
+            return;
+        }
+        
+        this.displayAmmo(unit);
+        this.displayMove(unit);
     };
     
     this.displayAmmo = function (unit) {
@@ -33,4 +44,4 @@ var ControlPanel = function () {
         var currentMove = $('.current-actionPoints', _actionPointSection);
         currentMove.css('width', newWidth + '%');
     };
-};
+}();

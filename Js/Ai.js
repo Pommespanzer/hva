@@ -1,21 +1,19 @@
-var ki = function(unitFacade, map) {
-    var _map = map;
+var Ai = new function() {
     var _units = [];
     var _enemies = [];
     var _tmp = 0;
-    var _unitFacade = unitFacade;
     var _mapObj = null;
     this.init = function() {
-    	_mapObj = _map.getHtmlObject();
-    	_mapObj.trigger('lock.userEvents');
-    	
+        _mapObj = Map.getHtmlEntity();
+        _mapObj.trigger('lock.userEvents');
+        
         if (_tmp == 0) {
             for (var i = 0; i < 10; i++) { 
                 this.addEnemy();
                 _tmp++;
             }
         }
-        var allUnits = _map.getAllUnits();
+        var allUnits = Map.getAllUnits();
         for (var i in allUnits) {
             var unit = allUnits[i];
             
@@ -31,7 +29,7 @@ var ki = function(unitFacade, map) {
     var _startTurn = function() {
         _enemies = [];
         
-        var allUnits = _map.getAllUnits();
+        var allUnits = Map.getAllUnits();
         
         for (var i in allUnits) {
             var unit = allUnits[i];
@@ -44,13 +42,13 @@ var ki = function(unitFacade, map) {
         }
         
         if (_enemies.length === 0) {
-        	_mapObj.trigger('unlock.userEvents');
+            _mapObj.trigger('unlock.userEvents');
             alert('Du hast die Schlacht verloren');
             return;
         }
         
         if (_units.length === 0) {
-            var allUnits = _map.getAllUnits();
+            var allUnits = Map.getAllUnits();
             
             for (var i in allUnits) {
                 var unit = allUnits[i];
@@ -75,10 +73,10 @@ var ki = function(unitFacade, map) {
         var unitHtmlObject = unit.getHtmlEntity();
         var selectedWeapon = unit.getSelectedWeapon();
         
-        var enemiesInAttackRange = _unitFacade.getEnemiesInAttackRange(unit, _enemies);
+        var enemiesInAttackRange = UnitFacade.getEnemiesInAttackRange(unit, _enemies);
         
         if (enemiesInAttackRange.length > 0) {
-            var weakestEnemy = _unitFacade.getWeakestEnemy(enemiesInAttackRange);
+            var weakestEnemy = UnitFacade.getWeakestEnemy(enemiesInAttackRange);
             
             unitHtmlObject.unbind('stopFiring').bind('stopFiring', function() {
                 if (unit.getCurrentActionPoints() < selectedWeapon.actionPoints || 
@@ -107,10 +105,10 @@ var ki = function(unitFacade, map) {
         var attackableEnemies = [];
         var notAttackableEnemies = [];
         
-        var reachableEnemies = _unitFacade.getReachableEnemies(unit, _enemies);
+        var reachableEnemies = UnitFacade.getReachableEnemies(unit, _enemies);
         
         if (reachableEnemies.enemies.length > 0) {
-            var attackableEnemies = _unitFacade.getAttackableEnemies(unit, reachableEnemies.enemies);
+            var attackableEnemies = UnitFacade.getAttackableEnemies(unit, reachableEnemies.enemies);
             
             if (attackableEnemies.length > 0) {
                 var enemies = [];
@@ -122,11 +120,11 @@ var ki = function(unitFacade, map) {
                     helper[enemy.getId()] = wp;
                 }
                 
-                var weakestEnemies = _unitFacade.getWeakestEnemies(enemies);
-                var closestWeakestEnemy = _unitFacade.getClosestEnemy(unit, weakestEnemies);
+                var weakestEnemies = UnitFacade.getWeakestEnemies(enemies);
+                var closestWeakestEnemy = UnitFacade.getClosestEnemy(unit, weakestEnemies);
                 
                 var waypoints = helper[closestWeakestEnemy.getId()];
-                waypoints = _unitFacade.cutWaypoint(closestWeakestEnemy, waypoints);
+                waypoints = UnitFacade.cutWaypoint(closestWeakestEnemy, waypoints);
 
                 unitHtmlObject.unbind('goalReached').bind('goalReached', function() {
                     unitHtmlObject.unbind('stopFiring').bind('stopFiring', function() {
@@ -147,13 +145,13 @@ var ki = function(unitFacade, map) {
                 return;
             }
             
-            var closestEnemy = _unitFacade.getClosestEnemy(unit, reachableEnemies.enemies);
+            var closestEnemy = UnitFacade.getClosestEnemy(unit, reachableEnemies.enemies);
             var wayPointsClosestEnemy = reachableEnemies.waypoints[closestEnemy.getId()];
             
             var halfway = Math.floor(wayPointsClosestEnemy.length / 2);
             var splitedWayPoints = wayPointsClosestEnemy.splice(0, halfway);
             
-            splitedWayPoints = _unitFacade.cutWaypoint(closestEnemy, splitedWayPoints);
+            splitedWayPoints = UnitFacade.cutWaypoint(closestEnemy, splitedWayPoints);
             
             unitHtmlObject.unbind('goalReached').bind('goalReached', function() {
                 _startTurn();
@@ -170,7 +168,7 @@ var ki = function(unitFacade, map) {
         
         
         
-        var closestEnemy = _unitFacade.getClosestEnemy(unit, _enemies);
+        var closestEnemy = UnitFacade.getClosestEnemy(unit, _enemies);
         
         var position = unit.getPosition();
         var enemyPosition = closestEnemy.getPosition();
@@ -179,8 +177,8 @@ var ki = function(unitFacade, map) {
             _startTurn();
         });
         
-        var wayPoints = _unitFacade.getWaypoints(position.x, position.y, enemyPosition.x, enemyPosition.y);
-        wayPoints = _unitFacade.cutWaypoint(closestEnemy, wayPoints);
+        var wayPoints = UnitFacade.getWaypoints(position.x, position.y, enemyPosition.x, enemyPosition.y);
+        wayPoints = UnitFacade.cutWaypoint(closestEnemy, wayPoints);
         
         if (false === wayPoints) {
             _startTurn();
@@ -194,27 +192,31 @@ var ki = function(unitFacade, map) {
         var y = Math.random() * 20;
         
         var id = Math.floor(Math.random() * 9999999999 + Math.random() * 9999999999);
-        var enemy = new Unit(id, id, _map, _unitFacade);
+        var enemy = new Unit(id, id);
         enemy.setType('unit-human-mg');
         enemy.setAmmo(1000);
         enemy.setActionPoints(15);
         enemy.isEnemy = true;
         enemy.setSpeed(100);
         enemy.addWeapon({
-        	selected: true,
-        	name: 'MG',
-        	range: 5,
-        	actionPoints: 2,
-        	firepower: 100,
-        	firespeed: 200
+            selected: true,
+            name: 'MG',
+            range: 5,
+            actionPoints: 2,
+            firepower: 100,
+            firespeed: 200
         });
         
-        if (_map.addUnit(enemy, x, y)) {
-            //var htmlObj = enemy.getHtmlEntity();
-            //htmlObj.css('background-color', 'red');
+        enemy.setSounds({
+            move: 'move.wav',
+            attack: 'ak47.wav',
+            die: 'aaaaagh.wav'
+        });
+        
+        if (Map.addUnit(enemy, x, y)) {
             return;
         }
         
         this.addEnemy();
     };
-};
+}();

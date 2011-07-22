@@ -1,12 +1,5 @@
-var UnitFacade = function (mapClass) {
+var UnitFacade = new function () {
     "use strict";
-
-    /**
-     * Map - Class
-     * 
-     * @var object Map
-     */
-    var _map = mapClass;
 
     /**
      * Checks if an enemy is in range to attack.
@@ -89,7 +82,7 @@ var UnitFacade = function (mapClass) {
             n = enemyPosY - (ascent * enemyPosX);
         }
         
-        var obstacles = _map.getHindrances();
+        var obstacles = Map.getObstacles();
         var key;
         for (key in obstacles) {
             if (obstacles.hasOwnProperty(key)) {
@@ -209,7 +202,7 @@ var UnitFacade = function (mapClass) {
                 }
                 
                 // free position
-                if (false === _map.getUnit(x, y) && false === _map.getHindrance(x, y)) {
+                if (false === Map.getUnit(x, y) && false === Map.getObstacle(x, y)) {
                     currentPosition.push('w');
                     continue;
                 }
@@ -429,7 +422,7 @@ var UnitFacade = function (mapClass) {
                 }
     
                 // if an other unit is on this position than get the next free position
-                if (false !== _map.getUnit(goalPositionX, goalPositionY) || false !== _map.getHindrance(goalPositionX, goalPositionY)) {
+                if (false !== Map.getUnit(goalPositionX, goalPositionY) || false !== Map.getObstacle(goalPositionX, goalPositionY)) {
                     
                     var freePosition = this.getFreePositionToEnemy(unit, enemy);
                     
@@ -578,7 +571,7 @@ var UnitFacade = function (mapClass) {
                     newY = 20;
                 }
                 
-                if (false === _map.getUnit(newX, newY) && false === _map.getHindrance(newX, newY)) {
+                if (false === Map.getUnit(newX, newY) && false === Map.getObstacle(newX, newY)) {
                     freePosition = {
                         x: newX,
                         y: newY
@@ -645,24 +638,24 @@ var UnitFacade = function (mapClass) {
      * @return wayPointsToEnemy;
      */
     this.cutWaypoint = function (enemy, wayPointsToEnemy) {
-    	var enemyPosition = enemy.getPosition();
-    	
-    	if (!wayPointsToEnemy) {
-    		return wayPointsToEnemy;
-    	}
-    	
-    	var len = wayPointsToEnemy.length;
-    	
-    	if (len === 0) {
-    		return wayPointsToEnemy;
-    	}
-    	
-    	var endWayPoint = wayPointsToEnemy[len - 1];
-		if (endWayPoint.col === enemyPosition.x && endWayPoint.row === enemyPosition.y) {
-			var trash = wayPointsToEnemy.pop();
-			trash = null;
-		}
-		
-		return wayPointsToEnemy;
+        var enemyPosition = enemy.getPosition();
+        
+        if (!wayPointsToEnemy) {
+            return wayPointsToEnemy;
+        }
+        
+        var len = wayPointsToEnemy.length;
+        
+        if (len === 0) {
+            return wayPointsToEnemy;
+        }
+        
+        var endWayPoint = wayPointsToEnemy[len - 1];
+        if (endWayPoint.col === enemyPosition.x && endWayPoint.row === enemyPosition.y) {
+            var trash = wayPointsToEnemy.pop();
+            trash = null;
+        }
+        
+        return wayPointsToEnemy;
     };
-};
+}();
