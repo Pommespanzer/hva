@@ -6,25 +6,40 @@ var UserInterface = function() {
             var date = new Date();
             var orderId = Math.floor(Math.random() * 9999999999) + 'MG-Unit';
 
-            var unit = new Unit(orderId, 'MG-Unit');
-            unit.setType('unit-human-mg');
-            unit.setAmmo(1000);
-            unit.setActionPoints(15);
-            unit.setSpeed(500);
-            unit.addWeapon({
-                selected: true,
-                name: 'MG',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            });
-            
-            unit.setSounds({
-                move: 'move.wav',
-                attack: 'ak47.wav',
-                die: 'aaaaagh.wav'
-            });
+            if (i === 3) {
+                var unit = new Unit(orderId, 'Bazooka-Unit');
+                unit.setType('unit-human-bazooka');
+                unit.setAmmo(1000);
+                unit.setActionPoints(15);
+                unit.setSpeed(500);
+                unit.addWeapon({
+                    selected: true,
+                    name: 'Bazooka',
+                    range: 7,
+                    actionPoints: 5,
+                    firepower: 400,
+                    firespeed: 300
+                });
+            } else {
+                var unit = new Unit(orderId, 'MG-Unit');
+                unit.setType('unit-human-mg');
+                unit.setAmmo(1000);
+                unit.setActionPoints(15);
+                unit.setSpeed(500);
+                unit.addWeapon({
+                    selected: true,
+                    name: 'MG',
+                    range: 5,
+                    actionPoints: 2,
+                    firepower: 100,
+                    firespeed: 200
+                });
+            }                
+                unit.setSounds({
+                    move: 'move.wav',
+                    attack: 'ak47.wav',
+                    die: 'aaaaagh.wav'
+                });
 
             Map.addUnit(unit, i, 0);
         }
