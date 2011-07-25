@@ -632,17 +632,17 @@ var Unit = function (id, name) {
 
         var unique = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999);
         unitObject.unbind('attackEnemy').bind('attackEnemy', $.proxy(function () {
-            var randValue = 25; //Math.floor(Math.random() * 40 + 10);
+            var randValue = 25;
             var mapObj = Map.getHtmlEntity();
 
             mapObj.append(
-                '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + randValue) + 'px;"></div>'
+                '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + 12) + 'px;"></div>'
             );
 
             var shoot = $('.' + selectedWeapon.name + '.' + unique, mapObj);
             shoot.animate(
                 {
-                    left: (enemyPosition.x * 50) + 25,
+                    left: (enemyPosition.x * 50) + 12,
                     top: (enemyPosition.y * 50) + 25
                 },
                 selectedWeapon.firespeed,
