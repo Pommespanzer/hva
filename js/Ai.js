@@ -200,7 +200,7 @@ var Ai = new function() {
         enemy.setSpeed(100);
         enemy.addWeapon({
             selected: true,
-            name: 'MG',
+            name: 'mg',
             range: 5,
             actionPoints: 2,
             firepower: 100,
@@ -208,9 +208,9 @@ var Ai = new function() {
         });
         
         enemy.setSounds({
-            move: 'move.wav',
-            attack: 'ak47.wav',
-            die: 'aaaaagh.wav'
+            move: 'audio/unit/soldierMG/move.wav',
+            attack: 'audio/unit/soldierMG/attack.wav',
+            die: 'audio/unit/soldierMG/die.wav'
         });
         
         if (Map.addUnit(enemy, x, y)) {

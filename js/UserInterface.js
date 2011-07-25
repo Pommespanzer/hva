@@ -14,11 +14,16 @@ var UserInterface = function() {
                 unit.setSpeed(500);
                 unit.addWeapon({
                     selected: true,
-                    name: 'Bazooka',
+                    name: 'bazooka',
                     range: 7,
                     actionPoints: 5,
                     firepower: 400,
                     firespeed: 300
+                });
+                unit.setSounds({
+                    move: 'audio/unit/soldierBazooka/move.wav',
+                    attack: 'audio/unit/soldierBazooka/attack.wav',
+                    die: 'audio/unit/soldierBazooka/die.wav'
                 });
             } else {
                 var unit = new Unit(orderId, 'MG-Unit');
@@ -28,18 +33,19 @@ var UserInterface = function() {
                 unit.setSpeed(500);
                 unit.addWeapon({
                     selected: true,
-                    name: 'MG',
+                    name: 'mg',
                     range: 5,
                     actionPoints: 2,
                     firepower: 100,
                     firespeed: 200
                 });
-            }                
+                
                 unit.setSounds({
-                    move: 'move.wav',
-                    attack: 'ak47.wav',
-                    die: 'aaaaagh.wav'
+                    move: 'audio/unit/soldierMG/move.wav',
+                    attack: 'audio/unit/soldierMG/attack.wav',
+                    die: 'audio/unit/soldierMG/die.wav'
                 });
+            }
 
             Map.addUnit(unit, i, 0);
         }

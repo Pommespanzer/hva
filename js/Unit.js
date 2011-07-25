@@ -636,10 +636,10 @@ var Unit = function (id, name) {
             var mapObj = Map.getHtmlEntity();
 
             mapObj.append(
-                '<div class="shot ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + randValue) + 'px;"></div>'
+                '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + randValue) + 'px;"></div>'
             );
 
-            var shoot = $('.shot.' + unique, mapObj);
+            var shoot = $('.' + selectedWeapon.name + '.' + unique, mapObj);
             shoot.animate(
                 {
                     left: (enemyPosition.x * 50) + 25,

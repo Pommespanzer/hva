@@ -4,22 +4,8 @@ ul {list-style-type: none; margin: 0; padding: 0;}
 .hide {display: none;}
 .green {background-color: rgb(0, 255, 0);}
 
-#state {border: 1px solid #ccc}
-#state li {display: inline; padding-left: 2px;}
-#state li span.count {font-weight: bold}
-
-#buildings {margin-top: 5px; background-color: #eee; width: 100%; height: 50px;}
-#buildings li {float: left; width: 50px; height: 50px; background-color: #aaa; margin-left: 1px;}
-
-#building-attributes {clear: both; margin-top: 5px; background-color: #eee; width: 100%; height: 50px;}
-#building-attributes li {float: left; width: 50px; height: 50px; background-color: #bbb; margin-left: 1px;}
-
-#building-in-progress {clear: both; margin-top: 5px; background-color: #eee; width: 100%; height: 50px;}
-#building-in-progress li {float: left; width: 50px; height: 50px; background-color: #ccc; margin-left: 1px;}
-#building-in-progress li.marked {background-color: blue;}
-
 #map {border: 1px solid red;}
-#battlefield {overflow: hidden;background-image: url(map.png); clear: both; position: relative; width: 1000px; height: 1000px; margin-top: 5px; border: 1px solid #ccc;}
+#battlefield {overflow: hidden;background-image: url(../images/map.png); clear: both; position: relative; width: 1000px; height: 1000px; margin-top: 5px; border: 1px solid #ccc;}
 #battlefield .obstacle{
     background-color: rgba(50, 50, 50, 0.7);
     width: 50px;
@@ -40,18 +26,18 @@ ul {list-style-type: none; margin: 0; padding: 0;}
 /* BACKGROUND-GRAPHICS */
 /* ******************* */
 #battlefield {border: 1px solid #000}
-#battlefield div.building {background-image: url(icons.png); position: absolute; width: 50px;  height: 50px;}
-#battlefield div.unit {background-image: url(test3.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px;}
-#battlefield div.unit.enemy {background-image: url(test4.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px;}
+#battlefield div.building {background-image: url(../images/icons.png); position: absolute; width: 50px;  height: 50px;}
+#battlefield div.unit {background-image: url(../images/test3.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px;}
+#battlefield div.unit.enemy {background-image: url(../images/test4.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px;}
 
 #battlefield .unit-human-mg {background-position: -100px 0px;-webkit-transform: rotate(0deg);}
-#battlefield .unit.unit-human-bazooka {background-image: url(test5.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px; background-position: -100px 0px;-webkit-transform: rotate(0deg);}
+#battlefield .unit.unit-human-bazooka {background-image: url(../images/test5.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px; background-position: -100px 0px;-webkit-transform: rotate(0deg);}
 #battlefield .unit-human-sniper {background-position: -47px -45px}
 #battlefield .rafinery {background-position: 374px -44px}
 #battlefield .energy {background-position: 293px -4px}
 #battlefield .baracke {background-position: 373px -125px}
 
-#building-in-progress li {background-image: url(icons.png);}
+#building-in-progress li {background-image: url(../images/icons.png);}
 #building-in-progress .unit-human-mg {background-position: 346px -116px}
 #building-in-progress .unit-human-bazooka {background-position: -116px 9px}
 #building-in-progress .unit-human-sniper {background-position: -34px -32px}
@@ -59,7 +45,7 @@ ul {list-style-type: none; margin: 0; padding: 0;}
 #building-in-progress .energy {background-position: 305px 7px}
 #building-in-progress .baracke {background-position: 386px -116px}
 
-#building-attributes li {background-image: url(icons.png);}
+#building-attributes li {background-image: url(../images/icons.png);}
 #building-attributes .unit-human-mg {background-position: 346px -116px}
 #building-attributes .unit-human-bazooka {background-position: -116px 9px}
 #building-attributes .unit-human-sniper {background-position: -34px -32px}
@@ -90,40 +76,68 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     }
 }
 
-@-webkit-keyframes glow2 {
+@-webkit-keyframes glow-mg {
     0% {
         -webkit-box-shadow: 0 0 2px rgba(255, 255, 0, 0.5);
         border-color: rgba(255,255,0,0.5);
     }
     100% {
-        -webkit-box-shadow: 0 0 2px rgba(255, 255, 0, 1.0), 0 0 8px 5px rgba(255, 255, 0, 1.0);
+        -webkit-box-shadow: 0 0 2px rgba(255, 255, 0, 1.0), 0 0 8px 3px rgba(255, 255, 0, 1.0);
         border-color: rgba(255, 255, 0,1.0);
     }
 }
-@-moz-keyframes glow2 {
+@-moz-keyframes glow-mg {
     0% {
         -moz-box-shadow: 0 0 2px rgba(255, 255, 0, 0.5);
         border-color: rgba(255,255,0,0.5);
     }
     100% {
-        -moz-box-shadow: 0 0 2px rgba(255, 255, 0, 1.0), 0 0 8px 5px rgba(255, 255, 0, 1.0);
+        -moz-box-shadow: 0 0 2px rgba(255, 255, 0, 1.0), 0 0 8px 3px rgba(255, 255, 0, 1.0);
         border-color: rgba(255, 255, 0,1.0);
     }
 }
 
-.firerange {
-    border: 1px solid red;
-    -webkit-border-radius: 100%;
-    -moz-border-radius: 100%;
-    border-radius: 100%;
-    width: 50px;
-    height: 50px;
-    position: absolute;
+.mg {
+    width:24px;
+    height: -2px;
+    margin: 0;
+    padding: 0;
+    /*margin: 0 auto;*/
+
+    background-color: rgba(0, 255, 0, 0.5);
+    border: 1px solid #ccc;
+    border-color: rgba(0, 255,0,0.5);
+    /*font-size:180px;*/
+    color: #000;
+    text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
+    /*text-align: center;*/
+    -webkit-border-radius: 45px;
+    -moz-border-radius: 45px;
+    border-radius: 45px;
+    -webkit-box-shadow: 0 0 500px rgba(0, 255, 0, 0.5);
+
+    -webkit-animation-name: glow-mg;
+    -webkit-animation-duration: 0.2s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-timing-function: ease-in-out;
+
+    -moz-animation-name: glow-mg;
+    -moz-animation-duration: 0.2s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-direction: alternate;
+    -moz-animation-timing-function: ease-in-out;
 }
 
-.shot {
-    width:24px;
-    height: 2px;
+.mg.enemy {
+    background-color: rgba(255, 0, 0, 0.5);
+    border-color: rgba(255,0,0,0.5);
+    -webkit-box-shadow: 0 0 500px rgba(255, 0, 0, 0.5);
+}
+
+.bazooka {
+    width:10px;
+    height: 10px;
     margin: 0 auto;
 
     background-color: rgba(0, 255, 0, 0.5);
@@ -138,47 +152,31 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     border-radius: 45px;
     -webkit-box-shadow: 0 0 500px rgba(0, 255, 0, 0.5);
 
-    -webkit-animation-name: glow2;
+    -webkit-animation-name: glow-mg;
     -webkit-animation-duration: 0.2s;
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-direction: alternate;
     -webkit-animation-timing-function: ease-in-out;
 
-    -moz-animation-name: glow2;
+    -moz-animation-name: glow-mg;
     -moz-animation-duration: 0.2s;
     -moz-animation-iteration-count: infinite;
     -moz-animation-direction: alternate;
     -moz-animation-timing-function: ease-in-out;
 }
 
-.shot.enemy {
-    width:24px;
-    height: 2px;
-    margin: 0 auto;
-    
-    background-color: rgba(255, 0, 0, 0.5);
-    border: 1px solid #ccc;
-    border-color: rgba(255,0,0,0.5);
-    font-size:18px;
-    color: #000; 
-    text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
-    text-align: center; 
-    -webkit-border-radius: 45px;
-    -moz-border-radius: 45px;
-    border-radius: 45px;
-    -webkit-box-shadow: 0 0 500px rgba(255, 0, 0, 0.5);
-    
-    -webkit-animation-name: glow2;
-    -webkit-animation-duration: 0.1s;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-direction: alternate;
-    -webkit-animation-timing-function: ease-in-out;
-    
-    -moz-animation-name: glow2;
-    -moz-animation-duration: 0.1s;
-    -moz-animation-iteration-count: infinite;
-    -moz-animation-direction: alternate;
-    -moz-animation-timing-function: ease-in-out;
+
+
+
+
+.firerange {
+    border: 1px solid red;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    position: absolute;
 }
 
 #battlefield .unit-human-mg.selected {
