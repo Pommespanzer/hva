@@ -70,9 +70,39 @@ var Ai = new function() {
     };
     
     var _begin = function(unit) {
+        var order = unit.getOrder();
+        
+        if (!order) {
+            _searchAndDestroy(unit);
+            return;
+        }
+        
+        if (order.action === 'protect') {
+            _protectPosition(unit, order);
+            return;
+        }
+    };
+    
+    var _protectPosition = function (unit, order) {
+        var targetPosition = order.positionToProtect;
+        var position = unit.getPosition();
+        var range = order.protectionRange;
+        
+        var freePosition = UnitFacade.getFreePositionInRange(targetPosition.x, targetPosition.y, range);
+        console.log(freePosition.x, freePosition.y)
+        var waypoints = UnitFacade.getWaypoints(position.x, position.y, freePosition.x, freePosition.y);
+        
+        var unitHtmlObject = unit.getHtmlEntity();
+        unitHtmlObject.unbind('goalReached').bind('goalReached', function() {
+            _startTurn();
+        });
+        
+        unit.move(waypoints);
+    };
+    
+    var _searchAndDestroy = function (unit) {
         var unitHtmlObject = unit.getHtmlEntity();
         var selectedWeapon = unit.getSelectedWeapon();
-        
         var enemiesInAttackRange = UnitFacade.getEnemiesInAttackRange(unit, _enemies);
         
         if (enemiesInAttackRange.length > 0) {
@@ -205,6 +235,15 @@ var Ai = new function() {
             actionPoints: 2,
             firepower: 100,
             firespeed: 200
+        });
+        
+        enemy.setOrder({
+            action: 'protect',
+            positionToProtect: {
+                x: 10,
+                y: 10
+            },
+            protectionRange: 5
         });
         
         enemy.setSounds({

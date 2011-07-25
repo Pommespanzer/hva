@@ -117,6 +117,13 @@ var Unit = function (id, name) {
     var _sounds = {};
     
     /**
+     * Object with the order for this units. Its relevant for computers turn.
+     * 
+     * @var obj _order
+     */
+    var _order = {};
+    
+    /**
      * Musicplayer
      * 
      * @var object _soundObject
@@ -223,6 +230,14 @@ var Unit = function (id, name) {
     this.getPosition = function () {
         return _position;
     };
+    
+    this.setOrder = function (order) {
+        _order = order;
+    };
+    
+    this.getOrder = function () {
+        return _order;
+    }
     
     /**
      * Set all sounds for the unit.

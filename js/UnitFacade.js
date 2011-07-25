@@ -658,4 +658,41 @@ var UnitFacade = new function () {
         
         return wayPointsToEnemy;
     };
+    
+    this.getFreePositionInRange = function (x, y, range) {
+        var fromX = x - range;
+        
+        if (fromX < 0) {
+            fromX = 0;
+        }
+        
+        var toX = x + range;
+        
+        if (toX > 20) {
+            toX = 20;
+        }
+        
+        var fromY = y - range;
+        
+        if (fromY < 0) {
+            fromY = 0;
+        }
+        var toY = y + range;
+        
+        if (toY > 20) {
+            toY = 20;
+        }
+
+        var randX = Math.floor(Math.random() * (toX - fromX + 1) + fromX);
+        var randY = Math.floor(Math.random() * (toY - fromY + 1) + fromY);
+        
+        if (Map.getUnit(randX, randY) || Map.getObstacle(randX, randY) || randX === x && randY === y) {
+            return this.getFreePositionInRange(x, y, range);
+        }
+        
+        return {
+            x: randX,
+            y: randY
+        };
+    };
 }();
