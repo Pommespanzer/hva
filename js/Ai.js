@@ -84,15 +84,100 @@ var Ai = new function() {
     };
     
     var _protectPosition = function (unit, order) {
-        var targetPosition = order.positionToProtect;
+        var unitHtmlObject = unit.getHtmlEntity();
         var position = unit.getPosition();
+        var selectedWeapon = unit.getSelectedWeapon();
+
+        var targetPosition = order.positionToProtect;
         var range = order.protectionRange;
         
+        // unit is in his protecting position
+        if (true === UnitFacade.inRangeByPosition(position.x, position.y, targetPosition.x, targetPosition.y, range)) {
+            var enemiesInAttackRange = UnitFacade.getEnemiesInAttackRange(unit, _enemies);
+            if (enemiesInAttackRange.length > 0) {
+                var weakestEnemy = UnitFacade.getWeakestEnemy(enemiesInAttackRange);
+                unitHtmlObject.unbind('stopFiring').bind('stopFiring', function() {
+                    if (unit.getCurrentActionPoints() < selectedWeapon.actionPoints || 
+                        weakestEnemy.getAmmo() <= 0 || unit.getAmmo() <= 0
+                    ) {
+                        _startTurn();
+                    } else {
+                        _begin(unit);
+                    }
+                });
+
+                /*
+                if (unit.getAmmo() <= 0) {
+                    _startTurn();
+                    return;
+                }
+                */
+                unit.attack(weakestEnemy);
+                weakestEnemy.attack(unit);
+                return;
+            }
+            
+            
+            
+            
+            
+            
+            var reachableEnemies = UnitFacade.getReachableEnemies(unit, _enemies);
+            if (reachableEnemies.enemies.length > 0) {
+                var attackableEnemies = UnitFacade.getAttackableEnemies(unit, reachableEnemies.enemies);
+                
+                if (attackableEnemies.length > 0) {
+                    var enemies = [];
+                    var helper = {};
+                    for (var key in attackableEnemies) {
+                        var enemy = attackableEnemies[key].enemy;
+                        var wp = attackableEnemies[key].waypoints;
+                        enemies.push(enemy);
+                        helper[enemy.getId()] = wp;
+                    }
+                    
+                    var weakestEnemies = UnitFacade.getWeakestEnemies(enemies);
+                    var closestWeakestEnemy = UnitFacade.getClosestEnemy(unit, weakestEnemies);
+                    
+                    var waypoints = helper[closestWeakestEnemy.getId()];
+                    waypoints = UnitFacade.cutWaypoint(closestWeakestEnemy, waypoints);
+
+                    unitHtmlObject.unbind('goalReached').bind('goalReached', function() {
+                        unitHtmlObject.unbind('stopFiring').bind('stopFiring', function() {
+                            if (unit.getCurrentActionPoints() < selectedWeapon.actionPoints || 
+                                closestWeakestEnemy.getAmmo() <= 0 || unit.getAmmo() <= 0
+                            ) {
+                                _startTurn();
+                            } else {
+                                _begin(unit);
+                            }
+                        });
+                        
+                        /*
+                        if (unit.getAmmo() <= 0) {
+                            _startTurn();
+                            return;
+                        }
+                        */
+                        
+                        unit.attack(closestWeakestEnemy);
+                        closestWeakestEnemy.attack(unit);
+                    });
+                    
+                    unit.move(waypoints);
+                    return;
+                }
+            }
+        }
+        
         var freePosition = UnitFacade.getFreePositionInRange(targetPosition.x, targetPosition.y, range);
-        console.log(freePosition.x, freePosition.y)
         var waypoints = UnitFacade.getWaypoints(position.x, position.y, freePosition.x, freePosition.y);
         
-        var unitHtmlObject = unit.getHtmlEntity();
+        if (!waypoints) {
+            _startTurn();
+            return;
+        }
+        
         unitHtmlObject.unbind('goalReached').bind('goalReached', function() {
             _startTurn();
         });
@@ -110,13 +195,19 @@ var Ai = new function() {
             
             unitHtmlObject.unbind('stopFiring').bind('stopFiring', function() {
                 if (unit.getCurrentActionPoints() < selectedWeapon.actionPoints || 
-                    weakestEnemy.getAmmo() <= 0
+                    weakestEnemy.getAmmo() <= 0 || unit.getAmmo() <= 0
                 ) {
                     _startTurn();
                 } else {
                     _begin(unit);
                 }
             });
+            /*
+            if (unit.getAmmo() <= 0) {
+                _startTurn();
+                return;
+            }
+            */
             
             unit.attack(weakestEnemy);
             weakestEnemy.attack(unit);
@@ -159,13 +250,20 @@ var Ai = new function() {
                 unitHtmlObject.unbind('goalReached').bind('goalReached', function() {
                     unitHtmlObject.unbind('stopFiring').bind('stopFiring', function() {
                         if (unit.getCurrentActionPoints() < selectedWeapon.actionPoints || 
-                            closestWeakestEnemy.getAmmo() <= 0
+                            closestWeakestEnemy.getAmmo() <= 0 || unit.getAmmo() <= 0
                         ) {
                             _startTurn();
                         } else {
                             _begin(unit);
                         }
                     });
+                    
+                    /*
+                    if (unit.getAmmo() <= 0) {
+                        _startTurn();
+                        return;
+                    }
+                    */
                     
                     unit.attack(closestWeakestEnemy);
                     closestWeakestEnemy.attack(unit);
