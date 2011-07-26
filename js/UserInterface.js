@@ -6,7 +6,7 @@ var UserInterface = function() {
             var date = new Date();
             var orderId = Math.floor(Math.random() * 9999999999) + 'MG-Unit';
 
-            if (i === 3) {
+            if (i === 3 || i === 5) {
                 var unit = new Unit(orderId, 'Bazooka-Unit');
                 unit.setType('unit-human-bazooka');
                 unit.setAmmo(1000);
@@ -118,7 +118,10 @@ var UserInterface = function() {
             $('.finish-turn').show();
         });
 
-        $('.finish-turn').bind('click', $.proxy(Ai.init, Ai));
+        $('.finish-turn').bind('click', function() {
+            Status.usersTurn = false;
+            Ai.init();
+        });
 
         _battlefieldMap.bind('move', function(event, coordinates) {
             var selectedUnit = Map.getSelectedUnit();

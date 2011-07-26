@@ -121,7 +121,7 @@ var Unit = function (id, name) {
      * 
      * @var obj _order
      */
-    var _order = {};
+    var _order = null;
     
     /**
      * Musicplayer
@@ -186,6 +186,9 @@ var Unit = function (id, name) {
         _ammo = ammo;
 
         if (_ammo < 0) {
+            if (false === Status.usersTurn) {
+                _htmlEntity.trigger('dead');
+            }
             _htmlEntity.remove();
             return;
         }
@@ -525,13 +528,19 @@ var Unit = function (id, name) {
         var unitObject = this.getHtmlEntity();
         if (this.getCurrentActionPoints() === 0) {
             _isAlreadyMoving = false;
-            unitObject.trigger('goalReached');
+            
+            if (false === Status.usersTurn) {
+                unitObject.trigger('goalReached');
+            }
             return false;
         }
 
         if (!wayPoints || wayPoints.length === 0) {
             _isAlreadyMoving = false;
-            unitObject.trigger('goalReached');
+            
+            if (false === Status.usersTurn) {
+                unitObject.trigger('goalReached');
+            }
             return false;
         }
 
@@ -622,13 +631,19 @@ var Unit = function (id, name) {
 
         if (this.getCurrentActionPoints() < selectedWeapon.actionPoints) {
             _isAlreadyAttacking = false;
-            unitObject.trigger('stopFiring');
+            
+            if (false === Status.usersTurn) {
+                unitObject.trigger('stopFiring');
+            }
             return false;
         }
 
         if (false === UnitFacade.inRange(this, enemy)) {
             _isAlreadyAttacking = false;
-            unitObject.trigger('stopFiring');
+            
+            if (false === Status.usersTurn) {
+                unitObject.trigger('stopFiring');
+            }
             return false;
         }
 
@@ -636,7 +651,10 @@ var Unit = function (id, name) {
         var enemyPosition = enemy.getPosition();
         if (false === UnitFacade.inFireposition(position.x, position.y, enemyPosition.x, enemyPosition.y)) {
             _isAlreadyAttacking = false;
-            unitObject.trigger('stopFiring');
+            
+            if (false === Status.usersTurn) {
+                unitObject.trigger('stopFiring');
+            }
             return false;
         }
 
@@ -665,7 +683,7 @@ var Unit = function (id, name) {
                 $.proxy(
                     function () {
                         shoot.remove();
-
+                        
                         enemy.setAmmo(enemy.getAmmo() - selectedWeapon.firepower);
                         if (enemy.getAmmo() <= 0) {
                             Map.removeUnit(enemyPosition.x, enemyPosition.y);
@@ -676,13 +694,14 @@ var Unit = function (id, name) {
                         
                         this.setCurrentActionPoints(this.getCurrentActionPoints() - selectedWeapon.actionPoints);
                         
-                        var mapObj = Map.getHtmlEntity();
-                        
                         ControlPanel.displayAll(enemy);
                         ControlPanel.displayAll(this);
                         
                         _isAlreadyAttacking = false;
-                        unitObject.trigger('stopFiring');
+                        
+                        if (false === Status.usersTurn) {
+                            unitObject.trigger('stopFiring');
+                        }
                     },
                     this
                 )

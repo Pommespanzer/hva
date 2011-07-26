@@ -621,10 +621,9 @@ var UnitFacade = new function () {
             
             if (helper.length > unit.getCurrentActionPoints()) {
                 helper = [];
-                return helper;
+                break;
             }
-            
-            return helper;
+            break;
         }
         return helper;
     };
@@ -659,7 +658,16 @@ var UnitFacade = new function () {
         return wayPointsToEnemy;
     };
     
-    this.getFreePositionInRange = function (x, y, range) {
+    /**
+     * Get a free position in a given perimeter.
+     * 
+     * @param x - x-position of the middle point of the circle
+     * @param y - y-position of the middle point of the circle
+     * @param range - radius of the circle
+     * 
+     * @return {x: ?, y: ?} - free position in perimeter/circle
+     */
+    this.getPositionInPerimeter = function (x, y, range) {
         var fromX = x - range;
         
         if (fromX < 0) {
@@ -686,8 +694,8 @@ var UnitFacade = new function () {
         var randX = Math.floor(Math.random() * (toX - fromX + 1) + fromX);
         var randY = Math.floor(Math.random() * (toY - fromY + 1) + fromY);
         
-        if (Map.getUnit(randX, randY) || Map.getObstacle(randX, randY) || randX === x && randY === y) {
-            return this.getFreePositionInRange(x, y, range);
+        if (Map.getUnit(randX, randY) || Map.getObstacle(randX, randY) || (randX === x && randY === y)) {
+            return this.getPositionInPerimeter(x, y, range);
         }
         
         return {
