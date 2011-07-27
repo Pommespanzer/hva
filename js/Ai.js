@@ -65,6 +65,8 @@ var Ai = new function() {
     };
     
     var _begin = function(unit) {
+        var position = unit.getPosition();
+        scrollTo(position.x * 50, position.y * 50);
         var order = unit.getOrder();
         
         if (!order) {

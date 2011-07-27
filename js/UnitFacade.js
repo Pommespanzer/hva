@@ -375,7 +375,7 @@ var UnitFacade = new function () {
      */
     this.getReachableEnemies = function (unit, enemies) {
         var position = unit.getPosition();
-        var battlefieldSize = 20;
+        var battlefieldSize = 19;
         
         var reachableEnemies = {
             enemies: [],
@@ -534,7 +534,8 @@ var UnitFacade = new function () {
         var position = unit.getPosition();
         
         var selectedWeapon = unit.getSelectedWeapon();
-        var range = selectedWeapon.range; 
+        var range = selectedWeapon.range;
+        var battlefieldSize = 19;
         var x;
         var freePosition = null;
         for (x = (-1 * range); x <= range; x += 1) {
@@ -563,12 +564,12 @@ var UnitFacade = new function () {
                     newY = 0;
                 }
                 
-                if (newX > 20) {
-                    newX = 20;
+                if (newX > battlefieldSize) {
+                    newX = battlefieldSize;
                 }
                 
-                if (newY > 20) {
-                    newY = 20;
+                if (newY > battlefieldSize) {
+                    newY = battlefieldSize;
                 }
                 
                 if (false === Map.getUnit(newX, newY) && false === Map.getObstacle(newX, newY)) {
@@ -668,6 +669,7 @@ var UnitFacade = new function () {
      * @return {x: ?, y: ?} - free position in perimeter/circle
      */
     this.getPositionInPerimeter = function (x, y, range) {
+        var battlefieldSize = 19;
         var fromX = x - range;
         
         if (fromX < 0) {
@@ -676,8 +678,8 @@ var UnitFacade = new function () {
         
         var toX = x + range;
         
-        if (toX > 20) {
-            toX = 20;
+        if (toX > battlefieldSize) {
+            toX = battlefieldSize;
         }
         
         var fromY = y - range;
@@ -687,8 +689,8 @@ var UnitFacade = new function () {
         }
         var toY = y + range;
         
-        if (toY > 20) {
-            toY = 20;
+        if (toY > battlefieldSize) {
+            toY = battlefieldSize;
         }
 
         var randX = Math.floor(Math.random() * (toX - fromX + 1) + fromX);
