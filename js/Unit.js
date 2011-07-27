@@ -482,7 +482,7 @@ var Unit = function (id, name) {
      */
     this.removeFirerange = function () {
         var selectedUnit = Map.getSelectedUnit();
-        if (selectedUnit.getId() === this.getId()) {
+        if (selectedUnit && selectedUnit.getId() === this.getId()) {
             $('.firerange').remove();
             return;
         }
