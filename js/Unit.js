@@ -408,29 +408,24 @@ var Unit = function (id, name) {
      * @return void
      */
     this.startMovingSprite = function () {
-        var value = 50;
-        var unitObject = this.getHtmlEntity();
-        
         var sounds = this.getSounds();
         this.playSound(sounds.move);
         
+        var value = 50;
+        var currentPosition = -100;
+        var unitObject = this.getHtmlEntity();
         _moveAction = window.setInterval($.proxy(function () {
-            var backgroundPositionString = unitObject.css('background-position');
-            var backgroundPositionArray = backgroundPositionString.split(' ');
-            var backgroundPositionX = parseInt(backgroundPositionArray[0], 10);
-            var backgroundPositionY = parseInt(backgroundPositionArray[1], 10);
-
-            if (backgroundPositionX === -200) {
+            if (currentPosition === -200) {
                 value = 50;
             }
 
-            if (backgroundPositionX === 0) {
+            if (currentPosition === 0) {
                 value = -50;
             }
 
-            backgroundPositionX += value;
+            currentPosition += value;
 
-            unitObject.css('background-position', backgroundPositionX + 'px ' + backgroundPositionY + 'px');
+            unitObject.css('background-position', currentPosition + 'px 0');
         }, this), 100);
     };
 
@@ -445,10 +440,7 @@ var Unit = function (id, name) {
         }
 
         var unitObject = this.getHtmlEntity();
-        var backgroundPositionString = unitObject.css('background-position');
-        var backgroundPositionArray = backgroundPositionString.split(' ');
-        var backgroundPositionY = parseInt(backgroundPositionArray[1], 10);
-        unitObject.css('background-position', '-100px ' + backgroundPositionY + 'px');
+        unitObject.css('background-position', '-100px 0');
 
         window.clearInterval(_moveAction);
         _moveAction = null;
@@ -565,6 +557,7 @@ var Unit = function (id, name) {
 
         var angle = this.getAngle(x, y);
         unitObject.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
+        unitObject.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
         unitObject.animate(
             {
@@ -672,6 +665,7 @@ var Unit = function (id, name) {
 
         var angle = this.getAngle(enemyPosition.x, enemyPosition.y);
         unitObject.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
+        unitObject.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
         this.startFiringSprite();
 
@@ -681,7 +675,7 @@ var Unit = function (id, name) {
             var mapObj = Map.getHtmlEntity();
 
             mapObj.append(
-                '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + 12) + 'px;"></div>'
+                '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.isEnemy ? 'enemy' : '') + '" style="position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + 12) + 'px;"></div>'
             );
 
             var shoot = $('.' + selectedWeapon.name + '.' + unique, mapObj);
