@@ -481,7 +481,13 @@ var Unit = function (id, name) {
      * @return void
      */
     this.removeFirerange = function () {
-        $('.firerange').remove();
+        var selectedUnit = Map.getSelectedUnit();
+        if (selectedUnit.getId() === this.getId()) {
+            $('.firerange').remove();
+            return;
+        }
+        
+        $('.firerange.fr-' + this.getId()).remove();
     };
 
     /**
@@ -497,6 +503,11 @@ var Unit = function (id, name) {
             return;
         }
 
+        var selectedUnit = Map.getSelectedUnit();
+        if (selectedUnit.getId() !== this.getId()) {
+            return;
+        }
+            
         var selectedWeapon = this.getSelectedWeapon();
 
         this.removeFirerange();
@@ -506,7 +517,7 @@ var Unit = function (id, name) {
         var padding = selectedWeapon.range * 50;
 
         var mapObj = Map.getHtmlEntity();
-        mapObj.append('<div class="firerange" style="top: ' + yPos + 'px; left: ' + xPos + 'px; padding: ' + padding + 'px"></div>');
+        mapObj.append('<div class="firerange fr-' + this.getId() + '" style="top: ' + yPos + 'px; left: ' + xPos + 'px; padding: ' + padding + 'px"></div>');
     };
 
     /**
@@ -571,6 +582,7 @@ var Unit = function (id, name) {
                     ControlPanel.displayAll(this);
                     
                     _isAlreadyMoving = false;
+                    
                     this.renderFirerange(x, y);
                     
                     this.move(wayPoints);

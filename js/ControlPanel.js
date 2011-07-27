@@ -33,11 +33,11 @@ var ControlPanel = new function () {
      * Init stuff
      */
     this.init = function () {
-        _ammoSection = $('.ammo', $('#control-panel'));
-        _actionPointSection = $('.actionPoints', $('#control-panel'));
+        _ammoSection = document.querySelector('.ammo');
+        _actionPointSection = document.querySelector('.actionPoints');
         
-        _currentAmmo = $('.current-ammo', _ammoSection);
-        _currentActionPoints = $('.current-actionPoints', _actionPointSection);
+        _currentAmmo = document.querySelector('.current-ammo');
+        _currentActionPoints = document.querySelector('.current-actionPoints');
     };
     
     /**
@@ -47,8 +47,8 @@ var ControlPanel = new function () {
      * @return void
      */
     this.hideStatusSection = function () {
-        _ammoSection.addClass('hide');
-        _actionPointSection.addClass('hide');
+        _ammoSection.classList.add('hide');
+        _actionPointSection.classList.add('hide');
     };
     
     /**
@@ -58,8 +58,8 @@ var ControlPanel = new function () {
      * @return void
      */
     this.showStatusSection = function () {
-        _ammoSection.removeClass('hide');
-        _actionPointSection.removeClass('hide');
+        _ammoSection.classList.remove('hide');
+        _actionPointSection.classList.remove('hide');
     };
     
     /**
@@ -97,7 +97,7 @@ var ControlPanel = new function () {
         this.showStatusSection();
         
         var newWidth = unit.getAmmo() * unit.getAmmoQuotient();
-        _currentAmmo.css('width', newWidth + '%');
+        _currentAmmo.style.width = newWidth + '%';
     };
     
     /**
@@ -110,6 +110,6 @@ var ControlPanel = new function () {
     this.displayActionPoints = function (unit) {
         var onePercent = 100 / unit.getTotalActionPoints();
         var newWidth = onePercent * unit.getCurrentActionPoints();
-        _currentActionPoints.css('width', newWidth + '%');
+        _currentActionPoints.style.width = newWidth + '%';
     };
 }();
