@@ -1,18 +1,11 @@
 var Ai = new function() {
     var _units = [];
     var _enemies = [];
-    var _tmp = 0;
     var _mapObj = null;
     this.init = function() {
         _mapObj = Map.getHtmlEntity();
         _mapObj.trigger('lock.userEvents');
         
-        if (_tmp == 0) {
-            for (var i = 0; i < 10; i++) { 
-                this.addEnemy();
-                _tmp++;
-            }
-        }
         var allUnits = Map.getAllUnits();
         for (var i in allUnits) {
             var unit = allUnits[i];
@@ -61,6 +54,7 @@ var Ai = new function() {
             }
             _mapObj.trigger('unlock.userEvents');
             Status.usersTurn = true;
+            ControlPanel.displayAll(Map.getSelectedUnit());
             alert('Du bist dran.');
             return;
         }
@@ -262,47 +256,5 @@ var Ai = new function() {
         }
         
         _moveToClosestEnemy(unit, _enemies);
-    };
-    
-    this.addEnemy = function() {
-        var x = Math.random() * 20;
-        var y = Math.random() * 20;
-        
-        var id = Math.floor(Math.random() * 9999999999 + Math.random() * 9999999999);
-        var enemy = new Unit(id, id);
-        enemy.setType('unit-human-mg');
-        enemy.setAmmo(1000);
-        enemy.setActionPoints(15);
-        enemy.isEnemy = true;
-        enemy.setSpeed(100);
-        enemy.addWeapon({
-            selected: true,
-            name: 'mg',
-            range: 5,
-            actionPoints: 2,
-            firepower: 100,
-            firespeed: 200
-        });
-        
-        enemy.setOrder({
-            action: 'protect',
-            positionToProtect: {
-                x: 10,
-                y: 10
-            },
-            protectionRange: 5
-        });
-        
-        enemy.setSounds({
-            move: 'audio/unit/soldierMG/move.wav',
-            attack: 'audio/unit/soldierMG/attack.wav',
-            die: 'audio/unit/soldierMG/die.wav'
-        });
-        
-        if (Map.addUnit(enemy, x, y)) {
-            return;
-        }
-        
-        this.addEnemy();
     };
 }();
