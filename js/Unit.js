@@ -476,7 +476,7 @@ var Unit = function (id, name) {
     };
 
     /**
-     * This method removes all fireranges from units.
+     * This method removes all fire ranges from units.
      *
      * @return void
      */

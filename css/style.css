@@ -4,9 +4,18 @@ ul {list-style-type: none; margin: 0; padding: 0;}
 .hide {display: none;}
 .green {background-color: rgb(0, 255, 0);}
 
-#map {border: 1px solid red;}
-#battlefield {overflow: hidden;background-image: url(../images/map.png); clear: both; position: relative; width: 1000px; height: 1000px; margin-top: 5px; border: 1px solid #ccc;}
-#battlefield .obstacle{
+#battlefield {
+    overflow: hidden;
+    background-image: url(../images/map.png);
+    clear: both;
+    position: relative;
+    width: 1000px; 
+    height: 1000px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+}
+
+.obstacle{
     background-color: rgba(50, 50, 50, 0.7);
     width: 50px;
     height: 50px;
@@ -18,42 +27,53 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     -moz-border-radius: 15px;
     border-radius: 15px;
 }
-#battlefield .unit {position: absolute; width: 50px;  height: 50px;}
-#battlefield .building {position: absolute; width: 50px;  height: 50px;}
-#battlefield .ammo {color: red;}
 
-/* ******************* */
-/* BACKGROUND-GRAPHICS */
-/* ******************* */
-#battlefield {border: 1px solid #000}
-#battlefield div.building {background-image: url(../images/icons.png); position: absolute; width: 50px;  height: 50px;}
-#battlefield div.unit {background-image: url(../images/test3.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px;}
-#battlefield div.unit.enemy {background-image: url(../images/test4.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px;}
+.unit {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+}
 
-#battlefield .unit-human-mg {background-position: -100px 0px;-webkit-transform: rotate(0deg);}
-#battlefield .unit.unit-human-bazooka {background-image: url(../images/test5.png); background-repeat: no-repeat; position: absolute; width: 50px;  height: 50px; background-position: -100px 0px;-webkit-transform: rotate(0deg);}
-#battlefield .unit-human-sniper {background-position: -47px -45px}
-#battlefield .rafinery {background-position: 374px -44px}
-#battlefield .energy {background-position: 293px -4px}
-#battlefield .baracke {background-position: 373px -125px}
+.unit.selected {
+    background-color: rgba(66, 140, 240, 0.5); 
+    border-color: rgba(0,0,255,0.5); 
+    text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
+    -webkit-border-radius: 45px;
+    -moz-border-radius: 45px;                
+    border-radius: 45px;
+    -webkit-box-shadow: 0 0 45px rgba(66, 140, 240, 0.5);
+    border: 1px solid #ccc;
+    -webkit-animation-name: glow;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-timing-function: ease-in-out;    
+    
+    -moz-animation-name: glow;
+    -moz-animation-duration: 1s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-direction: alternate;
+    -moz-animation-timing-function: ease-in-out;
+}
 
-#building-in-progress li {background-image: url(../images/icons.png);}
-#building-in-progress .unit-human-mg {background-position: 346px -116px}
-#building-in-progress .unit-human-bazooka {background-position: -116px 9px}
-#building-in-progress .unit-human-sniper {background-position: -34px -32px}
-#building-in-progress .rafinery {background-position: 386px -34px}
-#building-in-progress .energy {background-position: 305px 7px}
-#building-in-progress .baracke {background-position: 386px -116px}
+.unit.unit-human-mg {
+    background-image: url(../images/test3.png);
+    background-repeat: no-repeat;
+    background-position: -100px 0px;
+    -webkit-transform: rotate(0deg);
+}
 
-#building-attributes li {background-image: url(../images/icons.png);}
-#building-attributes .unit-human-mg {background-position: 346px -116px}
-#building-attributes .unit-human-bazooka {background-position: -116px 9px}
-#building-attributes .unit-human-sniper {background-position: -34px -32px}
-#building-attributes .rafinery {background-position: 386px -34px}
-#building-attributes .energy {background-position: 305px 7px}
-#building-attributes .baracke {background-position: 386px -116px}
+.unit.enemy.unit-human-mg {
+    background-image: url(../images/test4.png);
+    background-repeat: no-repeat;
+}
 
-
+.unit.unit-human-bazooka {
+    background-image: url(../images/test5.png);
+    background-repeat: no-repeat;
+    background-position: -100px 0px;
+    -webkit-transform: rotate(0deg);
+}
 
 @-webkit-keyframes glow {
     0% {
@@ -65,6 +85,7 @@ ul {list-style-type: none; margin: 0; padding: 0;}
         border-color: rgba(0,0,255,1.0); 
     }
 }
+
 @-moz-keyframes glow {
     0% {
         -moz-box-shadow: 0 0 16px rgba(66, 140, 240, 0.5);
@@ -86,6 +107,7 @@ ul {list-style-type: none; margin: 0; padding: 0;}
         border-color: rgba(255, 255, 0,1.0);
     }
 }
+
 @-moz-keyframes glow-mg {
     0% {
         -moz-box-shadow: 0 0 2px rgba(255, 255, 0, 0.5);
@@ -102,15 +124,12 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     height: -2px;
     margin: 0;
     padding: 0;
-    /*margin: 0 auto;*/
 
     background-color: rgba(0, 255, 0, 0.5);
     border: 1px solid #ccc;
     border-color: rgba(0, 255,0,0.5);
-    /*font-size:180px;*/
     color: #000;
     text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
-    /*text-align: center;*/
     -webkit-border-radius: 45px;
     -moz-border-radius: 45px;
     border-radius: 45px;
@@ -165,10 +184,6 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     -moz-animation-timing-function: ease-in-out;
 }
 
-
-
-
-
 .firerange {
     border: 1px solid red;
     -webkit-border-radius: 100%;
@@ -177,41 +192,6 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     width: 50px;
     height: 50px;
     position: absolute;
-}
-
-#battlefield .unit-human-mg.selected {
-    width:50px;
-    margin: 0 auto;
-}
-#battlefield .unit-human-mg.selected {
-        width: 50px;
-        height: 50px;
-        background-color: rgba(66, 140, 240, 0.5); 
-        border-color: rgba(0,0,255,0.5); 
-        font-size:18px;
-        color: #000; 
-        text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
-        text-align: center; 
-        -webkit-border-radius: 45px;
-        -moz-border-radius: 45px;                
-        border-radius: 45px;
-        -webkit-box-shadow: 0 0 45px rgba(66, 140, 240, 0.5);
-    }
-
-#battlefield .unit-human-mg.selected {
-    background-color: rgba(66, 140, 240, 0.5); 
-    border: 1px solid #ccc;
-    -webkit-animation-name: glow;
-    -webkit-animation-duration: 1s;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-direction: alternate;
-    -webkit-animation-timing-function: ease-in-out;    
-    
-    -moz-animation-name: glow;
-    -moz-animation-duration: 1s;
-    -moz-animation-iteration-count: infinite;
-    -moz-animation-direction: alternate;
-    -moz-animation-timing-function: ease-in-out;
 }
 
 #control-panel {
