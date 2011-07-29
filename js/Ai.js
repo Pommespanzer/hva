@@ -16,6 +16,10 @@ var Ai = new function() {
             }
         }
         
+        if (_units.length === 0) {
+            alert('Glückwunsch Level 1 geschafft.');
+            return;
+        }
         _startTurn();
     };
     
@@ -61,12 +65,13 @@ var Ai = new function() {
         
         var unit = _units.pop();
         
+        var position = unit.getPosition();
+        scrollTo(position.x * 50, position.y * 50);
+        
         _begin(unit);
     };
     
     var _begin = function(unit) {
-        var position = unit.getPosition();
-        scrollTo(position.x * 50, position.y * 50);
         var order = unit.getOrder();
         
         if (!order) {
