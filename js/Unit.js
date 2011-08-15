@@ -483,36 +483,6 @@ var Unit = function (id, name) {
     };
 
     /**
-     * This method renders a firerange circle around the unit.
-     *
-     * @param int x - current x-position of unit
-     * @param int y - current y-position of unit
-     *
-     * @return void
-     */
-    this.renderFirerange = function (x, y) {
-        if (this.isEnemy) {
-            return;
-        }
-
-        var selectedUnit = Map.getSelectedUnit();
-        if (selectedUnit.getId() !== this.getId()) {
-            return;
-        }
-            
-        var selectedWeapon = this.getSelectedWeapon();
-
-        this.removeFirerange();
-
-        var xPos = (x * 50 - (selectedWeapon.range * 50));
-        var yPos = (y * 50 - (selectedWeapon.range * 50));
-        var padding = selectedWeapon.range * 50;
-
-        var mapObj = Map.getHtmlEntity();
-        mapObj.append('<div class="firerange fr-' + this.getId() + '" style="top: ' + yPos + 'px; left: ' + xPos + 'px; padding: ' + padding + 'px"></div>');
-    };
-
-    /**
      * Move the unit along the given way points.
      *
      * @param array wayPoints
@@ -547,8 +517,8 @@ var Unit = function (id, name) {
             return false;
         }
 
-        this.removeFirerange();
-
+        movingrange.remove();
+        
         this.startMovingSprite();
 
         var coordinates = wayPoints.shift();
@@ -559,29 +529,47 @@ var Unit = function (id, name) {
         unitObject.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
         unitObject.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
+        var selectedUnit = Map.getSelectedUnit();
+        var selectedWeapon = this.getSelectedWeapon();
         unitObject.animate(
             {
                 left: (x * 50),
                 top: (y * 50)
             },
-            this.getSpeed(),
-            'linear',
-            $.proxy(
-                function () {
-                    this.setCurrentActionPoints((this.getCurrentActionPoints() - 1));
+            {
+                duration: this.getSpeed(),
+                easing: 'linear',
+                step: $.proxy(function (now, fx) {
+                    if (this.isEnemy) {
+                        return;
+                    }
                     
-                    Map.updateUnitPosition(this, x, y);
+                    var y = parseInt(fx.elem.style.top, 10) / 50;
+                    var x = parseInt(fx.elem.style.left, 10) / 50;
                     
-                    ControlPanel.displayAll(this);
-                    
-                    _isAlreadyMoving = false;
-                    
-                    this.renderFirerange(x, y);
-                    
-                    this.move(wayPoints);
-                },
-                this
-            )
+                    firerange.render(this.getId(), x, y, selectedWeapon.range);
+                }, this),
+                complete: $.proxy(
+                    function () {
+                        this.setCurrentActionPoints((this.getCurrentActionPoints() - 1));
+                        
+                        Map.updateUnitPosition(this, x, y);
+                        
+                        if (selectedUnit && this.getId() === selectedUnit.getId()) {
+                            actionPanel.model.setArmorQuotient(this.getAmmoQuotient());
+                            actionPanel.model.setArmor(this.getAmmo());
+                            actionPanel.model.setTotalActionPoints(this.getTotalActionPoints());
+                            actionPanel.model.setCurrentActionPoints(this.getCurrentActionPoints());
+                            movingrange.render(this.getId(), x, y, this.getCurrentActionPoints());
+                        }
+                        
+                        _isAlreadyMoving = false;
+                        
+                        this.move(wayPoints);
+                    },
+                    this
+                )
+            }
         );
     };
 
@@ -700,8 +688,17 @@ var Unit = function (id, name) {
                         
                         this.setCurrentActionPoints(this.getCurrentActionPoints() - selectedWeapon.actionPoints);
                         
-                        ControlPanel.displayAll(enemy);
-                        ControlPanel.displayAll(this);
+                        var selectedUnit = Map.getSelectedUnit();
+                        if (selectedUnit) {
+                            actionPanel.model.setArmorQuotient(selectedUnit.getAmmoQuotient());
+                            actionPanel.model.setArmor(selectedUnit.getAmmo());
+                            actionPanel.model.setTotalActionPoints(selectedUnit.getTotalActionPoints());
+                            actionPanel.model.setCurrentActionPoints(selectedUnit.getCurrentActionPoints());
+                            
+                            if (Status.usersTurn) {
+                                movingrange.render(selectedUnit.getId(), position.x, position.y, selectedUnit.getCurrentActionPoints());
+                            }
+                        }
                         
                         _isAlreadyAttacking = false;
                         

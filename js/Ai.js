@@ -58,7 +58,20 @@ var Ai = new function() {
             }
             _mapObj.trigger('unlock.userEvents');
             Status.usersTurn = true;
-            ControlPanel.displayAll(Map.getSelectedUnit());
+            
+            var selectedUnit = Map.getSelectedUnit();
+            if (selectedUnit) {
+                var position = selectedUnit.getPosition();
+                movingrange.render(selectedUnit.getId(), position.x, position.y, selectedUnit.getCurrentActionPoints());
+
+                actionPanel.model.setArmorQuotient(selectedUnit.getAmmoQuotient());
+                actionPanel.model.setArmor(selectedUnit.getAmmo());
+                actionPanel.model.setTotalActionPoints(selectedUnit.getTotalActionPoints());
+                actionPanel.model.setCurrentActionPoints(selectedUnit.getCurrentActionPoints());
+            } else {
+                actionPanel.hideStatus();
+            }
+            
             alert('Du bist dran.');
             return;
         }

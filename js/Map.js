@@ -178,6 +178,11 @@ var Map = new function () {
             htmlObj.remove();
         }
 
+        var selectedUnit = this.getSelectedUnit();
+        if (selectedUnit && selectedUnit.getId() === unit.getId()) {
+            this.setSelectedUnit(null);
+        }
+        
         delete _units[coordinates];
 
 

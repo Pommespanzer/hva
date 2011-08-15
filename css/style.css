@@ -17,6 +17,7 @@ ul {list-style-type: none; margin: 0; padding: 0;}
 }
 
 .obstacle {
+	position: absolute;
     background-color: rgba(50, 50, 50, 0.8);
     width: 50px;
     height: 50px;
@@ -200,7 +201,18 @@ ul {list-style-type: none; margin: 0; padding: 0;}
 }
 
 .firerange {
-    border: 1px solid red;
+    border: 2px solid red;
+    background-color: rgba(255, 0, 0, 0.1);
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+}
+
+.movingrange {
+    border: 2px solid blue;
     -webkit-border-radius: 100%;
     -moz-border-radius: 100%;
     border-radius: 100%;
@@ -216,40 +228,41 @@ ul {list-style-type: none; margin: 0; padding: 0;}
     width: 100%;
     height: 100px;
     background-color: #eee;
+    z-index: 1;
 }
 
-#control-panel .total-ammo {
+#control-panel #total-armor {
     background-color: red; 
     width: 100%; 
     height: 10px; 
 }
 
-#control-panel .current-ammo {
+#control-panel #current-armor {
     background-color: green;
     height: 10px;    
     width: 100%;
 }
 
-#control-panel .total-actionPoints {
+#control-panel #total-actionPoints {
     background-color: yellow; 
     width: 100%; 
     height: 10px; 
 }
 
-#control-panel .current-actionPoints {
+#control-panel #current-actionPoints {
     background-color: blue;
     height: 10px;    
     width: 100%;
 }
 
-#unit-actions {
+#weapons {
     width: 20%;
     height: 100%;
     background-color: #bbb;
     float: left;
 }
 
-#unit-status {
+#status {
     width: 60%;
     height: 100%;
     background-color: #ccc;

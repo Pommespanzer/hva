@@ -1,8 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>War-Time</title>
+        
         <script type="text/javascript" src="jquery.js"></script>
         <script type="text/javascript" src="astar.js"></script>
         
@@ -18,38 +19,63 @@
         <link rel="stylesheet" type="text/css" href="css/style.css" />
     </head>
     <body>
-        <div id="battlefield"></div>
-
-        <div id="control-panel">
-            <ul id="unit-actions">
-                <li></li>
-            </ul>
-            
-            <ul id="unit-status">
-                <li class="ammo hide">
-                    <span>Ammo:&nbsp;</span>
-                    <div class="total-ammo"><div class="current-ammo"></div></div>
-                </li>
-                <li class="weapon hide"></li>
-                <li class="actionPoints hide">
-                    <span>Action Points:&nbsp;</span>
-                    <div class="total-actionPoints"><div class="current-actionPoints"></div></div>
-                </li>
-            </ul>
-            
-            <ul id="common-actions">
-                <li><a href="javascript:;" class="finish-turn">Zug beenden</a></li>
-            </ul>
-        </div>
-        
-        
         <audio autoplay="autoplay" id="sound" src="" >
         Your browser does not support the audio element.
         </audio>
         
+        <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.6/underscore-min.js"></script>
+        <script type="text/javascript" src="backbone.js"></script>
+        
+        <script type="text/javascript" src="js/modules/actionPanel/model/ActionPanelModel.js"></script>
+        <script type="text/javascript" src="js/modules/actionPanel/view/ActionPanelView.js"></script>
+        
+        <script type="text/javascript" src="js/modules/range/view/AbstractRangeView.js"></script>
+        <script type="text/javascript" src="js/modules/range/view/FirerangeView.js"></script>
+        <script type="text/javascript" src="js/modules/range/view/MovingrangeView.js"></script>
+        
+        <script type="text/javascript" src="js/modules/unit/model/UnitModel.js"></script>
+        <script type="text/javascript" src="js/modules/obstacle/model/ObstacleModel.js"></script>
+        
+        <script type="text/javascript" src="js/modules/map/model/UnitCollection.js"></script>
+        <script type="text/javascript" src="js/modules/map/model/ObstacleCollection.js"></script>
+        
+        <script type="text/javascript" src="js/modules/unit/view/UnitView.js"></script>
+        <script type="text/javascript" src="js/modules/obstacle/view/ObstacleView.js"></script>
+        
+        <script type="text/javascript" src="js/modules/map/model/MapModel.js"></script>
+        <script type="text/javascript" src="js/modules/map/view/MapView.js"></script>
+        
+        <script type="text/javascript" src="js/modules/helper/Position.js"></script>
+        <script type="text/javascript" src="js/modules/helper/Mathematic.js"></script>
+        
         <script type="text/javascript">
-            var ui = new UserInterface();
+        var actionPanelView;
+        window.onload = function () {
+            actionPanelView = new ActionPanelView({
+                model: new ActionPanelModel()
+            });
+            
+            var mapView = new MapView({
+                model: new MapModel()
+            });
+        }
+        /*
+        var actionPanel;
+        var firerange;
+        var movingrange;
+        window.onload = function() {
+            var actionPanelModel = new ActionPanelModel();
+            actionPanel = new ActionPanelView({
+                model: actionPanelModel
+            });
+
+            firerange = new FirerangeView();
+            movingrange = new MovingrangeView();
+            
+            var ui = new UserInterface(actionPanel);
             ui.init();
+        }
+        */
         </script>
     </body>
 </html>

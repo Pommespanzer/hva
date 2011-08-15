@@ -31,6 +31,26 @@ var UnitFacade = new function () {
     };
 
     /**
+     * Calculate the angle from the unit to the enemy.
+     *
+     * @param integer goalPositionX
+     * @param integer goalPositionY
+     *
+     * @return integer angel
+     */
+    this.getAngle = function (fromX, fromY, goalPositionX, goalPositionY) {
+        var angle = Math.acos((goalPositionY - fromY) / Math.sqrt((goalPositionX - fromX) * (goalPositionX - fromX) + (goalPositionY - fromY) * (goalPositionY - fromY)));
+
+        if (goalPositionX >= fromX) {
+            angle = -angle * 360 / (2 * Math.PI) - 90;
+        } else {
+            angle = angle * 360 / (2 * Math.PI) - 90;
+        }
+
+        return angle;
+    };
+    
+    /**
      * Checks if an enemy is in range to attack via positions.
      * 
      * @param unitPosX  - x-position of unit
@@ -121,7 +141,64 @@ var UnitFacade = new function () {
                 //var yE = obstaclePosition.y;
                 //var xA = (obstaclePosition.y - n) / ascent - 1;
                 //var yA = obstaclePosition.y + 1;
+
+                // 3.1666666666666665 7.75 1.5 8.5 3.5 5.5 2 6
+                // console.log(xE, yEingang, enemyPosX, enemyPosY, unitPosX, unitPosY, obstaclePosition.x, obstaclePosition.y);
+                if ((yEingang >= obstaclePosition.y && yEingang <= (obstaclePosition.y + 1)) || (xE >= obstaclePosition.x && xE <= (obstaclePosition.x + 1))) {
+                    
+                    if (enemyPosX > unitPosX && obstaclePosition.x >= (unitPosX - value) && obstaclePosition.x <= (enemyPosX - value)) {
+                        if (enemyPosY > unitPosY && obstaclePosition.y >= (unitPosY - value) && obstaclePosition.y <= (enemyPosY - value)) {
+                            return false;
+                        }
+                        
+                        if (enemyPosY < unitPosY && obstaclePosition.y <= (unitPosY - value) && obstaclePosition.y >= (enemyPosY - value)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (enemyPosX < unitPosX && obstaclePosition.x <= (unitPosX - value) && obstaclePosition.x >= (enemyPosX - value)) {
+                        if (enemyPosY > unitPosY && obstaclePosition.y >= (unitPosY - value) && obstaclePosition.y <= (enemyPosY - value)) {
+                            return false;
+                        }
+                        
+                        if (enemyPosY < unitPosY && obstaclePosition.y <= (unitPosY - value) && obstaclePosition.y >= (enemyPosY - value)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (enemyPosY > unitPosY && obstaclePosition.y >= (unitPosY - value) && obstaclePosition.y <= (enemyPosY - value)) {
+                        if (enemyPosX > unitPosX && obstaclePosition.x >= (unitPosX - value) && obstaclePosition.x <= (enemyPosX - value)) {
+                            return false;
+                        }
+                        
+                        if (enemyPosX < unitPosX && obstaclePosition.x <= (unitPosX - value) && obstaclePosition.x >= (enemyPosX - value)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (enemyPosY < unitPosY && obstaclePosition.y <= (unitPosY - value) && obstaclePosition.y >= (enemyPosY - value)) {
+                        if (enemyPosX > unitPosX && obstaclePosition.x >= (unitPosX - value) && obstaclePosition.x <= (enemyPosX - value)) {
+                            return false;
+                        }
+                        
+                        if (enemyPosX < unitPosX && obstaclePosition.x <= (unitPosX - value) && obstaclePosition.x >= (enemyPosX - value)) {
+                            return false;
+                        }
+                    }
+                }
                 
+              //var xEingang = obstaclePosition.x;
+                yEingang = ascent * obstaclePosition.x + 1 + n;
+                //var xAusgang = obstaclePosition.x + 1;
+                //var yAusgang = ascent * (obstaclePosition.x + 1) + n;
+                
+                xE = (obstaclePosition.y + 1 - n) / ascent;
+                //var yE = obstaclePosition.y;
+                //var xA = (obstaclePosition.y - n) / ascent - 1;
+                //var yA = obstaclePosition.y + 1;
+
+                // 3.1666666666666665 7.75 1.5 8.5 3.5 5.5 2 6
+                // console.log(xE, yEingang, enemyPosX, enemyPosY, unitPosX, unitPosY, obstaclePosition.x, obstaclePosition.y);
                 if ((yEingang >= obstaclePosition.y && yEingang <= (obstaclePosition.y + 1)) || (xE >= obstaclePosition.x && xE <= (obstaclePosition.x + 1))) {
                     
                     if (enemyPosX > unitPosX && obstaclePosition.x >= (unitPosX - value) && obstaclePosition.x <= (enemyPosX - value)) {

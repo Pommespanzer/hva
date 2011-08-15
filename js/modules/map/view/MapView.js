@@ -1,146 +1,176 @@
-var UserInterface = function() {
-    var _battlefieldMap = $('#battlefield');
-
-    var _addUnits = function () {
-        var i;
-        for (i in Level.units) {
-            var x = Level.units[i].position.x;
-            var y = Level.units[i].position.y;
-
-            var id = Math.floor(Math.random() * 9999999999 + x + Math.random() * 9999999999 + y);
-            var unit = new Unit(id, id);
-            unit.setType(Level.units[i].type);
-            unit.setAmmo(Level.units[i].ammo);
-            unit.setActionPoints(Level.units[i].actionPoints);
-            unit.isEnemy = Level.units[i].isEnemy;
-            unit.setSpeed(Level.units[i].speed);
-            unit.addWeapon(Level.units[i].weapon);
-            unit.setOrder(Level.units[i].order);
-            unit.setSounds(Level.units[i].sounds);
-            
-            Map.addUnit(unit, x, y);
-        }
-    };
+var MapView = Backbone.View.extend({
+    el: $('body'),
+    events: {
+        'click .unit:not(.enemy)': 'selectUnit',
+        'click #battlefield': 'battlefieldAction'
+    },
     
-    var _addObstacles = function () {
+    battlefield: null,
+    
+    initialize: function () {
+        _.bindAll(
+            this, 
+            'addUnits', 
+            'addObstacles', 
+            'render', 
+            'selectUnit', 
+            'battlefieldAction'
+        );
+        
+        this.unitCollection = new UnitCollection();
+        this.obstacleCollection = new ObstacleCollection();
+        
+        this.addUnits(LevelOne.units);
+        this.addObstacles(LevelOne.obstacles);
+        
+        this.render();
+    },
+    
+    addUnits: function (units) {
         var i;
-        for (i = 0; i < Level.obstacles.length; i++) {
-            var x = Level.obstacles[i].x;
-            var y = Level.obstacles[i].y;
+        for (i in units) {
+            var x = units[i].position.x;
+            var y = units[i].position.y;
 
-            Map.addObstacle(x, y);
+            var id = x + '_' + y;
+            
+            var unitModel = new UnitModel();
+            unitModel.setId(id);
+            unitModel.setPosition(x, y);
+            unitModel.setType(units[i].type);
+            unitModel.setArmor(units[i].armor);
+            unitModel.setActionPoints(units[i].actionPoints);
+            unitModel.isEnemy(units[i].isEnemy);
+            unitModel.setSpeed(units[i].speed);
+            unitModel.addWeapon(units[i].weapon);
+            unitModel.setOrder(units[i].order);
+            unitModel.setSounds(units[i].sounds);
+            
+            this.unitCollection.add(unitModel, {at: id});
         }
-    };
+    },
+    
+    addObstacles: function (obstacles) {
+        var i;
+        for (i = 0; i < obstacles.length; i++) {
+            var x = obstacles[i].x;
+            var y = obstacles[i].y;
 
-    var _handleClickOnBattlefield = function(event) {
-        var coordinates = Map.getPosition(event.clientX, event.clientY);
-
-        var selectedUnit = Map.getSelectedUnit();
-        var unit = Map.getUnit(coordinates.x, coordinates.y);
-        var hindrance = Map.getObstacle(coordinates.x, coordinates.y);
-
-        if (hindrance) {
-            return;
+            var id = x + '_' + y;
+            
+            var obstacleModel = new ObstacleModel();
+            obstacleModel.setId(id);
+            obstacleModel.setPosition(x, y);
+            
+            this.obstacleCollection.add(obstacleModel, {at: id});
         }
-
-        if (unit !== false && unit.isEnemy === true) {
-            // user wants to attack an enemy
-            if (selectedUnit !== null) {
-                _battlefieldMap.trigger('attack', [unit]);
-            }
-
-            return;
-        }
-
-        // free place on battlefield
-        if (false === unit) {
-            if (selectedUnit !== null) {
-                _battlefieldMap.trigger('move', [coordinates]);
-            }
-            return;
-        }
-
-        // remove all selections on battlefield
-        var selectedUnitObject = $('.selected', _battlefieldMap);
-        if (selectedUnitObject.length !== 0) {
-            selectedUnitObject.removeClass('selected');
-            selectedUnitObject.css('background-position', '');
-        }
-
-        Map.setSelectedUnit(unit);
-
-        // mark clicked unit on battlefield
-        $('#' + unit.getId()).addClass('selected');
-
-        var selectedWeapon = unit.getSelectedWeapon();
-        firerange.render(unit.getId(), coordinates.x, coordinates.y, selectedWeapon.range);
-        movingrange.render(unit.getId(), coordinates.x, coordinates.y, unit.getCurrentActionPoints());
+    },
+    
+    selectUnit: function (event) {
+        event.stopPropagation();
+        var selectedUnitId = this.model.getSelectedUnitId();
         
-        actionPanel.model.setArmorQuotient(unit.getAmmoQuotient());
-        actionPanel.model.setArmor(unit.getAmmo());
-        actionPanel.model.setTotalActionPoints(unit.getTotalActionPoints());
-        actionPanel.model.setCurrentActionPoints(unit.getCurrentActionPoints());
+        // unselect current selected unit
+        if (selectedUnitId) {
+            var selectedUnitModel = this.unitCollection.get(selectedUnitId);
+            selectedUnitModel.unselect();
+        }
         
-        //ControlPanel.displayAll(unit);
-    };
-
-    this.initEventListeners = function () {
-        _battlefieldMap.bind('lock.userEvents', function() {
-            $('.finish-turn').hide();
-            _battlefieldMap.unbind('click.bf');
-        });
-
-        _battlefieldMap.bind('unlock.userEvents', function() {
-            // to avoid multi bindings
-            _battlefieldMap.trigger('lock.userEvents');
-
-            _battlefieldMap.bind('click.bf', _handleClickOnBattlefield);
-            $('.finish-turn').show();
-        });
-
-        $('.finish-turn').bind('click', function() {
-            Status.usersTurn = false;
-            Ai.init();
-        });
-
-        _battlefieldMap.bind('move', function(event, coordinates) {
-            var selectedUnit = Map.getSelectedUnit();
-            var position  = selectedUnit.getPosition();
-            var wayPoints = UnitFacade.getWaypoints(position.x, position.y, coordinates.x, coordinates.y);
-
-            if (!wayPoints) {
+        var id = event.target.id;
+        this.model.setSelectedUnitId(id);
+        
+        var unitModel = this.unitCollection.get(id);
+        unitModel.select();
+    },
+    
+    battlefieldAction: function (event) {
+        var selectedUnitId = this.model.getSelectedUnitId();
+        // no selected unit found
+        if (!selectedUnitId) {
+            return;
+        }
+        
+        var selectedUnitModel = this.unitCollection.get(selectedUnitId);
+        
+        // unit is busy -> quit
+        if (selectedUnitModel.get('isBusy')) {
+            return;
+        }
+        
+        var clickedElement = $(event.target);
+        
+        // avoid moving over an obstacle
+        if (clickedElement.hasClass('obstacle')) {
+            return;
+        }
+        
+        var startPosition = selectedUnitModel.getPosition();
+        var goalPosition = Position.byCoordinates(event.clientX, event.clientY);
+        
+        // user wants to attack an enemy
+        if (clickedElement.hasClass('enemy')) {
+            var enemyModel = this.unitCollection.get(event.target.id);
+            
+            // enemy out of range? -> quit
+            if (false === this.model.isEnemyInRange(selectedUnitModel, enemyModel)) {
                 return false;
             }
-
-            selectedUnit.move(wayPoints);
-        });
-
-        _battlefieldMap.bind('attack', function(event, enemy) {
-            var selectedUnit = Map.getSelectedUnit();
-            selectedUnit.attack(enemy);
-        });
-    };
-
-    this.init = function() {
-        // MAP
-        Map.init();
-
-        // Control Panel
-        // ControlPanel.init();
-
-        // add obstacles
-        _addObstacles();
+            
+            // check if unit has a free shot line
+            if (false === this.model.isShootingPossible(this.obstacleCollection, startPosition, goalPosition)) {
+                return false;   
+            }
+            
+            selectedUnitModel.attack(enemyModel);
+            return;
+        }
         
-        // add units
-        _addUnits();
+        var wayPoints = this.model.getWayPoints(
+            this.obstacleCollection,
+            this.unitCollection,
+            startPosition,
+            goalPosition
+        ); 
+        
+        // no path to clicked position
+        if (!wayPoints) {
+            return;
+        }
+        
+        selectedUnitModel.move(wayPoints);
+    },
+    
+    render: function () {
+        // render map
+        this.el.append('<div id="battlefield"></div>');
+        
+        this.battlefield = $('#battlefield');
+        
+        // render units on the map
+        for (var index in this.unitCollection.models) {
+            var unitModel = this.unitCollection.models[index];
+            
+            var unitView = new UnitView({
+                model: unitModel
+            });
+            
+            this.battlefield.append(unitView.render().el);
+        }
+        
+        // render obstacles on the map
+        for (var index in this.obstacleCollection.models) {
+            var obstacleModel = this.obstacleCollection.models[index];
+            var obstacleView = new ObstacleView({
+                model: obstacleModel
+            });
+            
+            this.battlefield.append(obstacleView.render().el);
+        }
+    }
+});
 
-        this.initEventListeners();
 
-        _battlefieldMap.trigger('unlock.userEvents');
-    };
-};
-
-var Level = {
+var LevelOne = {
     obstacles: [
         // line 1
         {x: 6, y: 0},
@@ -260,7 +290,7 @@ var Level = {
         y: 8
     },
     type: 'unit-human-mg',
-    ammo: 1000,
+    armor: 1000,
     actionPoints: 15,
     isEnemy: true,
     speed: 200,
@@ -298,7 +328,7 @@ var Level = {
                 y: 3
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
@@ -330,7 +360,7 @@ var Level = {
                 y: 16
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
@@ -362,7 +392,7 @@ var Level = {
                 y: 7
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
@@ -394,7 +424,7 @@ var Level = {
                 y: 12
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
@@ -426,7 +456,7 @@ var Level = {
                 y: 5
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
@@ -458,7 +488,7 @@ var Level = {
                 y: 14
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
@@ -493,7 +523,7 @@ var Level = {
                 y: 0
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
@@ -518,7 +548,7 @@ var Level = {
                 y: 1
             },
             type: 'unit-human-bazooka',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
@@ -543,7 +573,7 @@ var Level = {
                 y: 18
             },
             type: 'unit-human-mg',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
@@ -568,7 +598,7 @@ var Level = {
                 y: 19
             },
             type: 'unit-human-bazooka',
-            ammo: 1000,
+            armor: 1000,
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
