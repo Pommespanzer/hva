@@ -8,10 +8,41 @@ var UnitView = Backbone.View.extend({
      * init
      */
     initialize: function () {
-        _.bindAll(this, 'render', 'select', 'move', 'attack');
+        _.bindAll(
+            this, 
+            'render', 
+            'select', 
+            'move', 
+            'attack', 
+            'addFirerange',
+            'updateFirerange',
+            'removeFirerange'
+        );
+        
         this.model.bind('change:select', this.select);
         this.model.bind('change:wayPoints', this.move);
         this.model.bind('attack', this.attack);
+    },
+    
+    addFirerange: function () {
+        var weapon = this.model.get('weapons')[0],
+            padding = weapon.range * 50,
+            position = this.model.getPosition(),
+            x = (position.x * 50 - padding),
+            y = (position.y * 50 - padding);
+
+        $('#battlefield').append('<div id="fr-' + this.model.get('id') + '" class="firerange" style="top: ' + y + 'px; left: ' + x + 'px; padding: ' + padding + 'px"></div>');
+    },
+    
+    updateFirerange: function (x, y) {
+        var weapon = this.model.get('weapons')[0],
+            padding = weapon.range * 50;
+            
+        $('#fr-' + this.model.get('id')).css({left: (x - padding), top: (y - padding)});
+    },
+    
+    removeFirerange: function () {
+        $('#fr-' + this.model.get('id')).remove();
     },
     
     /**
@@ -24,12 +55,19 @@ var UnitView = Backbone.View.extend({
      */
     select: function (unitModel, value) {
         if (true === value) {
+            // mark unit as selected
             $(this.el).addClass('selected');
+            
+            // render fire range
+            this.addFirerange();
+                        
+            // update the action panel
             actionPanelView.update(unitModel);
             return;
         }
         
         $(this.el).removeClass('selected');
+        this.removeFirerange();
     },
     
     /**
@@ -69,6 +107,12 @@ var UnitView = Backbone.View.extend({
             {
                 duration: unitModel.get('speed'),
                 easing: 'linear',
+                step: function (now, fx) {
+                    var x = parseInt(fx.elem.style.left, 10),
+                        y = parseInt(fx.elem.style.top, 10);
+                    
+                    _this.updateFirerange(x, y);
+                },
                 complete: function () {
                     // set new position
                     unitModel.setPosition(x, y);
