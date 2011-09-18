@@ -1,20 +1,38 @@
 var ActionPanelView = Backbone.View.extend({
     el: $('body'),
-        
+    
+    events: {
+        'click #js-end-turn': 'endTurn'    
+    },
+    
     initialize: function () {
-        _.bindAll(this, 'render', 'update');
+        _.bindAll(this, 'render', 'update', 'endTurn', 'showEndTurnLink', 'hideEndTurnLink');
         this.render();
+    },
+    
+    endTurn: function () {
+        this.hideEndTurnLink();
+        var aiView = new AiView({
+            facade: new AiFacade()
+        });
+    },
+    
+    hideEndTurnLink: function () {
+        $('#js-end-turn').addClass('hide');
+    },
+    
+    showEndTurnLink: function () {
+        $('#js-end-turn').removeClass('hide');
     },
     
     update: function (unitModel) {
         // if unit is not selected -> avoid updating
-        if (false === unitModel.isSelected()) {
+        if (!unitModel.isSelected() || unitModel.get('isEnemy')) {
             return;
         }
         
-        var weapons = $('#weapons');
+        var weapons = $('#weapons'),
             status = $('#status');
-        
         // unit is dead -> remove all status
         if (unitModel.getCurrentArmor() <= 0) {
             weapons.html('');
@@ -58,7 +76,7 @@ var ActionPanelView = Backbone.View.extend({
         html.push('<ul id="weapons"></ul>');
         html.push('<ul id="status"></ul>');
         html.push('<ul id="common-actions">');
-        html.push('<li><a href="javascript:;" class="finish-turn">Zug beenden</a></li>');
+        html.push('<li><a href="javascript:;" id="js-end-turn">Zug beenden</a></li>');
         html.push('</ul>');
         
         html.push('</div>');

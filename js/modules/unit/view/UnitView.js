@@ -16,12 +16,14 @@ var UnitView = Backbone.View.extend({
             'attack', 
             'addFirerange',
             'updateFirerange',
-            'removeFirerange'
+            'removeFirerange',
+            'destroy'
         );
         
         this.model.bind('change:select', this.select);
         this.model.bind('change:wayPoints', this.move);
         this.model.bind('attack', this.attack);
+        this.model.bind('change:destroyed', this.destroy);
     },
     
     addFirerange: function () {
@@ -43,6 +45,15 @@ var UnitView = Backbone.View.extend({
     
     removeFirerange: function () {
         $('#fr-' + this.model.get('id')).remove();
+    },
+    
+    destroy: function () {
+        $(this.el).remove();
+        
+        if (this.model.isSelected()) {
+            this.removeFirerange();
+            actionPanelView.update(this.model);
+        }
     },
     
     /**
@@ -83,7 +94,8 @@ var UnitView = Backbone.View.extend({
         
         // goal reached or not enough action points for moving -> quit
         if (wayPoints.length === 0 || unitModel.getCurrentActionPoints() === 0) {
-            unitModel.isBusy(false);
+            this.model.isBusy(false);
+            unitModel.trigger('movingFinished');
             return;
         }
         
@@ -177,10 +189,18 @@ var UnitView = Backbone.View.extend({
                         _this.model.getCurrentActionPoints() - selectedWeapon.actionPoints
                     );
                     
-                    // update the action panel
-                    actionPanelView.update(_this.model);
+                    // the enemy is hit and the armor has to be decremented
+                    enemy.setCurrentArmor(enemy.getCurrentArmor() - selectedWeapon.firepower);
+                    
+                    // update the action panel for users selected unit
+                    if (false === _this.model.get('isEnemy')) {
+                        actionPanelView.update(_this.model);
+                    } else {
+                        actionPanelView.update(enemy);
+                    }
                     
                     _this.model.isBusy(false);
+                    _this.model.trigger('attackingFinished');
                 }
             }
         );

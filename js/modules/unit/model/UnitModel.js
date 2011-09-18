@@ -49,6 +49,14 @@ var UnitModel = Backbone.Model.extend({
         this.set({currentArmor: armor});
     },
     
+    setCurrentArmor: function (armor) {
+        this.set({currentArmor: armor});
+        
+        if (armor <= 0) {
+            this.set({destroyed: true});
+        }
+    },
+    
     getTotalArmor: function () {
         return this.get('totalArmor');  
     },

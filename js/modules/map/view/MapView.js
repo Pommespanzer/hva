@@ -14,10 +14,17 @@ var MapView = Backbone.View.extend({
             'addObstacles', 
             'render', 
             'selectUnit', 
-            'battlefieldAction'
+            'battlefieldAction',
+            'removeUnitFromCollection'
         );
         
         this.unitCollection = new UnitCollection();
+        
+        this.unitCollection.bind(
+            'change:destroyed', 
+            this.removeUnitFromCollection
+        );
+        
         this.obstacleCollection = new ObstacleCollection();
         
         this.addUnits(LevelOne.units);
@@ -138,6 +145,14 @@ var MapView = Backbone.View.extend({
         }
         
         selectedUnitModel.move(wayPoints);
+    },
+    
+    removeUnitFromCollection: function (unitModel) {
+        if (unitModel.isSelected()) {
+            this.model.setSelectedUnitId(null);
+        }
+        
+        this.unitCollection.remove(unitModel);
     },
     
     render: function () {
@@ -284,6 +299,7 @@ var LevelOne = {
         {x: 6, y: 19},
     ],
     units: [
+/*
 {
     position: {
         x: 1,
@@ -305,8 +321,8 @@ var LevelOne = {
     order: {
         action: 'protect',
         positionToProtect: {
-            x: 6,
-            y: 3
+            x: 0,
+            y: 7
         },
         protectionRange: 5
     },
@@ -316,7 +332,7 @@ var LevelOne = {
         die: 'audio/unit/soldierMG/die.wav'
     }
 },
-            
+*/          
             
             
             

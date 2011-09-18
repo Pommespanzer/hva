@@ -48,14 +48,18 @@
         <script type="text/javascript" src="js/modules/helper/Position.js"></script>
         <script type="text/javascript" src="js/modules/helper/Mathematic.js"></script>
         
+        <script type="text/javascript" src="js/modules/ai/model/AiFacade.js"></script>
+        <script type="text/javascript" src="js/modules/ai/view/AiView.js"></script>
+        
         <script type="text/javascript">
-        var actionPanelView;
+        var actionPanelView,
+            mapView;
         window.onload = function () {
             actionPanelView = new ActionPanelView({
                 model: new ActionPanelModel()
             });
             
-            var mapView = new MapView({
+            mapView = new MapView({
                 model: new MapModel()
             });
         }
