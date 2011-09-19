@@ -1,12 +1,29 @@
 var MapView = Backbone.View.extend({
+    /**
+     * Object where to bind the map.
+     */
     el: $('body'),
+    
+    /**
+     * All binded map events.
+     */
     events: {
         'click .unit:not(.enemy)': 'selectUnit',
         'click #battlefield': 'battlefieldAction'
     },
     
+    /**
+     * Object of the map.
+     * 
+     * @var object
+     */
     battlefield: null,
     
+    /**
+     * INIT
+     * 
+     * @return void
+     */
     initialize: function () {
         _.bindAll(
             this, 
@@ -33,6 +50,13 @@ var MapView = Backbone.View.extend({
         this.render();
     },
     
+    /**
+     * This method adds all units to the map.
+     * 
+     * @param array units - array of all units
+     * 
+     * @return void
+     */
     addUnits: function (units) {
         var i;
         for (i in units) {
@@ -57,6 +81,13 @@ var MapView = Backbone.View.extend({
         }
     },
     
+    /**
+     * This method adds all obstacles to the map.
+     * 
+     * @param array obstacles - array of all obstacles
+     * 
+     * @return void
+     */
     addObstacles: function (obstacles) {
         var i;
         for (i = 0; i < obstacles.length; i++) {
@@ -73,6 +104,14 @@ var MapView = Backbone.View.extend({
         }
     },
     
+    /**
+     * This method is called if an user clicked an unit.
+     * It marks the unit as selected and updates the action panel.
+     * 
+     * @param event
+     * 
+     * @return void
+     */
     selectUnit: function (event) {
         event.stopPropagation();
         var selectedUnitId = this.model.getSelectedUnitId();
@@ -90,6 +129,14 @@ var MapView = Backbone.View.extend({
         unitModel.select();
     },
     
+    /**
+     * This method dispatches all events on the map.
+     * Events could be - click an unit - move an unit - attack an enemy - ...
+     * 
+     * @param event
+     * 
+     * @return void
+     */
     battlefieldAction: function (event) {
         var selectedUnitId = this.model.getSelectedUnitId();
         // no selected unit found
@@ -129,6 +176,8 @@ var MapView = Backbone.View.extend({
             }
             
             selectedUnitModel.attack(enemyModel);
+            // enemy will protect them self
+            enemyModel.attack(selectedUnitModel);
             return;
         }
         
@@ -147,6 +196,14 @@ var MapView = Backbone.View.extend({
         selectedUnitModel.move(wayPoints);
     },
     
+    /**
+     * This method removes an unit model from collection. That happens if 
+     * an unit is destroyed.
+     * 
+     * @param object unitModel - model of (i.e. destroyed) unit
+     * 
+     * @return void
+     */
     removeUnitFromCollection: function (unitModel) {
         if (unitModel.isSelected()) {
             this.model.setSelectedUnitId(null);
@@ -155,6 +212,11 @@ var MapView = Backbone.View.extend({
         this.unitCollection.remove(unitModel);
     },
     
+    /**
+     * This method renders the map and all containing elements (units, obstacles , ...)
+     * 
+     * @return void
+     */
     render: function () {
         // render map
         this.el.append('<div id="battlefield"></div>');

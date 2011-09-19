@@ -1,15 +1,32 @@
 var ActionPanelView = Backbone.View.extend({
+    /**
+     * Where to bind the action panel
+     */
     el: $('body'),
     
+    /**
+     * All events for action panel
+     */
     events: {
         'click #js-end-turn': 'endTurn'    
     },
     
+    /**
+     * INIT
+     * 
+     * @return void
+     */
     initialize: function () {
         _.bindAll(this, 'render', 'update', 'endTurn', 'showEndTurnLink', 'hideEndTurnLink');
         this.render();
     },
     
+    /**
+     * This method is called if an user clicked on the "end turn" 
+     * link in the action panel.
+     * 
+     * @return void
+     */
     endTurn: function () {
         this.hideEndTurnLink();
         var aiView = new AiView({
@@ -17,14 +34,32 @@ var ActionPanelView = Backbone.View.extend({
         });
     },
     
+    /**
+     * This method hides the "end turn" link in the action panel.
+     * 
+     * @return void
+     */
     hideEndTurnLink: function () {
         $('#js-end-turn').addClass('hide');
     },
     
+    /**
+     * This method shows the "end turn" link in the action panel.
+     * 
+     * @return void
+     */
     showEndTurnLink: function () {
         $('#js-end-turn').removeClass('hide');
     },
     
+    /**
+     * This method updates the armor and action points of a selected unit if something
+     * happens (shooting, getting hit, moving, ...)
+     * 
+     * @param object unitModel - model of current selected unit
+     * 
+     * @return void
+     */
     update: function (unitModel) {
         // if unit is not selected -> avoid updating
         if (!unitModel.isSelected() || unitModel.get('isEnemy')) {
@@ -69,6 +104,11 @@ var ActionPanelView = Backbone.View.extend({
         status.html(statusHtml.join(''));
     },
     
+    /**
+     * This method renders the action panel.
+     * 
+     * @return void
+     */
     render: function () {
         var html = [];
         html.push('<div id="control-panel">');

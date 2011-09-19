@@ -1,4 +1,12 @@
 var Position = new function () {
+    /**
+     * This method returns the battlefield coordinates of a given pixel coordinates
+     * 
+     * @param integer x
+     * @param integer y
+     * 
+     * @return object position {x: ?, y: ?}
+     */
     this.byCoordinates = function (x, y) {
         var pageX = window.pageXOffset;
         var pageY = window.pageYOffset;

@@ -26,6 +26,11 @@ var UnitView = Backbone.View.extend({
         this.model.bind('change:destroyed', this.destroy);
     },
     
+    /**
+     * This method displays the fire range of the current selected unit.
+     *  
+     * @return void
+     */
     addFirerange: function () {
         var weapon = this.model.get('weapons')[0],
             padding = weapon.range * 50,
@@ -36,6 +41,15 @@ var UnitView = Backbone.View.extend({
         $('#battlefield').append('<div id="fr-' + this.model.get('id') + '" class="firerange" style="top: ' + y + 'px; left: ' + x + 'px; padding: ' + padding + 'px"></div>');
     },
     
+    /**
+     * This method updates (repaint) the fire range of the current selected unit.
+     * This happens if an unit moves or unit change the current weapon.
+     * 
+     * @param integer x
+     * @param integer y
+     * 
+     * @return void
+     */
     updateFirerange: function (x, y) {
         var weapon = this.model.get('weapons')[0],
             padding = weapon.range * 50;
@@ -43,10 +57,22 @@ var UnitView = Backbone.View.extend({
         $('#fr-' + this.model.get('id')).css({left: (x - padding), top: (y - padding)});
     },
     
+    /**
+     * This method removes the fire range of the current selected unit.
+     * This happens if the unit dies or the user select an other unit.
+     *  
+     * @return void
+     */
     removeFirerange: function () {
         $('#fr-' + this.model.get('id')).remove();
     },
     
+    /**
+     * This method removes the unit from battlefield.
+     * This happens if the unit dies.
+     *  
+     * @return void
+     */
     destroy: function () {
         $(this.el).remove();
         
@@ -145,7 +171,7 @@ var UnitView = Backbone.View.extend({
     },
     
     /**
-     * This method animates the attack of two units
+     * This method animates the attack of two units.
      * 
      * @return void
      */
@@ -157,29 +183,36 @@ var UnitView = Backbone.View.extend({
             return;
         }
         
-        this.model.isBusy(true);        
+        this.model.isBusy(true);
         
         var unique = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),
             randValue = 25,
             position = this.model.getPosition(),
             enemy = this.model.get('enemy'),
             enemyPosition = enemy.getPosition(),
+            unit = $(this.el),
             angle = Mathematic.getAngle(position, enemyPosition),
-            _this = this;
+            distance = Mathematic.getDistance(position, enemyPosition),
+            _this = this,
+            shoot;
         
         // render shot
         $('#battlefield').append(
             '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.model.get('isEnemy') ? 'enemy' : '') + '" style="position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + 12) + 'px;"></div>'
         );
         
-        var shoot = $('.' + selectedWeapon.name + '.' + unique);
+        // rotate unit in right position
+        unit.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
+        unit.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
+        
+        shoot = $('.' + selectedWeapon.name + '.' + unique);
         shoot.animate(
             {
                 left: (enemyPosition.x * 50) + 12,
                 top: (enemyPosition.y * 50) + 25
             },
             {
-                duration: selectedWeapon.firespeed,
+                duration: (distance / selectedWeapon.firespeed) * 10000, // t = s/v
                 easing: 'linear',
                 complete: function () {
                     shoot.remove();

@@ -127,6 +127,8 @@ var AiView = Backbone.View.extend({
             });
     
             unitModel.attack(enemy);
+            // enemy attack as well
+            enemy.attack(unitModel);
         });
 
         unitModel.move(wayPoints);
@@ -169,6 +171,56 @@ var AiView = Backbone.View.extend({
         });
 
         unitModel.attack(enemy);
+        enemy.attack(unitModel);
+    },
+
+    /**
+     * 
+     * @param object unitModel - model of acting unit
+     * @param object order - order of acting unit
+     * @param array enemies - array of enemy models
+     * @param string choose - {'weakest', 'closest', ...}
+     *                        mode to decide from what list the unis select the enemy
+     * @return void
+     */
+    _proceedDuty: function (unitModel, order, enemies, choose) {
+        var index,
+            choosenEnemy,
+            choosenEnemyList,
+            tmpEnemyModels = [],
+            wayPointsHelper = {};
+
+        // we need a "normal" array
+        for (index in enemies) {
+            if (enemies.hasOwnProperty(index)) {
+                tmpEnemyModels.push(enemies[index].model);
+                wayPointsHelper[enemies[index].model.get('id')] = enemies[index].wayPoints;
+            } 
+        }
+
+        if (choose === 'weakest') {
+            // sort destroyable enemies by weakness
+            choosenEnemyList = this.options.facade.getWeakestEnemies(tmpEnemyModels);
+            // attack the strongest enemy
+            choosenEnemy = choosenEnemyList.pop();
+        } else if (choose === 'closest') {
+            // get attackable enemies sorted by distance - ASC
+            choosenEnemyList = this.options.facade.getClosestEnemies(unitModel, tmpEnemyModels);
+            // attack the closest
+            choosenEnemy = choosenEnemyList.shift();
+        }
+
+        wayPoints = wayPointsHelper[choosenEnemy.get('id')];
+
+        // move and attack
+        if (wayPoints.length > 0) {
+            this._moveAndAttack(unitModel, order, wayPoints, choosenEnemy);
+            return;
+        }
+
+        // direct attack
+        this._attack(unitModel, order, choosenEnemy);
+        return;
     },
 
     /**
@@ -205,33 +257,7 @@ var AiView = Backbone.View.extend({
 
         // unit is able to destroy enemies
         if (destroyableEnemies.length > 0) {
-            var strongestEnemy,
-                weakestEnemies;
-
-            // we need a "normal" array
-            for (index in destroyableEnemies) {
-                if (destroyableEnemies.hasOwnProperty(index)) {
-                    tmpEnemyModels.push(destroyableEnemies[index].model);
-                    wayPointsHelper[destroyableEnemies[index].model.get('id')] = destroyableEnemies[index].wayPoints;
-                } 
-            }
-
-            // sort destroyable enemies by weakness
-            weakestEnemies = this.options.facade.getWeakestEnemies(tmpEnemyModels);
-
-            // destroy the strongest enemy
-            strongestEnemy = weakestEnemies.pop();
-
-            wayPoints = wayPointsHelper[strongestEnemy.get('id')];
-
-            // move and attack
-            if (wayPoints.length > 0) {
-                this._moveAndAttack(unitModel, order, wayPoints, strongestEnemy);
-                return;
-            }
-
-            // direct attack
-            this._attack(unitModel, order, strongestEnemy);
+            this._proceedDuty(unitModel, order, destroyableEnemies, 'weakest');
             return;
         }
 
@@ -240,34 +266,9 @@ var AiView = Backbone.View.extend({
 
         // unit is able to attack enemies
         if (attackableEnemies.length > 0) {
-            var closestEnemies,
-                closestEnemy;
-
-            // we need a "normal" array
-            for (index in attackableEnemies) {
-                if (attackableEnemies.hasOwnProperty(index)) {
-                    tmpEnemyModels.push(attackableEnemies[index].model);
-                    wayPointsHelper[attackableEnemies[index].model.get('id')] = attackableEnemies[index].wayPoints;
-                } 
-            }
-
-            // get attackable enemies sorted by distance - ASC
-            closestEnemies = this.options.facade.getClosestEnemies(unitModel, tmpEnemyModels);
-            closestEnemy = closestEnemies.shift();
-
-            wayPoints = wayPointsHelper[closestEnemy.get('id')];
-
-            // move and attack
-            if (wayPoints.length > 0) {
-                this._moveAndAttack(unitModel, order, wayPoints, closestEnemy);
-                return;
-            }
-
-            // direct attack
-            this._attack(unitModel, order, closestEnemy);
+            this._proceedDuty(unitModel, order, attackableEnemies, 'closest');
             return;
         }
-
 
         // the order is to protect position
         if (order.action === 'protect') {
@@ -286,7 +287,7 @@ var AiView = Backbone.View.extend({
             );
 
             // if no way points are found -> switch to other unit
-            if (!wayPoints) {
+            if (!wayPoints || wayPoints.length === 0) {
                 this.nextUnit();
                 return;
             }

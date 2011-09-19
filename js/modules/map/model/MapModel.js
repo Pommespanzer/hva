@@ -1,8 +1,20 @@
 var MapModel = Backbone.Model.extend({
+    /**
+     * Set the id of current selected unit.
+     * 
+     * @param integer unitModelId - id of current selected unit
+     * 
+     * @return void
+     */
     setSelectedUnitId: function (unitModelId) {
         this.set({selectedUnitId: unitModelId});
     },
     
+    /**
+     * Get the id of the current selected unit.
+     * 
+     * @return integer selectedUnitId
+     */
     getSelectedUnitId: function () {
         return this.get('selectedUnitId');
     },
@@ -33,6 +45,16 @@ var MapModel = Backbone.Model.extend({
         return false;
     },
     
+    /**
+     * This method checks if shooting an other unit is possible.
+     * It checks if something is in the way.
+     * 
+     * @param array obstacleCollection - all obstacle models
+     * @param object startPosition
+     * @param object goalPosition
+     * 
+     * @return bool true || false
+     */
     isShootingPossible: function (obstacleCollection, startPosition, goalPosition) {
         var value = 0.5,
             unitPosX = startPosition.x + value,
@@ -191,6 +213,17 @@ var MapModel = Backbone.Model.extend({
         return true;
     },
     
+    /**
+     * This method calculates the way points to a given goal position.
+     * Of course all obstacles (units, building, what ever) will be checked.
+     * 
+     * @param array obstacles - array of all obstacle models
+     * @param array units - array of all unit models
+     * @param object startPosition
+     * @param object goalPosition
+     * 
+     * @return void
+     */
     getWayPoints: function (obstacles, units, startPosition, goalPosition) {
         var mapWidth  = 19,
             mapHeight = 19,

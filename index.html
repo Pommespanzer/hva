@@ -29,10 +29,6 @@
         <script type="text/javascript" src="js/modules/actionPanel/model/ActionPanelModel.js"></script>
         <script type="text/javascript" src="js/modules/actionPanel/view/ActionPanelView.js"></script>
         
-        <script type="text/javascript" src="js/modules/range/view/AbstractRangeView.js"></script>
-        <script type="text/javascript" src="js/modules/range/view/FirerangeView.js"></script>
-        <script type="text/javascript" src="js/modules/range/view/MovingrangeView.js"></script>
-        
         <script type="text/javascript" src="js/modules/unit/model/UnitModel.js"></script>
         <script type="text/javascript" src="js/modules/obstacle/model/ObstacleModel.js"></script>
         
@@ -54,6 +50,7 @@
         <script type="text/javascript">
         var actionPanelView,
             mapView;
+
         window.onload = function () {
             actionPanelView = new ActionPanelView({
                 model: new ActionPanelModel()
@@ -63,23 +60,6 @@
                 model: new MapModel()
             });
         }
-        /*
-        var actionPanel;
-        var firerange;
-        var movingrange;
-        window.onload = function() {
-            var actionPanelModel = new ActionPanelModel();
-            actionPanel = new ActionPanelView({
-                model: actionPanelModel
-            });
-
-            firerange = new FirerangeView();
-            movingrange = new MovingrangeView();
-            
-            var ui = new UserInterface(actionPanel);
-            ui.init();
-        }
-        */
         </script>
     </body>
 </html>
