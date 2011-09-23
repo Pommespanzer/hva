@@ -79,13 +79,21 @@ var AiView = Backbone.View.extend({
             // collect enemies again because some could be dead allready
             this.resetEnemies();
 
-            var i;
+            var i,
+                selectedUnitId,
+                selectedUnitModel;
+
             for (i in this.enemyModels) {
                 if (this.enemyModels.hasOwnProperty(i)) {
                     this.enemyModels[i].setCurrentActionPoints(
                         this.enemyModels[i].getTotalActionPoints()
                     );
                 }
+            }
+            selectedUnitId = mapView.model.getSelectedUnitId();
+            if (selectedUnitId) {
+                selectedUnitModel = mapView.unitCollection.get(selectedUnitId);
+                actionPanelView.update(selectedUnitModel);
             }
             actionPanelView.showEndTurnLink();
             return;
@@ -125,7 +133,7 @@ var AiView = Backbone.View.extend({
             unitModel.unbind('attackingFinished').bind('attackingFinished', function () {
                 _this.doAction(unitModel, order);
             });
-    
+
             unitModel.attack(enemy);
             // enemy attack as well
             enemy.attack(unitModel);
@@ -188,14 +196,15 @@ var AiView = Backbone.View.extend({
             choosenEnemy,
             choosenEnemyList,
             tmpEnemyModels = [],
-            wayPointsHelper = {};
+            wayPointsHelper = {},
+            wayPoints;
 
         // we need a "normal" array
         for (index in enemies) {
             if (enemies.hasOwnProperty(index)) {
                 tmpEnemyModels.push(enemies[index].model);
                 wayPointsHelper[enemies[index].model.get('id')] = enemies[index].wayPoints;
-            } 
+            }
         }
 
         if (choose === 'weakest') {
@@ -228,7 +237,7 @@ var AiView = Backbone.View.extend({
      * Actions are:
      * - move closer to enemy
      * - move back to position to protect
-     * - attack enemy in firerange
+     * - attack enemy in fire range
      * - move and attack enemy
      * - do nothing if it is to risky to leave position
      * 
@@ -241,19 +250,15 @@ var AiView = Backbone.View.extend({
         this.resetEnemies();
 
         // unit is out of action points
-        if (unitModel.getCurrentActionPoints() === 0) {
+        if (unitModel.getCurrentActionPoints() === 0 || unitModel.getCurrentArmor() <= 0) {
             this.nextUnit();
             return;
         }
 
         var destroyableEnemies = this.options.facade.getDestroyableEnemies(unitModel, this.enemyModels),
             unitPosition = unitModel.getPosition(),
-            weapon = unitModel.get('weapons')[0],
             attackableEnemies,
-            tmpEnemyModels = [],
-            wayPointsHelper = {},
-            wayPoints,
-            index;
+            wayPoints;
 
         // unit is able to destroy enemies
         if (destroyableEnemies.length > 0) {
@@ -282,7 +287,7 @@ var AiView = Backbone.View.extend({
             wayPoints = mapView.model.getWayPoints(
                 mapView.obstacleCollection,
                 mapView.unitCollection,
-                unitPosition, 
+                unitPosition,
                 order.positionToProtect
             );
 

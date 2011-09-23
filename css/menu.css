@@ -1,0 +1,12 @@
+.menu {
+    width: 500px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 15px;
+    border: 1px dashed #333;
+    background-color:#eee;
+}
+
+.menu li {
+    margin: 5px;
+}

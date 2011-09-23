@@ -3,7 +3,7 @@ var MapView = Backbone.View.extend({
      * Object where to bind the map.
      */
     el: $('body'),
-    
+
     /**
      * All binded map events.
      */
@@ -11,14 +11,24 @@ var MapView = Backbone.View.extend({
         'click .unit:not(.enemy)': 'selectUnit',
         'click #battlefield': 'battlefieldAction'
     },
-    
+
     /**
      * Object of the map.
      * 
      * @var object
      */
     battlefield: null,
-    
+
+    /**
+     * contains all unit models
+     */
+    unitCollection: null,
+
+    /**
+     * contains all obstacle models
+     */
+    obstacleCollection: null,
+
     /**
      * INIT
      * 
@@ -26,30 +36,28 @@ var MapView = Backbone.View.extend({
      */
     initialize: function () {
         _.bindAll(
-            this, 
-            'addUnits', 
-            'addObstacles', 
-            'render', 
-            'selectUnit', 
+            this,
+            'addUnits',
+            'addObstacles',
+            'render',
+            'selectUnit',
             'battlefieldAction',
             'removeUnitFromCollection'
         );
-        
+
         this.unitCollection = new UnitCollection();
-        
+
         this.unitCollection.bind(
-            'change:destroyed', 
+            'change:destroyed',
             this.removeUnitFromCollection
         );
-        
+
         this.obstacleCollection = new ObstacleCollection();
-        
+
         this.addUnits(LevelOne.units);
         this.addObstacles(LevelOne.obstacles);
-        
-        this.render();
     },
-    
+
     /**
      * This method adds all units to the map.
      * 
@@ -58,29 +66,35 @@ var MapView = Backbone.View.extend({
      * @return void
      */
     addUnits: function (units) {
-        var i;
-        for (i in units) {
-            var x = units[i].position.x;
-            var y = units[i].position.y;
+        var i,
+            x,
+            y,
+            id,
+            unitModel;
 
-            var id = x + '_' + y;
-            
-            var unitModel = new UnitModel();
-            unitModel.setId(id);
-            unitModel.setPosition(x, y);
-            unitModel.setType(units[i].type);
-            unitModel.setArmor(units[i].armor);
-            unitModel.setActionPoints(units[i].actionPoints);
-            unitModel.isEnemy(units[i].isEnemy);
-            unitModel.setSpeed(units[i].speed);
-            unitModel.addWeapon(units[i].weapon);
-            unitModel.setOrder(units[i].order);
-            unitModel.setSounds(units[i].sounds);
-            
-            this.unitCollection.add(unitModel, {at: id});
+        for (i in units) {
+            if (units.hasOwnProperty(i)) {
+                x = units[i].position.x;
+                y = units[i].position.y;
+                id = x + '_' + y;
+
+                unitModel = new UnitModel();
+                unitModel.setId(id);
+                unitModel.setPosition(x, y);
+                unitModel.setType(units[i].type);
+                unitModel.setArmor(units[i].armor);
+                unitModel.setActionPoints(units[i].actionPoints);
+                unitModel.isEnemy(units[i].isEnemy);
+                unitModel.setSpeed(units[i].speed);
+                unitModel.addWeapon(units[i].weapon);
+                unitModel.setOrder(units[i].order);
+                unitModel.setSounds(units[i].sounds);
+
+                this.unitCollection.add(unitModel, {at: id});
+            }
         }
     },
-    
+
     /**
      * This method adds all obstacles to the map.
      * 
@@ -89,21 +103,25 @@ var MapView = Backbone.View.extend({
      * @return void
      */
     addObstacles: function (obstacles) {
-        var i;
-        for (i = 0; i < obstacles.length; i++) {
-            var x = obstacles[i].x;
-            var y = obstacles[i].y;
+        var i,
+            x,
+            y,
+            id,
+            obstacleModel;
 
-            var id = x + '_' + y;
-            
-            var obstacleModel = new ObstacleModel();
+        for (i = 0; i < obstacles.length; i += 1) {
+            x = obstacles[i].x;
+            y = obstacles[i].y;
+            id = x + '_' + y;
+
+            obstacleModel = new ObstacleModel();
             obstacleModel.setId(id);
             obstacleModel.setPosition(x, y);
-            
+
             this.obstacleCollection.add(obstacleModel, {at: id});
         }
     },
-    
+
     /**
      * This method is called if an user clicked an unit.
      * It marks the unit as selected and updates the action panel.
@@ -114,21 +132,24 @@ var MapView = Backbone.View.extend({
      */
     selectUnit: function (event) {
         event.stopPropagation();
-        var selectedUnitId = this.model.getSelectedUnitId();
-        
+        var selectedUnitId = this.model.getSelectedUnitId(),
+            selectedUnitModel,
+            unitModel,
+            id;
+
         // unselect current selected unit
         if (selectedUnitId) {
-            var selectedUnitModel = this.unitCollection.get(selectedUnitId);
+            selectedUnitModel = this.unitCollection.get(selectedUnitId);
             selectedUnitModel.unselect();
         }
-        
-        var id = event.target.id;
+
+        id = event.target.id;
         this.model.setSelectedUnitId(id);
-        
-        var unitModel = this.unitCollection.get(id);
+
+        unitModel = this.unitCollection.get(id);
         unitModel.select();
     },
-    
+
     /**
      * This method dispatches all events on the map.
      * Events could be - click an unit - move an unit - attack an enemy - ...
@@ -138,64 +159,71 @@ var MapView = Backbone.View.extend({
      * @return void
      */
     battlefieldAction: function (event) {
-        var selectedUnitId = this.model.getSelectedUnitId();
+        var selectedUnitId = this.model.getSelectedUnitId(),
+            selectedUnitModel,
+            clickedElement,
+            startPosition,
+            goalPosition,
+            enemyModel,
+            wayPoints;
+
         // no selected unit found
         if (!selectedUnitId) {
             return;
         }
-        
-        var selectedUnitModel = this.unitCollection.get(selectedUnitId);
-        
+
+        selectedUnitModel = this.unitCollection.get(selectedUnitId);
+
         // unit is busy -> quit
         if (selectedUnitModel.get('isBusy')) {
             return;
         }
-        
-        var clickedElement = $(event.target);
-        
+
+        clickedElement = $(event.target);
+
         // avoid moving over an obstacle
         if (clickedElement.hasClass('obstacle')) {
             return;
         }
-        
-        var startPosition = selectedUnitModel.getPosition();
-        var goalPosition = Position.byCoordinates(event.clientX, event.clientY);
-        
+
+        startPosition = selectedUnitModel.getPosition();
+        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
+
         // user wants to attack an enemy
         if (clickedElement.hasClass('enemy')) {
-            var enemyModel = this.unitCollection.get(event.target.id);
-            
+            enemyModel = this.unitCollection.get(event.target.id);
+
             // enemy out of range? -> quit
             if (false === this.model.isEnemyInRange(selectedUnitModel, enemyModel)) {
                 return false;
             }
-            
+
             // check if unit has a free shot line
             if (false === this.model.isShootingPossible(this.obstacleCollection, startPosition, goalPosition)) {
-                return false;   
+                return false;
             }
-            
+
             selectedUnitModel.attack(enemyModel);
             // enemy will protect them self
             enemyModel.attack(selectedUnitModel);
             return;
         }
-        
-        var wayPoints = this.model.getWayPoints(
+
+        wayPoints = this.model.getWayPoints(
             this.obstacleCollection,
             this.unitCollection,
             startPosition,
             goalPosition
-        ); 
-        
+        );
+
         // no path to clicked position
         if (!wayPoints) {
             return;
         }
-        
+
         selectedUnitModel.move(wayPoints);
     },
-    
+
     /**
      * This method removes an unit model from collection. That happens if 
      * an unit is destroyed.
@@ -208,10 +236,10 @@ var MapView = Backbone.View.extend({
         if (unitModel.isSelected()) {
             this.model.setSelectedUnitId(null);
         }
-        
+
         this.unitCollection.remove(unitModel);
     },
-    
+
     /**
      * This method renders the map and all containing elements (units, obstacles , ...)
      * 
@@ -220,32 +248,41 @@ var MapView = Backbone.View.extend({
     render: function () {
         // render map
         this.el.append('<div id="battlefield"></div>');
-        
+
         this.battlefield = $('#battlefield');
-        
+
+        var index,
+            unitModel,
+            unitView,
+            obstacleModel,
+            obstacleView;
+
         // render units on the map
-        for (var index in this.unitCollection.models) {
-            var unitModel = this.unitCollection.models[index];
-            
-            var unitView = new UnitView({
-                model: unitModel
-            });
-            
-            this.battlefield.append(unitView.render().el);
+        for (index in this.unitCollection.models) {
+            if (this.unitCollection.models.hasOwnProperty(index)) {
+                unitModel = this.unitCollection.models[index];
+
+                unitView = new UnitView({
+                    model: unitModel
+                });
+
+                this.battlefield.append(unitView.render().el);
+            }
         }
-        
+
         // render obstacles on the map
-        for (var index in this.obstacleCollection.models) {
-            var obstacleModel = this.obstacleCollection.models[index];
-            var obstacleView = new ObstacleView({
-                model: obstacleModel
-            });
-            
-            this.battlefield.append(obstacleView.render().el);
+        for (index in this.obstacleCollection.models) {
+            if (this.obstacleCollection.models.hasOwnProperty(index)) {
+                obstacleModel = this.obstacleCollection.models[index];
+                obstacleView = new ObstacleView({
+                    model: obstacleModel
+                });
+
+                this.battlefield.append(obstacleView.render().el);
+            }
         }
     }
 });
-
 
 var LevelOne = {
     obstacles: [
@@ -358,7 +395,7 @@ var LevelOne = {
         {x: 15, y: 17},
         // line 19 -> empty
         // line 20
-        {x: 6, y: 19},
+        {x: 6, y: 19}
     ],
     units: [
 /*
@@ -394,12 +431,7 @@ var LevelOne = {
         die: 'audio/unit/soldierMG/die.wav'
     }
 },
-*/          
-            
-            
-            
-            
-            
+*/
         {
             position: {
                 x: 6,
@@ -696,4 +728,4 @@ var LevelOne = {
             }
         }
     ]
-}
+};

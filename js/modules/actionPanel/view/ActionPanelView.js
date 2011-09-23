@@ -8,7 +8,8 @@ var ActionPanelView = Backbone.View.extend({
      * All events for action panel
      */
     events: {
-        'click #js-end-turn': 'endTurn'    
+        'click #js-end-turn': 'endTurn',
+        'click #js-back-to-menu': 'backToMenu'
     },
     
     /**
@@ -17,8 +18,15 @@ var ActionPanelView = Backbone.View.extend({
      * @return void
      */
     initialize: function () {
-        _.bindAll(this, 'render', 'update', 'endTurn', 'showEndTurnLink', 'hideEndTurnLink');
-        this.render();
+        _.bindAll(
+            this,
+            'render',
+            'update',
+            'endTurn',
+            'backToMenu',
+            'showEndTurnLink',
+            'hideEndTurnLink'
+        );
     },
     
     /**
@@ -32,6 +40,19 @@ var ActionPanelView = Backbone.View.extend({
         var aiView = new AiView({
             facade: new AiFacade()
         });
+    },
+    
+    /**
+     * This method is called if an user clicked on the "back to menu" 
+     * link in the action panel.
+     * 
+     * @return void
+     */
+    backToMenu: function () {
+        $('#js-action-panel').hide();
+        $('#battlefield').hide();
+        
+        menuView.show();
     },
     
     /**
@@ -66,8 +87,8 @@ var ActionPanelView = Backbone.View.extend({
             return;
         }
         
-        var weapons = $('#weapons'),
-            status = $('#status');
+        var weapons = $('#js-weapons'),
+            status = $('#js-status');
         // unit is dead -> remove all status
         if (unitModel.getCurrentArmor() <= 0) {
             weapons.html('');
@@ -90,14 +111,14 @@ var ActionPanelView = Backbone.View.extend({
         weapons.html(weaponHtml.join(''));
         
         statusHtml.push('<li>');
-        statusHtml.push('<div id="total-armor">');
-        statusHtml.push('<div id="current-armor" style="width: ' + newWidthArmor + '%"></div>');
+        statusHtml.push('<div class="max-armor">');
+        statusHtml.push('<div class="current-armor" style="width: ' + newWidthArmor + '%"></div>');
         statusHtml.push('</div>');
         statusHtml.push('</li>');
         
         statusHtml.push('<li>');
-        statusHtml.push('<div id="total-actionPoints">');
-        statusHtml.push('<div id="current-actionPoints" style="width: ' + newWidthActionPoints + '%"></div>');
+        statusHtml.push('<div class="max-action-points">');
+        statusHtml.push('<div class="current-action-points" style="width: ' + newWidthActionPoints + '%"></div>');
         statusHtml.push('</div>');
         statusHtml.push('</li>');
 
@@ -111,12 +132,13 @@ var ActionPanelView = Backbone.View.extend({
      */
     render: function () {
         var html = [];
-        html.push('<div id="control-panel">');
+        html.push('<div id="js-action-panel" class="action-panel">');
         
-        html.push('<ul id="weapons"></ul>');
-        html.push('<ul id="status"></ul>');
-        html.push('<ul id="common-actions">');
+        html.push('<ul id="js-weapons" class="weapons"></ul>');
+        html.push('<ul id="js-status" class="status"></ul>');
+        html.push('<ul class="actions">');
         html.push('<li><a href="javascript:;" id="js-end-turn">Zug beenden</a></li>');
+        html.push('<li><a href="javascript:;" id="js-back-to-menu">Menü</a></li>');
         html.push('</ul>');
         
         html.push('</div>');

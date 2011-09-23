@@ -3,61 +3,55 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>War-Time</title>
-        
         <script type="text/javascript" src="jquery.js"></script>
         <script type="text/javascript" src="astar.js"></script>
-        
-        <script type="text/javascript" src="js/Unit.js"></script>
-        <script type="text/javascript" src="js/UnitFacade.js"></script>
-        <script type="text/javascript" src="js/UserInterface.js"></script>
-        <script type="text/javascript" src="js/ControlPanel.js"></script>
-        
-        <script type="text/javascript" src="js/Map.js"></script>
-        <script type="text/javascript" src="js/Ai.js"></script>
-        <script type="text/javascript" src="js/Status.js"></script>
-        
-        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link rel="stylesheet" type="text/css" href="css/common.css" />
+        <link rel="stylesheet" type="text/css" href="css/battlefield.css" />
+        <link rel="stylesheet" type="text/css" href="css/menu.css" />
+        <link rel="stylesheet" type="text/css" href="css/unit.css" />
+        <link rel="stylesheet" type="text/css" href="css/obstacle.css" />
+        <link rel="stylesheet" type="text/css" href="css/actionPanel.css" />
     </head>
     <body>
         <audio autoplay="autoplay" id="sound" src="" >
         Your browser does not support the audio element.
         </audio>
-        
+
         <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.6/underscore-min.js"></script>
         <script type="text/javascript" src="backbone.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/actionPanel/model/ActionPanelModel.js"></script>
         <script type="text/javascript" src="js/modules/actionPanel/view/ActionPanelView.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/unit/model/UnitModel.js"></script>
         <script type="text/javascript" src="js/modules/obstacle/model/ObstacleModel.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/map/model/UnitCollection.js"></script>
         <script type="text/javascript" src="js/modules/map/model/ObstacleCollection.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/unit/view/UnitView.js"></script>
         <script type="text/javascript" src="js/modules/obstacle/view/ObstacleView.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/map/model/MapModel.js"></script>
         <script type="text/javascript" src="js/modules/map/view/MapView.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/helper/Position.js"></script>
         <script type="text/javascript" src="js/modules/helper/Mathematic.js"></script>
-        
+
         <script type="text/javascript" src="js/modules/ai/model/AiFacade.js"></script>
         <script type="text/javascript" src="js/modules/ai/view/AiView.js"></script>
-        
+
+        <script type="text/javascript" src="js/modules/menu/model/MenuModel.js"></script>
+        <script type="text/javascript" src="js/modules/menu/view/MenuView.js"></script>
+
         <script type="text/javascript">
         var actionPanelView,
-            mapView;
+            mapView,
+            menuView;
 
         window.onload = function () {
-            actionPanelView = new ActionPanelView({
-                model: new ActionPanelModel()
-            });
-            
-            mapView = new MapView({
-                model: new MapModel()
+            menuView = new MenuView({
+                model: new MenuModel()
             });
         }
         </script>
