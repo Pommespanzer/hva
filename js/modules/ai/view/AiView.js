@@ -277,7 +277,7 @@ var AiView = Backbone.View.extend({
 
         // the order is to protect position
         if (order.action === 'protect') {
-            // do nothing if no enemy is available to attack
+            // do nothing if no enemy is available to attack and unit is in protected position
             if (true === this.options.facade.inPosition(unitPosition, order.positionToProtect, order.protectionRange)) {
                 this.nextUnit();
                 return;

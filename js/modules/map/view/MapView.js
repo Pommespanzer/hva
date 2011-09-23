@@ -28,6 +28,11 @@ var MapView = Backbone.View.extend({
      * contains all obstacle models
      */
     obstacleCollection: null,
+    
+    /**
+     * Block the events if the computer does its turn
+     */
+    blockEvents: false,
 
     /**
      * INIT
@@ -159,6 +164,11 @@ var MapView = Backbone.View.extend({
      * @return void
      */
     battlefieldAction: function (event) {
+        // block until computers turn is over
+        if (true === this.blockEvents) {
+            return;
+        }
+
         var selectedUnitId = this.model.getSelectedUnitId(),
             selectedUnitModel,
             clickedElement,

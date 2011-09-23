@@ -61,6 +61,7 @@ var ActionPanelView = Backbone.View.extend({
      * @return void
      */
     hideEndTurnLink: function () {
+        mapView.blockEvents = true;
         $('#js-end-turn').parent('li').addClass('hide');
     },
     
@@ -70,6 +71,7 @@ var ActionPanelView = Backbone.View.extend({
      * @return void
      */
     showEndTurnLink: function () {
+        mapView.blockEvents = false;
         $('#js-end-turn').parent('li').removeClass('hide');
     },
     
