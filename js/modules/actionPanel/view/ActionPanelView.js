@@ -61,7 +61,7 @@ var ActionPanelView = Backbone.View.extend({
      * @return void
      */
     hideEndTurnLink: function () {
-        $('#js-end-turn').addClass('hide');
+        $('#js-end-turn').parent('li').addClass('hide');
     },
     
     /**
@@ -70,7 +70,7 @@ var ActionPanelView = Backbone.View.extend({
      * @return void
      */
     showEndTurnLink: function () {
-        $('#js-end-turn').removeClass('hide');
+        $('#js-end-turn').parent('li').removeClass('hide');
     },
     
     /**
