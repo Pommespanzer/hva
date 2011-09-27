@@ -15,6 +15,11 @@ var UnitView = Backbone.View.extend({
     attackingSpriteAction: null,
 
     /**
+     * Node list of the audio player
+     */
+    audioplayer: null,
+
+    /**
      * init
      */
     initialize: function () {
@@ -34,11 +39,13 @@ var UnitView = Backbone.View.extend({
         this.model.bind('change:wayPoints', this.move);
         this.model.bind('attack', this.attack);
         this.model.bind('change:destroyed', this.destroy);
+
+        this.audioplayer = $('#js-sound-' + (this.model.get('isEnemy') ? 'enemy' : 'unit'));
     },
 
     /**
      * This method displays the fire range of the current selected unit.
-     *  
+     *
      * @return void
      */
     addFirerange: function () {
@@ -54,10 +61,10 @@ var UnitView = Backbone.View.extend({
     /**
      * This method updates (repaint) the fire range of the current selected unit.
      * This happens if an unit moves or unit change the current weapon.
-     * 
+     *
      * @param integer x
      * @param integer y
-     * 
+     *
      * @return void
      */
     updateFirerange: function (x, y) {
@@ -70,7 +77,7 @@ var UnitView = Backbone.View.extend({
     /**
      * This method removes the fire range of the current selected unit.
      * This happens if the unit dies or the user select an other unit.
-     *  
+     *
      * @return void
      */
     removeFirerange: function () {
@@ -80,10 +87,13 @@ var UnitView = Backbone.View.extend({
     /**
      * This method removes the unit from battlefield.
      * This happens if the unit dies.
-     *  
+     *
      * @return void
      */
     destroy: function () {
+        var audiofiles = this.model.get('sounds');
+        this.audioplayer[0].src = audiofiles.die;
+
         $(this.el).remove();
 
         if (this.model.isSelected()) {
@@ -94,10 +104,10 @@ var UnitView = Backbone.View.extend({
 
     /**
      * This method add or remove a class to highlight the unit as selected.
-     * 
+     *
      * @param object unitModel - UnitModel
      * @param bool value - true (selected) or false (unselected)
-     * 
+     *
      * @return void
      */
     select: function (unitModel, value) {
@@ -123,21 +133,27 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     startMovingSprite: function () {
-        // sprite already in progress 
+        // sprite already in progress
         if (null !== this.movingSpriteAction) {
             return;
         }
 
         var value = 50,
             currentPosition = -100,
-            unit = $(this.el);
+            unit = $(this.el),
+            audiofiles = this.model.get('sounds'),
+            _this = this;
 
         this.movingSpriteAction = window.setInterval(function () {
             if (currentPosition === -200) {
+                // play the audio file here, because of the good delay
+                _this.audioplayer[0].src = audiofiles.move;
                 value = 50;
             }
 
             if (currentPosition === 0) {
+                // play the audio file here, because of the good delay
+                _this.audioplayer[0].src = audiofiles.move;
                 value = -50;
             }
 
@@ -149,7 +165,7 @@ var UnitView = Backbone.View.extend({
 
     /**
      * This method is called after ending moving.
-     * 
+     *
      * @return void
      */
     stopMovingSprite: function () {
@@ -166,10 +182,10 @@ var UnitView = Backbone.View.extend({
 
     /**
      * This method animates the moving of an unit.
-     * 
+     *
      * @param object unitModel - UnitModel
      * @param array wayPoints - array of position objects
-     * 
+     *
      * @return void
      */
     move: function (unitModel, wayPoints) {
@@ -223,7 +239,7 @@ var UnitView = Backbone.View.extend({
 
                     // update the action panel for users selected unit
                     actionPanelView.update(unitModel);
-                    
+
                     // repeat until no way points are left
                     _this.move(unitModel, wayPoints);
                 }
@@ -234,11 +250,11 @@ var UnitView = Backbone.View.extend({
     /**
      * This method is called to transform unit in to attack position via sprites.
      * Than attack the enemy by calling the private method _attack().
-     * 
+     *
      * @return void
      */
     attack: function () {
-        // sprite already in progress 
+        // sprite already in progress
         if (null !== this.attackingSpriteAction) {
             return;
         }
@@ -280,7 +296,7 @@ var UnitView = Backbone.View.extend({
 
     /**
      * This method animates the attack of two units.
-     * 
+     *
      * @return void
      */
     _attack: function () {
@@ -301,7 +317,10 @@ var UnitView = Backbone.View.extend({
             angle = Mathematic.getAngle(position, enemyPosition),
             distance = Mathematic.getDistance(position, enemyPosition),
             _this = this,
+            audiofiles = this.model.get('sounds'),
             shoot;
+
+        this.audioplayer[0].src = audiofiles.attack;
 
         // render shot
         $('#battlefield').append(
@@ -344,7 +363,7 @@ var UnitView = Backbone.View.extend({
 
     /**
      * This method renders the unit on the battlefield.
-     * 
+     *
      * @return void
      */
     render: function () {
