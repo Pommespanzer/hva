@@ -14,7 +14,7 @@ var MapView = Backbone.View.extend({
 
     /**
      * Object of the map.
-     * 
+     *
      * @var object
      */
     battlefield: null,
@@ -28,7 +28,7 @@ var MapView = Backbone.View.extend({
      * contains all obstacle models
      */
     obstacleCollection: null,
-    
+
     /**
      * Block the events if the computer does its turn
      */
@@ -36,7 +36,7 @@ var MapView = Backbone.View.extend({
 
     /**
      * INIT
-     * 
+     *
      * @return void
      */
     initialize: function () {
@@ -65,9 +65,9 @@ var MapView = Backbone.View.extend({
 
     /**
      * This method adds all units to the map.
-     * 
+     *
      * @param array units - array of all units
-     * 
+     *
      * @return void
      */
     addUnits: function (units) {
@@ -91,7 +91,7 @@ var MapView = Backbone.View.extend({
                 unitModel.setActionPoints(units[i].actionPoints);
                 unitModel.isEnemy(units[i].isEnemy);
                 unitModel.setSpeed(units[i].speed);
-                unitModel.addWeapon(units[i].weapon);
+                unitModel.setWeapons(units[i].weapons);
                 unitModel.setOrder(units[i].order);
                 unitModel.setSounds(units[i].sounds);
 
@@ -102,9 +102,9 @@ var MapView = Backbone.View.extend({
 
     /**
      * This method adds all obstacles to the map.
-     * 
+     *
      * @param array obstacles - array of all obstacles
-     * 
+     *
      * @return void
      */
     addObstacles: function (obstacles) {
@@ -130,9 +130,9 @@ var MapView = Backbone.View.extend({
     /**
      * This method is called if an user clicked an unit.
      * It marks the unit as selected and updates the action panel.
-     * 
+     *
      * @param event
-     * 
+     *
      * @return void
      */
     selectUnit: function (event) {
@@ -158,9 +158,9 @@ var MapView = Backbone.View.extend({
     /**
      * This method dispatches all events on the map.
      * Events could be - click an unit - move an unit - attack an enemy - ...
-     * 
+     *
      * @param event
-     * 
+     *
      * @return void
      */
     battlefieldAction: function (event) {
@@ -235,11 +235,11 @@ var MapView = Backbone.View.extend({
     },
 
     /**
-     * This method removes an unit model from collection. That happens if 
+     * This method removes an unit model from collection. That happens if
      * an unit is destroyed.
-     * 
+     *
      * @param object unitModel - model of (i.e. destroyed) unit
-     * 
+     *
      * @return void
      */
     removeUnitFromCollection: function (unitModel) {
@@ -252,7 +252,7 @@ var MapView = Backbone.View.extend({
 
     /**
      * This method renders the map and all containing elements (units, obstacles , ...)
-     * 
+     *
      * @return void
      */
     render: function () {
@@ -452,14 +452,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -484,14 +484,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -516,14 +516,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -548,14 +548,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -580,14 +580,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -612,14 +612,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -647,7 +647,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
@@ -655,6 +655,14 @@ var LevelOne = {
                 firepower: 100,
                 firespeed: 200
             },
+            {
+                selected: true,
+                name: 'p9',
+                range: 3,
+                actionPoints: 1,
+                firepower: 70,
+                firespeed: 150
+            }],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -672,14 +680,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'bazooka',
                 range: 7,
                 actionPoints: 5,
                 firepower: 400,
                 firespeed: 300
-            },
+            }],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -697,14 +705,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'mg',
                 range: 5,
                 actionPoints: 2,
                 firepower: 100,
                 firespeed: 200
-            },
+            }],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -722,14 +730,14 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapon: {
+            weapons: [{
                 selected: true,
                 name: 'bazooka',
                 range: 7,
                 actionPoints: 5,
                 firepower: 400,
                 firespeed: 300
-            },
+            }],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',

@@ -1,11 +1,11 @@
 var AiFacade = Backbone.Model.extend({
     /**
      * This method checks if an enemy is in the range of a given position.
-     * 
+     *
      * @param object currentPosition
      * @param object goalPosition
      * @param integer positionRange
-     * 
+     *
      * @return bool true || false
      */
     inPosition: function (currentPosition, goalPosition, positionRange) {
@@ -26,11 +26,11 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method checks if an enemy is in fire range of current acting unit.
-     * 
+     *
      * @param object unitPosition
      * @param object enemyPosition
      * @param integer firerange
-     * 
+     *
      * @return bool true || false
      */
     inFirerange: function (unitPosition, enemyPosition, firerange) {
@@ -39,9 +39,9 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method returns the weakest enemy.
-     * 
+     *
      * @param array enemyModels - array of enemy models
-     * 
+     *
      * @return object weakestEnemy - model of the enemy
      */
     _getWeakestEnemy: function (enemyModels) {
@@ -68,10 +68,10 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method returns the closest enemy to current acting unit.
-     * 
+     *
      * @param object unitModel - model of current acting unit
      * @param array enemyModels - array of enemy models
-     * 
+     *
      * @return object closestEnemy - model of the enemy
      */
     _getClosestEnemy: function (unitModel, enemyModels) {
@@ -126,16 +126,16 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method collect all enemies which could be attacked by unit.
-     * 
+     *
      * @param object unitModel - model of current acting unit
      * @param array enemyModels - array of enemy models
-     * 
+     *
      * @return array attackableEnemies
      */
     getAttackableEnemies: function (unitModel, enemyModels) {
         console.log('[info] ############## ATTACKABLE ENEMIES ##############');
         var unitPosition = unitModel.getPosition(),
-            weapon = unitModel.get('weapons')[0],
+            weapon = unitModel.get('selectedWeapon'),
             enemyModel,
             enemyPosition,
             wayPoints,
@@ -225,17 +225,17 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method collect all enemies which could be destroyed by unit.
-     * 
+     *
      * @param object unitModel - model of current acting unit
      * @param array enemyModels - array of enemy models
-     * 
+     *
      * @return array destroyableEnemies
      */
     getDestroyableEnemies: function (unitModel, enemyModels) {
         console.log('[info] ############## DESTROYABLE ENEMIES ##############');
         var destroyableEnemies = [],
             unitPosition = unitModel.getPosition(),
-            weapon = unitModel.get('weapons')[0],
+            weapon = unitModel.get('selectedWeapon'),
             enemyModel,
             enemyPosition,
             weaponPower,
@@ -334,10 +334,10 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method collect all enemies sorted by distance to unit - ASC.
-     * 
+     *
      * @param object unitModel - model of current acting unit
      * @param array enemyModels - array of enemy models
-     * 
+     *
      * @return array closestEnemies
      */
     getClosestEnemies: function (unitModel, enemyModels) {
@@ -381,9 +381,9 @@ var AiFacade = Backbone.Model.extend({
 
     /**
      * This method collect all enemies sorted by strength - ASC.
-     * 
+     *
      * @param array enemyModels - array of enemy models
-     * 
+     *
      * @return array weakestEnemies
      */
     getWeakestEnemies: function (enemyModels) {

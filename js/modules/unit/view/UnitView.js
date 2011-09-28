@@ -32,6 +32,7 @@ var UnitView = Backbone.View.extend({
             'addFirerange',
             'updateFirerange',
             'removeFirerange',
+            'changeWeapon',
             'destroy'
         );
 
@@ -39,6 +40,7 @@ var UnitView = Backbone.View.extend({
         this.model.bind('change:wayPoints', this.move);
         this.model.bind('attack', this.attack);
         this.model.bind('change:destroyed', this.destroy);
+        this.model.bind('change:selectedWeapon', this.changeWeapon);
 
         this.audioplayer = $('#js-sound-' + (this.model.get('isEnemy') ? 'enemy' : 'unit'));
     },
@@ -49,7 +51,7 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     addFirerange: function () {
-        var weapon = this.model.get('weapons')[0],
+        var weapon = this.model.get('selectedWeapon'),
             padding = weapon.range * 50,
             position = this.model.getPosition(),
             x = (position.x * 50 - padding),
@@ -68,7 +70,7 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     updateFirerange: function (x, y) {
-        var weapon = this.model.get('weapons')[0],
+        var weapon = this.model.get('selectedWeapon'),
             padding = weapon.range * 50;
 
         $('#fr-' + this.model.get('id')).css({left: (x - padding), top: (y - padding)});
@@ -82,6 +84,19 @@ var UnitView = Backbone.View.extend({
      */
     removeFirerange: function () {
         $('#fr-' + this.model.get('id')).remove();
+    },
+
+    /**
+     * This method is called if the user changes his weapon.
+     *
+     * @param Object UnitModel
+     * @param Object weapon
+     *
+     * @return void
+     */
+    changeWeapon: function (unitModel, weapon) {
+        this.removeFirerange();
+        this.addFirerange();
     },
 
     /**
@@ -300,7 +315,7 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     _attack: function () {
-        var selectedWeapon = this.model.get('weapons')[0];
+        var selectedWeapon = this.model.get('selectedWeapon');
 
         // not enough action points -> quit
         if ((this.model.getCurrentActionPoints() - selectedWeapon.actionPoints) < 0) {

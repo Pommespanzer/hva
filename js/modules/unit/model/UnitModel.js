@@ -41,7 +41,7 @@ var UnitModel = Backbone.Model.extend({
     },
 
     getTotalActionPoints: function () {
-        return this.get('totalActionPoints');  
+        return this.get('totalActionPoints');
     },
 
     setArmor: function (armor) {
@@ -65,11 +65,16 @@ var UnitModel = Backbone.Model.extend({
         return this.get('currentArmor');
     },
 
-    addWeapon: function (weapon) {
-        var weapons = this.get('weapons') ? this.get('weapons') : [];
-        weapons.push(weapon);
-
+    setWeapons: function (weapons) {
+        if (weapons.length === 0) {
+            return;
+        }
         this.set({weapons: weapons});
+        this.setSelectedWeapon(weapons[0]);
+    },
+
+    setSelectedWeapon: function (weapon) {
+        this.set({selectedWeapon: weapon});
     },
 
     setSpeed: function (speed) {
@@ -85,7 +90,7 @@ var UnitModel = Backbone.Model.extend({
     },
 
     isSelected: function () {
-        return this.get('select');  
+        return this.get('select');
     },
 
     move: function (wayPoints) {

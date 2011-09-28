@@ -7,22 +7,22 @@
 }
 
 .unit.selected {
-    background-color: rgba(66, 140, 240, 0.5); 
-    border-color: rgba(0,0,255,0.5); 
+    background-color: rgba(66, 140, 240, 0.5);
+    border-color: rgba(0,0,255,0.5);
     text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
     text-align: center;
     -webkit-border-radius: 45px;
-    -moz-border-radius: 45px;                
+    -moz-border-radius: 45px;
     border-radius: 45px;
     -webkit-box-shadow: 0 0 45px rgba(66, 140, 240, 0.5);
     border: 1px solid #ccc;
-    
+
     -webkit-animation-name: glow;
     -webkit-animation-duration: 1s;
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-direction: alternate;
-    -webkit-animation-timing-function: ease-in-out;    
-    
+    -webkit-animation-timing-function: ease-in-out;
+
     -moz-animation-name: glow;
     -moz-animation-duration: 1s;
     -moz-animation-iteration-count: infinite;
@@ -55,12 +55,12 @@
     0% {
         -webkit-box-shadow: 0 0 16px rgba(66, 140, 240, 0.5);
         -moz-box-shadow: 0 0 16px rgba(66, 140, 240, 0.5);
-        border-color: rgba(0,0,255,0.5);         
+        border-color: rgba(0,0,255,0.5);
     }
     100% {
         -webkit-box-shadow: 0 0 16px rgba(66, 140, 240, 1.0), 0 0 36px rgba(0, 140, 255, 1.0);
         -moz-box-shadow: 0 0 16px rgba(66, 140, 240, 1.0), 0 0 36px rgba(0, 140, 255, 1.0);
-        border-color: rgba(0,0,255,1.0); 
+        border-color: rgba(0,0,255,1.0);
     }
 }
 
@@ -68,12 +68,12 @@
     0% {
         -webkit-box-shadow: 0 0 16px rgba(66, 140, 240, 0.5);
         -moz-box-shadow: 0 0 16px rgba(66, 140, 240, 0.5);
-        border-color: rgba(0,0,255,0.5);         
+        border-color: rgba(0,0,255,0.5);
     }
     100% {
         -webkit-box-shadow: 0 0 16px rgba(66, 140, 240, 1.0), 0 0 36px rgba(0, 140, 255, 1.0);
         -moz-box-shadow: 0 0 16px rgba(66, 140, 240, 1.0), 0 0 36px rgba(0, 140, 255, 1.0);
-        border-color: rgba(0,0,255,1.0); 
+        border-color: rgba(0,0,255,1.0);
     }
 }
 
@@ -100,6 +100,35 @@
         -moz-box-shadow: 0 0 2px rgba(255, 255, 0, 1.0), 0 0 8px 3px rgba(255, 255, 0, 1.0);
         border-color: rgba(255, 255, 0,1.0);
     }
+}
+
+.p9 {
+    width:12px;
+    height: -2px;
+    margin: 0;
+    padding: 0;
+
+    background-color: rgba(0, 255, 0, 0.5);
+    border: 1px solid #ccc;
+    border-color: rgba(0, 255,0,0.5);
+    color: #000;
+    text-shadow: rgba(20, 20, 20, 0.5) 1px 1px 5px;
+    -webkit-border-radius: 45px;
+    -moz-border-radius: 45px;
+    border-radius: 45px;
+    -webkit-box-shadow: 0 0 500px rgba(0, 255, 0, 0.5);
+
+    -webkit-animation-name: glow-mg;
+    -webkit-animation-duration: 0.2s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-timing-function: ease-in-out;
+
+    -moz-animation-name: glow-mg;
+    -moz-animation-duration: 0.2s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-direction: alternate;
+    -moz-animation-timing-function: ease-in-out;
 }
 
 .mg {
@@ -131,7 +160,7 @@
     -moz-animation-timing-function: ease-in-out;
 }
 
-.mg.enemy {
+.mg.enemy, .p9.enemy {
     background-color: rgba(255, 0, 0, 0.5);
     border-color: rgba(255,0,0,0.5);
     -webkit-box-shadow: 0 0 500px rgba(255, 0, 0, 0.5);
