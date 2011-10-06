@@ -190,7 +190,8 @@ var UnitView = Backbone.View.extend({
 
         var unit = $(this.el);
         unit.css('background-position', '-100px 0');
-
+        this.model.setBackgroundPosition(-100, 0);
+        
         window.clearInterval(this.movingSpriteAction);
         this.movingSpriteAction = null;
     },
@@ -210,7 +211,7 @@ var UnitView = Backbone.View.extend({
 
         // goal reached or not enough action points for moving -> quit
         if (wayPoints.length === 0 || unitModel.getCurrentActionPoints() === 0) {
-            this.model.isBusy(false);
+            unitModel.isBusy(false);
             this.stopMovingSprite();
             unitModel.trigger('movingFinished');
             return;
@@ -269,17 +270,16 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     attack: function () {
+console.log('+++ attack animation +++');
         // sprite already in progress
         if (null !== this.attackingSpriteAction) {
+console.log('FAIL. Attack animation still in progress');
             return;
         }
 
         var value = 50,
             unit = $(this.el),
-            backgroundPositionString,
-            backgroundPositionArray,
-            backgroundPositionX,
-            backgroundPositionY,
+            backgroundPosition = this.model.get('backgroundPosition'),
             position = this.model.getPosition(),
             enemy = this.model.get('enemy'),
             enemyPosition = enemy.getPosition(),
@@ -290,22 +290,19 @@ var UnitView = Backbone.View.extend({
         unit.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
         this.attackingSpriteAction = window.setInterval($.proxy(function () {
-            backgroundPositionString = unit.css('background-position');
-            backgroundPositionArray = backgroundPositionString.split(' ');
-            backgroundPositionX = parseInt(backgroundPositionArray[0], 10);
-            backgroundPositionY = parseInt(backgroundPositionArray[1], 10);
+console.log('OK. Attacking sprite change');
 
-            if (backgroundPositionX === -350) {
+            if (backgroundPosition.x === -350) {
+console.log('OK. Now start shooting');
                 window.clearInterval(this.attackingSpriteAction);
                 this.attackingSpriteAction = null;
 
                 this._attack();
                 return;
             }
-
-            backgroundPositionX -= value;
-
-            unit.css('background-position', backgroundPositionX + 'px ' + backgroundPositionY + 'px');
+            backgroundPosition.x -= value;
+            this.model.setBackgroundPosition(backgroundPosition.x, backgroundPosition.y);
+            unit.css('background-position', backgroundPosition.x + 'px ' + backgroundPosition.y + 'px');
         }, this), 100);
     },
 
@@ -319,6 +316,8 @@ var UnitView = Backbone.View.extend({
 
         // not enough action points -> quit
         if ((this.model.getCurrentActionPoints() - selectedWeapon.actionPoints) < 0) {
+            this.model.isBusy(false);
+            this.model.trigger('attackingFinished');
             return;
         }
 

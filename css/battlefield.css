@@ -1,11 +1,12 @@
 #battlefield {
     overflow: hidden;
-    background-image: url(../images/map.png);
+    /*background-image: url(../images/map2.png);*/
     clear: both;
     position: relative;
-    width: 1000px; 
-    height: 1000px;
+    width: 2000px;
+    height: 1250px;
     margin-top: 5px;
     margin-bottom: 200px;
     border: 1px solid #ccc;
+    background-color: #aaa;
 }

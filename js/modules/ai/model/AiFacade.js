@@ -133,7 +133,6 @@ var AiFacade = Backbone.Model.extend({
      * @return array attackableEnemies
      */
     getAttackableEnemies: function (unitModel, enemyModels) {
-        console.log('[info] ############## ATTACKABLE ENEMIES ##############');
         var unitPosition = unitModel.getPosition(),
             weapon = unitModel.get('selectedWeapon'),
             enemyModel,
@@ -155,7 +154,6 @@ var AiFacade = Backbone.Model.extend({
                 if (this.inFirerange(unitPosition, enemyPosition, weapon.range) &&
                     mapView.model.isShootingPossible(mapView.obstacleCollection, unitPosition, enemyPosition) &&
                     unitModel.getCurrentActionPoints() > weapon.actionPoints) {
-                    console.log('[info] - ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ') IS IN FIRERANGE AND PROPER ATTACK POSITION');
                     attackableEnemies.push({
                         wayPoints: [],
                         model: enemyModel
@@ -173,13 +171,11 @@ var AiFacade = Backbone.Model.extend({
 
                 // no way points
                 if (!wayPoints) {
-                    console.log('[info] - NO WAY POINTS TO ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                     continue;
                 }
 
                 // not reachable
                 if ((wayPoints.length - weapon.range) > unitModel.getCurrentActionPoints()) {
-                    console.log('[info] - ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ') TO FAR AWAY');
                     continue;
                 }
 
@@ -201,7 +197,6 @@ var AiFacade = Backbone.Model.extend({
 
                 // no way point is a proper fire position
                 if (null === slicePosition) {
-                    console.log('[info] - NO PROPER FIRE POSITION FOUND TO ATTACK ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                     continue;
                 }
 
@@ -209,11 +204,9 @@ var AiFacade = Backbone.Model.extend({
 
                 // reachable, but not enough action points to attack after moving
                 if ((unitModel.getCurrentActionPoints() - wayPoints.length) < weapon.actionPoints) {
-                    console.log('[info] - NOT ENOUGHT ACTION POINTS TO MOVE AND THAN ATTACK THE ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                     continue;
                 }
 
-                console.log('[info] - CAN ATTACK THE ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                 attackableEnemies.push({
                     wayPoints: wayPoints,
                     model: enemyModel
@@ -232,7 +225,6 @@ var AiFacade = Backbone.Model.extend({
      * @return array destroyableEnemies
      */
     getDestroyableEnemies: function (unitModel, enemyModels) {
-        console.log('[info] ############## DESTROYABLE ENEMIES ##############');
         var destroyableEnemies = [],
             unitPosition = unitModel.getPosition(),
             weapon = unitModel.get('selectedWeapon'),
@@ -256,7 +248,6 @@ var AiFacade = Backbone.Model.extend({
                     mapView.model.isShootingPossible(mapView.obstacleCollection, unitPosition, enemyPosition)) {
                     weaponPower = Math.floor(unitModel.getCurrentActionPoints() / weapon.actionPoints) * weapon.firepower;
                     if (enemyModel.getCurrentArmor() <= weaponPower) {
-                        console.log('[info] - ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ') IS IN FIRERANGE AND PROPER ATTACK POSITION AND DESTROYABLE');
                         destroyableEnemies.push({
                             wayPoints: [],
                             model: enemyModel
@@ -275,13 +266,11 @@ var AiFacade = Backbone.Model.extend({
 
                 // no way points
                 if (!wayPoints) {
-                    console.log('[info] - NO WAY POINTS TO ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                     continue;
                 }
 
                 // not reachable
                 if ((wayPoints.length - weapon.range) > unitModel.getCurrentActionPoints()) {
-                    console.log('[info] - ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ') TO FAR AWAY');
                     continue;
                 }
 
@@ -303,7 +292,6 @@ var AiFacade = Backbone.Model.extend({
 
                 // no way point is a proper fire position
                 if (null === slicePosition) {
-                    console.log('[info] - NO PROPER FIRE POSITION FOUND TO ATTACK ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                     continue;
                 }
 
@@ -311,18 +299,15 @@ var AiFacade = Backbone.Model.extend({
 
                 // reachable, but not enough action points to attack after moving
                 if ((unitModel.getCurrentActionPoints() - wayPoints.length) < weapon.actionPoints) {
-                    console.log('[info] - NOT ENOUGHT ACTION POINTS TO MOVE AND THAN ATTACK THE ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                     continue;
                 }
 
                 weaponPower = Math.floor((unitModel.getCurrentActionPoints() - wayPoints.length) / weapon.actionPoints) * weapon.firepower;
 
                 if (enemyModel.getCurrentArmor() > weaponPower) {
-                    console.log('[info] - ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ') IS REACHABLE AND ATTACKABLE BUT CAN NOT BE DESTROYED');
                     continue;
                 }
 
-                console.log('[info] - CAN DESTROY THE ENEMY (' + enemyPosition.x + ', ' + enemyPosition.y + ')');
                 destroyableEnemies.push({
                     wayPoints: wayPoints,
                     model: enemyModel
@@ -341,7 +326,6 @@ var AiFacade = Backbone.Model.extend({
      * @return array closestEnemies
      */
     getClosestEnemies: function (unitModel, enemyModels) {
-        console.log('[info] ############## CLOSEST ENEMIES ##############');
         var closestEnemies = [],
             closestEnemy,
             enemyModel,
@@ -370,10 +354,6 @@ var AiFacade = Backbone.Model.extend({
                 }
             }
 
-            // just for debugging
-            closestEnemyPosition = closestEnemy.getPosition();
-            console.log('[info] - ' + (i + 1) + '. ENEMY (' + closestEnemyPosition.x + ', ' + closestEnemyPosition.y + ') WITH CLOSEST DISTANCE.');
-
             closestEnemies.push(closestEnemy);
         }
         return closestEnemies;
@@ -387,7 +367,6 @@ var AiFacade = Backbone.Model.extend({
      * @return array weakestEnemies
      */
     getWeakestEnemies: function (enemyModels) {
-        console.log('[info] ############## WEAKEST ENEMIES ##############');
         var weakestEnemies = [],
             weakestEnemy,
             enemyModel,
@@ -415,10 +394,6 @@ var AiFacade = Backbone.Model.extend({
                     helperArray.push(enemyModel);
                 }
             }
-
-            // just for debugging
-            weakestEnemyPosition = weakestEnemy.getPosition();
-            console.log('[info] - ' + (i + 1) + '. WEAKEST ENEMY (' + weakestEnemyPosition.x + ', ' + weakestEnemyPosition.y + ').');
 
             weakestEnemies.push(weakestEnemy);
         }

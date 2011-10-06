@@ -106,12 +106,12 @@ var ActionPanelView = Backbone.View.extend({
      * @return void
      */
     update: function (unitModel) {
-        this.currentUnitModel = unitModel;
-
         // if unit is not selected -> avoid updating
         if (!unitModel.isSelected() || unitModel.get('isEnemy')) {
             return;
         }
+
+        this.currentUnitModel = unitModel;
 
         var weapons = $('#js-weapons'),
             status = $('#js-status');
@@ -128,9 +128,9 @@ var ActionPanelView = Backbone.View.extend({
             newWidthActionPoints = onePercent * unitModel.getCurrentActionPoints(),
             allWeapons = unitModel.get('weapons'),
             weaponHtml = [],
-            statusHtml = [];
+            statusHtml = [],
+            i;
 
-        var i;
         for (i = 0; i < allWeapons.length; i += 1) {
             weaponHtml.push('<li><a href="javascript:;" class="js-weapon" data-weapon=' + JSON.stringify(allWeapons[i]) + '>' + allWeapons[i].name + '</a></li>');
         }

@@ -11,6 +11,10 @@ var UnitModel = Backbone.Model.extend({
         this.set({position: {x: x, y: y}});
     },
 
+    setBackgroundPosition: function (x, y) {
+        this.set({backgroundPosition: {x: x, y: y}});
+    },
+
     getPosition: function () {
         return this.get('position');
     },
