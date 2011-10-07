@@ -212,18 +212,6 @@ console.log('OK. User does not clicked on an obstacle');
 console.log('OK. User click on an enemy to attack them');
             enemyModel = this.unitCollection.get(event.target.id);
 
-            // enemy out of range? -> quit
-            if (false === this.model.isEnemyInRange(selectedUnitModel, enemyModel)) {
-console.log('FAIL. Enemy is to far away');
-                return false;
-            }
-
-            // check if unit has a free shot line
-            if (false === this.model.isShootingPossible(this.obstacleCollection, startPosition, goalPosition)) {
-console.log('FAIL. Something is in the way');
-                return false;
-            }
-
             selectedUnitModel.attack(enemyModel);
             // enemy will protect them self
             enemyModel.attack(selectedUnitModel);
@@ -1353,6 +1341,126 @@ var LevelOne = {
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
+                attack: 'audio/unit/soldierMG/attack.wav',
+                die: 'audio/unit/soldierMG/die.wav'
+            }
+        },
+        {
+            position: {
+                x: 27,
+                y: 2
+            },
+            type: 'defense-tower',
+            armor: 1000,
+            actionPoints: 10,
+            isEnemy: true,
+            speed: 0,
+            weapons: [{
+                name: 'bazooka',
+                range: 6,
+                actionPoints: 5,
+                firepower: 600,
+                firespeed: 150
+            }],
+            order: {
+                action: 'protect',
+                positionToProtect: {
+                    x: 27,
+                    y: 2
+                },
+                protectionRange: 5
+            },
+            sounds: {
+                attack: 'audio/unit/soldierMG/attack.wav',
+                die: 'audio/unit/soldierMG/die.wav'
+            }
+        },
+        {
+            position: {
+                x: 27,
+                y: 8
+            },
+            type: 'defense-tower',
+            armor: 1000,
+            actionPoints: 10,
+            isEnemy: true,
+            speed: 0,
+            weapons: [{
+                name: 'bazooka',
+                range: 6,
+                actionPoints: 5,
+                firepower: 600,
+                firespeed: 150
+            }],
+            order: {
+                action: 'protect',
+                positionToProtect: {
+                    x: 27,
+                    y: 8
+                },
+                protectionRange: 5
+            },
+            sounds: {
+                attack: 'audio/unit/soldierMG/attack.wav',
+                die: 'audio/unit/soldierMG/die.wav'
+            }
+        },
+        {
+            position: {
+                x: 27,
+                y: 9
+            },
+            type: 'defense-tower',
+            armor: 1000,
+            actionPoints: 10,
+            isEnemy: true,
+            speed: 0,
+            weapons: [{
+                name: 'bazooka',
+                range: 6,
+                actionPoints: 5,
+                firepower: 600,
+                firespeed: 150
+            }],
+            order: {
+                action: 'protect',
+                positionToProtect: {
+                    x: 27,
+                    y: 9
+                },
+                protectionRange: 5
+            },
+            sounds: {
+                attack: 'audio/unit/soldierMG/attack.wav',
+                die: 'audio/unit/soldierMG/die.wav'
+            }
+        },
+        {
+            position: {
+                x: 27,
+                y: 19
+            },
+            type: 'defense-tower',
+            armor: 1000,
+            actionPoints: 10,
+            isEnemy: true,
+            speed: 0,
+            weapons: [{
+                name: 'bazooka',
+                range: 6,
+                actionPoints: 5,
+                firepower: 600,
+                firespeed: 150
+            }],
+            order: {
+                action: 'protect',
+                positionToProtect: {
+                    x: 27,
+                    y: 19
+                },
+                protectionRange: 5
+            },
+            sounds: {
                 attack: 'audio/unit/soldierMG/attack.wav',
                 die: 'audio/unit/soldierMG/die.wav'
             }

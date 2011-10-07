@@ -41,6 +41,16 @@ var AiView = Backbone.View.extend({
             }
         }
 
+        if (this.enemyModels.length === 0) {
+            alert('Du wurdest vernichtet! Weitere Levels sind in Entwicklung.');
+            return;
+        }
+
+        if (this.unitModels.length === 0) {
+            alert('Du hast gewonnen! Weitere Levels sind in Entwicklung.');
+            return;
+        }
+
         this.nextUnit(null);
     },
 
@@ -88,7 +98,8 @@ console.log('OK. No units found -> end the turn');
 
             var i,
                 selectedUnitId,
-                selectedUnitModel;
+                selectedUnitModel,
+                selectedUnitPosition;
 
             for (i in this.enemyModels) {
                 if (this.enemyModels.hasOwnProperty(i)) {
@@ -100,14 +111,21 @@ console.log('OK. No units found -> end the turn');
             selectedUnitId = mapView.model.getSelectedUnitId();
             if (selectedUnitId) {
                 selectedUnitModel = mapView.unitCollection.get(selectedUnitId);
+                selectedUnitPosition = selectedUnitModel.getPosition();
                 actionPanelView.update(selectedUnitModel);
+                window.scrollTo(selectedUnitPosition.x * 50, selectedUnitPosition.y * 50) ;
             }
             actionPanelView.showEndTurnLink();
+            $('#battlefield').css('cursor', 'auto');
             return;
         }
+
+        $('#battlefield').css('cursor', 'progress');
+
 console.log('OK. Choose next unit');
         var unitModel = this.unitModels.pop(),
-            order = unitModel.get('order');
+            order = unitModel.get('order'),
+            position = unitModel.getPosition();
 
         // unit has no order, than search and destroy enemies
         if (!order) {
@@ -116,6 +134,9 @@ console.log('FAIL. Unit has no order -> next unit');
             this.nextUnit(unitModel);
             return;
         }
+
+        window.scrollTo(position.x * 50, position.y * 50) ;
+
 console.log('OK. Unit start with the order');
         this.doAction(unitModel, order);
     },
@@ -176,7 +197,7 @@ console.info('WORK AROUND Same way points like already saved -> explicit nextUni
             this.nextUnit(unitModel);
             return;
         }
-        
+
         var _this = this;
         unitModel.unbind('movingFinished').bind('movingFinished', function () {
 console.log('OK. Finished moving');

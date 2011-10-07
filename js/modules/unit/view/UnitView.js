@@ -153,6 +153,13 @@ var UnitView = Backbone.View.extend({
             return;
         }
 
+        // REMOVE ME
+        if (this.model.get('type') === 'defense-tower') {
+            this.model.isBusy(false);
+            this.model.trigger('movingFinished');
+            return;
+        }
+
         var value = 50,
             currentPosition = -100,
             unit = $(this.el),
@@ -191,7 +198,7 @@ var UnitView = Backbone.View.extend({
         var unit = $(this.el);
         unit.css('background-position', '-100px 0');
         this.model.setBackgroundPosition(-100, 0);
-        
+
         window.clearInterval(this.movingSpriteAction);
         this.movingSpriteAction = null;
     },
@@ -289,6 +296,25 @@ console.log('FAIL. Attack animation still in progress');
         unit.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
         unit.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
+        // enemy out of range? -> quit
+        if (false === mapView.model.isEnemyInRange(this.model, enemy)) {
+            this.model.isBusy(false);
+            this.model.trigger('attackingFinished');
+            return;
+        }
+
+        // check if unit has a free shot line
+        if (false === mapView.model.isShootingPossible(mapView.obstacleCollection, position, enemyPosition)) {
+            this.model.isBusy(false);
+            this.model.trigger('attackingFinished');
+            return;
+        }
+
+        // REMOVE ME LATER IN CHILD CLASS OR WHAT EVER
+        if (this.model.get('type') === 'defense-tower') {
+            return this._attack();
+        }
+
         this.attackingSpriteAction = window.setInterval($.proxy(function () {
 console.log('OK. Attacking sprite change');
 
@@ -348,7 +374,7 @@ console.log('OK. Now start shooting');
                 top: (enemyPosition.y * 50) + 25
             },
             {
-                duration: (distance / selectedWeapon.firespeed) * 10000, // t = s/v
+                duration: selectedWeapon.firespeed,
                 easing: 'linear',
                 complete: function () {
                     shoot.remove();
