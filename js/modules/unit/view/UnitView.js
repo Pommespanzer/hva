@@ -347,6 +347,13 @@ console.log('OK. Now start shooting');
             return;
         }
 
+        // if unit dies while attacking process -> quit
+        if (this.model.get('currentArmor') <= 0) {
+            this.model.isBusy(false);
+            this.model.trigger('attackingFinished');
+            return;
+        }
+
         this.model.isBusy(true);
 
         var unique = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),

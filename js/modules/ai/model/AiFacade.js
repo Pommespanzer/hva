@@ -151,9 +151,9 @@ var AiFacade = Backbone.Model.extend({
                 enemyPosition = enemyModel.getPosition();
 
                 // enemy is in fire range and in shoot position
-                if (this.inFirerange(unitPosition, enemyPosition, weapon.range) &&
+                if (this.inFirerange(unitPosition, enemyPosition, weapon.model.get('range')) &&
                     mapView.model.isShootingPossible(mapView.obstacleCollection, unitPosition, enemyPosition) &&
-                    unitModel.getCurrentActionPoints() > weapon.actionPoints) {
+                    unitModel.getCurrentActionPoints() > weapon.model.get('actionPoints')) {
                     attackableEnemies.push({
                         wayPoints: [],
                         model: enemyModel
@@ -175,7 +175,7 @@ var AiFacade = Backbone.Model.extend({
                 }
 
                 // not reachable
-                if ((wayPoints.length - weapon.range) > unitModel.getCurrentActionPoints()) {
+                if ((wayPoints.length - weapon.model.get('range')) > unitModel.getCurrentActionPoints()) {
                     continue;
                 }
 
@@ -186,7 +186,7 @@ var AiFacade = Backbone.Model.extend({
                     startPosition = {x: currentWayPoint.row, y: currentWayPoint.col};
 
                     // not in range and not in proper fire position
-                    if (false === this.inFirerange(startPosition, enemyPosition, weapon.range) ||
+                    if (false === this.inFirerange(startPosition, enemyPosition, weapon.model.get('range')) ||
                         false === mapView.model.isShootingPossible(mapView.obstacleCollection, startPosition, enemyPosition)) {
                         continue;
                     }
@@ -203,7 +203,7 @@ var AiFacade = Backbone.Model.extend({
                 wayPoints = wayPoints.slice(0, slicePosition + 1);
 
                 // reachable, but not enough action points to attack after moving
-                if ((unitModel.getCurrentActionPoints() - wayPoints.length) < weapon.actionPoints) {
+                if ((unitModel.getCurrentActionPoints() - wayPoints.length) < weapon.model.get('actionPoints')) {
                     continue;
                 }
 
@@ -244,9 +244,9 @@ var AiFacade = Backbone.Model.extend({
                 enemyPosition = enemyModel.getPosition();
 
                 // enemy is in fire range and in shoot position
-                if (this.inFirerange(unitPosition, enemyPosition, weapon.range) &&
+                if (this.inFirerange(unitPosition, enemyPosition, weapon.model.get('range')) &&
                     mapView.model.isShootingPossible(mapView.obstacleCollection, unitPosition, enemyPosition)) {
-                    weaponPower = Math.floor(unitModel.getCurrentActionPoints() / weapon.actionPoints) * weapon.firepower;
+                    weaponPower = Math.floor(unitModel.getCurrentActionPoints() / weapon.model.get('actionPoints')) * weapon.model.get('firepower');
                     if (enemyModel.getCurrentArmor() <= weaponPower) {
                         destroyableEnemies.push({
                             wayPoints: [],
@@ -270,7 +270,7 @@ var AiFacade = Backbone.Model.extend({
                 }
 
                 // not reachable
-                if ((wayPoints.length - weapon.range) > unitModel.getCurrentActionPoints()) {
+                if ((wayPoints.length - weapon.model.get('range')) > unitModel.getCurrentActionPoints()) {
                     continue;
                 }
 
@@ -281,7 +281,7 @@ var AiFacade = Backbone.Model.extend({
                     startPosition = {x: currentWayPoint.row, y: currentWayPoint.col};
 
                     // not in range and not in proper fire position
-                    if (false === this.inFirerange(startPosition, enemyPosition, weapon.range) ||
+                    if (false === this.inFirerange(startPosition, enemyPosition, weapon.model.get('range')) ||
                         false === mapView.model.isShootingPossible(mapView.obstacleCollection, startPosition, enemyPosition)) {
                         continue;
                     }
@@ -298,11 +298,11 @@ var AiFacade = Backbone.Model.extend({
                 wayPoints = wayPoints.slice(0, slicePosition + 1);
 
                 // reachable, but not enough action points to attack after moving
-                if ((unitModel.getCurrentActionPoints() - wayPoints.length) < weapon.actionPoints) {
+                if ((unitModel.getCurrentActionPoints() - wayPoints.length) < weapon.model.get('actionPoints')) {
                     continue;
                 }
 
-                weaponPower = Math.floor((unitModel.getCurrentActionPoints() - wayPoints.length) / weapon.actionPoints) * weapon.firepower;
+                weaponPower = Math.floor((unitModel.getCurrentActionPoints() - wayPoints.length) / weapon.model.get('actionPoints') * weapon.model.get('firepower'));
 
                 if (enemyModel.getCurrentArmor() > weaponPower) {
                     continue;
