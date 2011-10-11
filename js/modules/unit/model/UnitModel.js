@@ -73,8 +73,20 @@ var UnitModel = Backbone.Model.extend({
         if (weapons.length === 0) {
             return;
         }
-        this.set({weapons: weapons});
-        this.setSelectedWeapon(weapons[0]);
+
+        var i,
+            weaponObj,
+            weaponsArray = [];
+
+        for (i = 0; i < weapons.length; i += 1) {
+            weaponObj = new weapons[i]({
+                model: new WeaponModel()
+            });
+            weaponsArray.push(weaponObj);
+        }
+
+        this.set({weapons: weaponsArray});
+        this.setSelectedWeapon(weaponsArray[0]);
     },
 
     setSelectedWeapon: function (weapon) {

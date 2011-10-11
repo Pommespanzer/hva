@@ -33,6 +33,12 @@
         <script type="text/javascript" src="js/modules/map/model/UnitCollection.js"></script>
         <script type="text/javascript" src="js/modules/map/model/ObstacleCollection.js"></script>
 
+        <script type="text/javascript" src="js/modules/weapon/model/WeaponModel.js"></script>
+        <script type="text/javascript" src="js/modules/weapon/view/MachineGunView.js"></script>
+        <script type="text/javascript" src="js/modules/weapon/view/BazookaView.js"></script>
+        <script type="text/javascript" src="js/modules/weapon/view/PistolView.js"></script>
+        <script type="text/javascript" src="js/modules/weapon/view/DoubleBazookaView.js"></script>
+
         <script type="text/javascript" src="js/modules/unit/view/UnitView.js"></script>
         <script type="text/javascript" src="js/modules/obstacle/view/ObstacleView.js"></script>
 
@@ -53,7 +59,7 @@
             mapView,
             menuView;
 
-        console.log = function() {};
+        //console.log = function() {};
 
         window.onload = function () {
             menuView = new MenuView({

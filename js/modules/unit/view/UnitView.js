@@ -52,7 +52,7 @@ var UnitView = Backbone.View.extend({
      */
     addFirerange: function () {
         var weapon = this.model.get('selectedWeapon'),
-            padding = weapon.range * 50,
+            padding = weapon.model.get('range') * 50,
             position = this.model.getPosition(),
             x = (position.x * 50 - padding),
             y = (position.y * 50 - padding);
@@ -71,7 +71,7 @@ var UnitView = Backbone.View.extend({
      */
     updateFirerange: function (x, y) {
         var weapon = this.model.get('selectedWeapon'),
-            padding = weapon.range * 50;
+            padding = weapon.model.get('range') * 50;
 
         $('#fr-' + this.model.get('id')).css({left: (x - padding), top: (y - padding)});
     },
@@ -153,13 +153,6 @@ var UnitView = Backbone.View.extend({
             return;
         }
 
-        // REMOVE ME
-        if (this.model.get('type') === 'defense-tower') {
-            this.model.isBusy(false);
-            this.model.trigger('movingFinished');
-            return;
-        }
-
         var value = 50,
             currentPosition = -100,
             unit = $(this.el),
@@ -212,6 +205,13 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     move: function (unitModel, wayPoints) {
+        // REMOVE ME
+        if (unitModel.get('type') === 'defense-tower') {
+            unitModel.isBusy(false);
+            unitModel.trigger('movingFinished');
+            return;
+        }
+
         unitModel.isBusy(true);
 
         this.startMovingSprite();
@@ -341,7 +341,7 @@ console.log('OK. Now start shooting');
         var selectedWeapon = this.model.get('selectedWeapon');
 
         // not enough action points -> quit
-        if ((this.model.getCurrentActionPoints() - selectedWeapon.actionPoints) < 0) {
+        if ((this.model.getCurrentActionPoints() - selectedWeapon.model.get('actionPoints')) < 0) {
             this.model.isBusy(false);
             this.model.trigger('attackingFinished');
             return;
@@ -358,34 +358,36 @@ console.log('OK. Now start shooting');
             distance = Mathematic.getDistance(position, enemyPosition),
             _this = this,
             audiofiles = this.model.get('sounds'),
-            shoot;
+            shoot = selectedWeapon.renderShot(position, angle, this.model.get('isEnemy'));;
 
         this.audioplayer[0].src = audiofiles.attack;
 
+/*
         // render shot
         $('#battlefield').append(
             '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.model.get('isEnemy') ? 'enemy' : '') + '" style="position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + 12) + 'px;"></div>'
         );
 
-        shoot = $('.' + selectedWeapon.name + '.' + unique);
+        shoot = $('.' + shotId);
+*/
         shoot.animate(
             {
                 left: (enemyPosition.x * 50) + 12,
                 top: (enemyPosition.y * 50) + 25
             },
             {
-                duration: selectedWeapon.firespeed,
+                duration: selectedWeapon.model.get('firespeed'),
                 easing: 'linear',
                 complete: function () {
                     shoot.remove();
 
                     // decrement units action points
                     _this.model.setCurrentActionPoints(
-                        _this.model.getCurrentActionPoints() - selectedWeapon.actionPoints
+                        _this.model.getCurrentActionPoints() - selectedWeapon.model.get('actionPoints')
                     );
 
                     // the enemy is hit and the armor has to be decremented
-                    enemy.setCurrentArmor(enemy.getCurrentArmor() - selectedWeapon.firepower);
+                    enemy.setCurrentArmor(enemy.getCurrentArmor() - selectedWeapon.model.get('firepower'));
 
                     // update the action panel for users selected unit
                     if (false === _this.model.get('isEnemy')) {

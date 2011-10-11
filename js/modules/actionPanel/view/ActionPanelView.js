@@ -93,8 +93,9 @@ var ActionPanelView = Backbone.View.extend({
      */
     selectWeapon: function (event) {
         var htmlObject = $(event.target),
-            weapon = JSON.parse(htmlObject.attr('data-weapon'));
-        this.currentUnitModel.setSelectedWeapon(weapon);
+            weaponNr = htmlObject.attr('data-weaponNr'),
+            allWeapons = this.currentUnitModel.get('weapons');
+        this.currentUnitModel.setSelectedWeapon(allWeapons[weaponNr]);
     },
 
     /**
@@ -132,7 +133,7 @@ var ActionPanelView = Backbone.View.extend({
             i;
 
         for (i = 0; i < allWeapons.length; i += 1) {
-            weaponHtml.push('<li><a href="javascript:;" class="js-weapon" data-weapon=' + JSON.stringify(allWeapons[i]) + '>' + allWeapons[i].name + '</a></li>');
+            weaponHtml.push('<li><a href="javascript:;" class="js-weapon" data-weaponNr=' + i + '>' + allWeapons[i].model.get('name') + '</a></li>');
         }
         weapons.html(weaponHtml.join(''));
 

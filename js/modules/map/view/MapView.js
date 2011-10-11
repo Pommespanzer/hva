@@ -887,13 +887,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -918,13 +912,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -949,13 +937,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -980,13 +962,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1011,13 +987,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1042,13 +1012,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1073,13 +1037,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: true,
             speed: 200,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            }],
+            weapons: [MachineGunView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1107,20 +1065,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
+            weapons: [MachineGunView, PistolView],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -1138,20 +1083,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
+            weapons: [MachineGunView, PistolView],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -1169,51 +1101,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapons: [{
-                name: 'bazooka',
-                range: 7,
-                actionPoints: 5,
-                firepower: 400,
-                firespeed: 300
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 7,
-                y: 0
-            },
-            type: 'unit-human-bazooka',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [{
-                name: 'bazooka',
-                range: 7,
-                actionPoints: 5,
-                firepower: 400,
-                firespeed: 300
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
+            weapons: [BazookaView, PistolView],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -1231,20 +1119,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
+            weapons: [MachineGunView, PistolView],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -1262,20 +1137,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapons: [{
-                name: 'mg',
-                range: 5,
-                actionPoints: 2,
-                firepower: 100,
-                firespeed: 200
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
+            weapons: [MachineGunView, PistolView],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -1293,51 +1155,7 @@ var LevelOne = {
             actionPoints: 15,
             isEnemy: false,
             speed: 500,
-            weapons: [{
-                name: 'bazooka',
-                range: 7,
-                actionPoints: 5,
-                firepower: 400,
-                firespeed: 300
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 0,
-                y: 19
-            },
-            type: 'unit-human-bazooka',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [{
-                name: 'bazooka',
-                range: 7,
-                actionPoints: 5,
-                firepower: 400,
-                firespeed: 300
-            },
-            {
-                name: 'p9',
-                range: 3,
-                actionPoints: 1,
-                firepower: 70,
-                firespeed: 150
-            }],
+            weapons: [BazookaView, PistolView],
             order: null,
             sounds: {
                 move: 'audio/unit/soldierMG/move.wav',
@@ -1355,13 +1173,7 @@ var LevelOne = {
             actionPoints: 10,
             isEnemy: true,
             speed: 0,
-            weapons: [{
-                name: 'bazooka',
-                range: 6,
-                actionPoints: 5,
-                firepower: 600,
-                firespeed: 150
-            }],
+            weapons: [DoubleBazookaView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1385,13 +1197,7 @@ var LevelOne = {
             actionPoints: 10,
             isEnemy: true,
             speed: 0,
-            weapons: [{
-                name: 'bazooka',
-                range: 6,
-                actionPoints: 5,
-                firepower: 600,
-                firespeed: 150
-            }],
+            weapons: [DoubleBazookaView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1415,13 +1221,7 @@ var LevelOne = {
             actionPoints: 10,
             isEnemy: true,
             speed: 0,
-            weapons: [{
-                name: 'bazooka',
-                range: 6,
-                actionPoints: 5,
-                firepower: 600,
-                firespeed: 150
-            }],
+            weapons: [DoubleBazookaView],
             order: {
                 action: 'protect',
                 positionToProtect: {
@@ -1445,13 +1245,7 @@ var LevelOne = {
             actionPoints: 10,
             isEnemy: true,
             speed: 0,
-            weapons: [{
-                name: 'bazooka',
-                range: 6,
-                actionPoints: 5,
-                firepower: 600,
-                firespeed: 150
-            }],
+            weapons: [DoubleBazookaView],
             order: {
                 action: 'protect',
                 positionToProtect: {
