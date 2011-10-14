@@ -115,6 +115,8 @@ var UnitView = Backbone.View.extend({
             this.removeFirerange();
             actionPanelView.update(this.model);
         }
+
+        $('#battlefield').trigger('addInventory', [this.model.getPosition()]);
     },
 
     /**
@@ -231,6 +233,7 @@ var UnitView = Backbone.View.extend({
             unit = $(this.el),
             startPosition = unitModel.getPosition(),
             goalPosition = {x: x, y: y},
+            inventoryModel,
             angle = Mathematic.getAngle(startPosition, goalPosition);
 
         // rotate unit in right position
@@ -265,6 +268,12 @@ var UnitView = Backbone.View.extend({
 
                     // repeat until no way points are left
                     _this.move(unitModel, wayPoints);
+
+                    // check if unit stands on an inventory
+                    inventoryModel = mapView.inventoryCollection.get('inventory-' + x + '_' + y);
+                    if (inventoryModel) {
+                        unitModel.pickUp(inventoryModel);
+                    }
                 }
             }
         );

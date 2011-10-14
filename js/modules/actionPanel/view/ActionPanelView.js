@@ -17,7 +17,8 @@ var ActionPanelView = Backbone.View.extend({
     events: {
         'click #js-end-turn': 'endTurn',
         'click #js-back-to-menu': 'backToMenu',
-        'click .js-weapon': 'selectWeapon'
+        'click .js-weapon': 'selectWeapon',
+        'click .js-inventory-item': 'selectInventory',
     },
 
     /**
@@ -34,7 +35,8 @@ var ActionPanelView = Backbone.View.extend({
             'backToMenu',
             'showEndTurnLink',
             'hideEndTurnLink',
-            'selectWeapon'
+            'selectWeapon',
+            'selectInventory'
         );
     },
 
@@ -98,6 +100,13 @@ var ActionPanelView = Backbone.View.extend({
         this.currentUnitModel.setSelectedWeapon(allWeapons[weaponNr]);
     },
 
+    selectInventory: function (event) {
+        var htmlObject = $(event.target),
+            inventoryItemId = htmlObject.attr('data-inventory-item');
+
+        this.currentUnitModel.useInventoryItem(inventoryItemId);
+    },
+
     /**
      * This method updates the armor and action points of a selected unit if something
      * happens (shooting, getting hit, moving, ...)
@@ -115,7 +124,9 @@ var ActionPanelView = Backbone.View.extend({
         this.currentUnitModel = unitModel;
 
         var weapons = $('#js-weapons'),
-            status = $('#js-status');
+            status = $('#js-status'),
+            inventory = $('#js-inventory');
+
         // unit is dead -> remove all status
         if (unitModel.getCurrentArmor() <= 0) {
             weapons.html('');
@@ -128,14 +139,23 @@ var ActionPanelView = Backbone.View.extend({
             onePercent = 100 / unitModel.getTotalActionPoints(),
             newWidthActionPoints = onePercent * unitModel.getCurrentActionPoints(),
             allWeapons = unitModel.get('weapons'),
+            allInventoryItems = unitModel.get('inventory') ? unitModel.get('inventory') : [],
             weaponHtml = [],
             statusHtml = [],
+            inventoryHtml = [],
             i;
 
         for (i = 0; i < allWeapons.length; i += 1) {
             weaponHtml.push('<li><a href="javascript:;" class="js-weapon" data-weaponNr=' + i + '>' + allWeapons[i].model.get('name') + '</a></li>');
         }
         weapons.html(weaponHtml.join(''));
+
+
+        for (i = 0; i < allInventoryItems.length; i += 1) {
+            inventoryHtml.push('<li><a href="javascript:;" class="js-inventory-item" data-inventory-item=' + allInventoryItems[i].get('id') + '>' + allInventoryItems[i].get('name') + '</a></li>');
+        }
+        inventory.html(inventoryHtml.join(''));
+
 
         statusHtml.push('<li>');
         statusHtml.push('<div class="max-armor">');
@@ -161,7 +181,10 @@ var ActionPanelView = Backbone.View.extend({
         var html = [];
         html.push('<div id="js-action-panel" class="action-panel">');
 
+        html.push('<ul class="weapons-inventory">');
         html.push('<ul id="js-weapons" class="weapons"></ul>');
+        html.push('<ul id="js-inventory" class="inventory"></ul>');
+        html.push('</ul>');
         html.push('<ul id="js-status" class="status"></ul>');
         html.push('<ul class="actions">');
         html.push('<li><a href="javascript:;" id="js-end-turn">Zug beenden</a></li>');

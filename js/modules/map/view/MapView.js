@@ -9,7 +9,9 @@ var MapView = Backbone.View.extend({
      */
     events: {
         'click .unit:not(.enemy)': 'selectUnit',
-        'click #battlefield': 'battlefieldAction'
+        'click #battlefield': 'battlefieldAction',
+        'addInventory': 'addInventory',
+        'mousemove #battlefield:': 'displayWay'
     },
 
     /**
@@ -29,10 +31,14 @@ var MapView = Backbone.View.extend({
      */
     obstacleCollection: null,
 
+    inventoryCollection: null,
+
     /**
      * Block the events if the computer does its turn
      */
     blockEvents: false,
+
+    previousGoalPosition: null,
 
     /**
      * INIT
@@ -47,7 +53,10 @@ var MapView = Backbone.View.extend({
             'render',
             'selectUnit',
             'battlefieldAction',
-            'removeUnitFromCollection'
+            'removeUnitFromCollection',
+            'addInventory',
+            'removeInventory',
+            'displayWay'
         );
 
         this.unitCollection = new UnitCollection();
@@ -58,6 +67,9 @@ var MapView = Backbone.View.extend({
         );
 
         this.obstacleCollection = new ObstacleCollection();
+
+        this.inventoryCollection = new InventoryCollection();
+        this.inventoryCollection.bind('change:remove', this.removeInventory);
 
         this.addUnits(LevelOne.units);
         this.addObstacles(LevelOne.obstacles);
@@ -158,6 +170,87 @@ console.log('OK. Select unit');
         unitModel.select();
     },
 
+    displayWay: function (event) {
+        var selectedUnitId = this.model.getSelectedUnitId(),
+            selectedUnitModel,
+            hoveredElement,
+            startPosition,
+            goalPosition,
+            wayPoints,
+            wayPoint,
+            index,
+            movingPath = $('.js-moving-path');
+
+        // no unit no way -> exit
+        if (!selectedUnitId) {
+            this.previousGoalPosition = null;
+            return;
+        }
+
+        selectedUnitModel = this.unitCollection.get(selectedUnitId);
+
+        if (selectedUnitModel.get('isBusy')) {
+            this.previousGoalPosition = null;
+
+            if (movingPath.length > 0) {
+                movingPath.remove();
+            }
+            return;
+        }
+
+
+        hoveredElement = $(event.target);
+        // no free position on battefield -> exit
+        if (hoveredElement.hasClass('obstacle') || hoveredElement.hasClass('unit')) {
+            this.previousGoalPosition = null;
+
+            if (movingPath.length > 0) {
+                movingPath.remove();
+            }
+            return;
+        }
+
+        startPosition = selectedUnitModel.getPosition();
+        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
+
+        if (this.previousGoalPosition === goalPosition) {
+            this.previousGoalPosition = null;
+            return;
+        }
+        this.previousGoalPosition = goalPosition;
+
+        if (movingPath.length > 0) {
+            movingPath.remove();
+        }
+
+        wayPoints = this.model.getWayPoints(
+            this.obstacleCollection,
+            this.unitCollection,
+            startPosition,
+            goalPosition
+        );
+
+        // no path to hovered position
+        if (!wayPoints) {
+            this.previousGoalPosition = null;
+            return;
+        }
+
+        var html = [],
+            count = 0;
+        html.push('<div class="js-moving-path moving-path" style="left: '+(startPosition.x * 50)+'px; top: '+(startPosition.y * 50)+'px;"></div>');
+        for (index in wayPoints) {
+            if (count === selectedUnitModel.get('currentActionPoints')) {
+                break;
+            }
+            wayPoint = wayPoints[index];
+            html.push('<div class="js-moving-path moving-path" style="left: '+(wayPoint.row * 50)+'px; top: '+(wayPoint.col * 50)+'px;"></div>');
+
+            ++count;
+        }
+        $('#battlefield').append(html.join(''));
+    },
+
     /**
      * This method dispatches all events on the map.
      * Events could be - click an unit - move an unit - attack an enemy - ...
@@ -249,6 +342,24 @@ console.log('FAIL. No way points to clicked position');
         }
 
         this.unitCollection.remove(unitModel);
+    },
+
+    addInventory: function (event, position) {
+        var medipackModel = new InventoryModel();
+        medipackModel.generateId(position);
+        medipackModel.setName('medipack');
+
+        this.inventoryCollection.add(medipackModel);
+
+        var medipackView = new MedipackView({
+            model: medipackModel
+        });
+
+        medipackView.render();
+    },
+
+    removeInventory: function (inventoryModel) {
+        this.inventoryCollection.remove(inventoryModel, 'silent');
     },
 
     /**
@@ -877,6 +988,31 @@ var LevelOne = {
 {y: 24,x: 39}
 ],
     units: [
+    {
+            position: {
+                x: 5,
+                y: 1
+            },
+            type: 'unit-human-mg',
+            armor: 100,
+            actionPoints: 15,
+            isEnemy: true,
+            speed: 200,
+            weapons: [MachineGunView],
+            order: {
+                action: 'protect',
+                positionToProtect: {
+                    x: 6,
+                    y: 3
+                },
+                protectionRange: 5
+            },
+            sounds: {
+                move: 'audio/unit/soldierMG/move.wav',
+                attack: 'audio/unit/soldierMG/attack.wav',
+                die: 'audio/unit/soldierMG/die.wav'
+            }
+        },
         {
             position: {
                 x: 29,

@@ -120,5 +120,51 @@ var UnitModel = Backbone.Model.extend({
 
     isBusy: function (value) {
         this.set({isBusy: value});
+    },
+
+    addInventoryItem: function (inventoryModel) {
+        var currentInventory = this.get('inventory');
+
+        if (!currentInventory) {
+            currentInventory = [];
+        }
+
+        currentInventory.push(inventoryModel);
+        this.set({'inventory': currentInventory});
+        actionPanelView.update(this);
+    },
+
+    useInventoryItem: function (inventoryItemId) {
+        var inventory = this.get('inventory'),
+            i;
+
+        for (i = 0; i < inventory.length; i += 1) {
+            if (inventory[i].get('id') !== inventoryItemId) {
+                continue;
+            }
+
+            inventory[i].use(this);
+            break;
+        }
+    },
+
+    removeInventoryItem: function (inventoryItemId) {
+        var inventory = this.get('inventory'),
+            i;
+
+        for (i = 0; i < inventory.length; i += 1) {
+            if (inventory[i].get('id') === inventoryItemId) {
+                inventory.splice(i, 1);
+                break;
+            }
+        }
+
+        this.set({'inventory': inventory});
+        actionPanelView.update(this);
+    },
+
+    pickUp: function (inventoryModel) {
+        this.addInventoryItem(inventoryModel);
+        inventoryModel.remove();
     }
 });
