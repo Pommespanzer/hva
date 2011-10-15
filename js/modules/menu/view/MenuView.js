@@ -774,31 +774,6 @@ var LevelOne = {
     units: [
         {
             position: {
-                x: 0,
-                y: 2
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [BazookaView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 6,
-                    y: 3
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
                 x: 29,
                 y: 2
             },
