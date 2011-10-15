@@ -57,7 +57,7 @@ var UnitModel = Backbone.Model.extend({
         this.set({currentArmor: armor});
 
         if (armor <= 0) {
-            this.set({destroyed: true});
+            this.set({remove: true});
         }
     },
 

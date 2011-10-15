@@ -1,4 +1,4 @@
-var InventoryModel = Backbone.Model.extend({
+var InventoryItemModel = Backbone.Model.extend({
     generateId: function (position) {
         var id = 'inventory-' + position.x + '_' + position.y;
         this.set({id: id});

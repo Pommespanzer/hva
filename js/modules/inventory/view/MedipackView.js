@@ -8,8 +8,8 @@ var MedipackView = AbstractInventoryItemView.extend({
         );
     },
 
-    use: function (inventoryModel, unitModel) {
+    use: function (inventoryItemModel, unitModel) {
         unitModel.setCurrentArmor(unitModel.get('totalArmor'));
-        unitModel.removeInventoryItem(inventoryModel.get('id'));
+        unitModel.removeInventoryItem(inventoryItemModel.get('id'));
     }
 });

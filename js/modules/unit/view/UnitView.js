@@ -20,6 +20,11 @@ var UnitView = Backbone.View.extend({
     audioplayer: null,
 
     /**
+     * map object
+     */
+    battlefield: null,
+
+    /**
      * init
      */
     initialize: function () {
@@ -36,10 +41,12 @@ var UnitView = Backbone.View.extend({
             'destroy'
         );
 
+        this.battlefield = $('#battlefield');
+
         this.model.bind('change:select', this.select);
         this.model.bind('change:wayPoints', this.move);
         this.model.bind('attack', this.attack);
-        this.model.bind('change:destroyed', this.destroy);
+        this.model.bind('change:remove', this.destroy);
         this.model.bind('change:selectedWeapon', this.changeWeapon);
 
         this.audioplayer = $('#js-sound-' + (this.model.get('isEnemy') ? 'enemy' : 'unit'));
@@ -57,7 +64,7 @@ var UnitView = Backbone.View.extend({
             x = (position.x * 50 - padding),
             y = (position.y * 50 - padding);
 
-        $('#battlefield').append('<div id="fr-' + this.model.get('id') + '" class="firerange" style="top: ' + y + 'px; left: ' + x + 'px; padding: ' + padding + 'px"></div>');
+        this.battlefield.append('<div id="fr-' + this.model.get('id') + '" class="firerange" style="top: ' + y + 'px; left: ' + x + 'px; padding: ' + padding + 'px"></div>');
     },
 
     /**
@@ -116,7 +123,17 @@ var UnitView = Backbone.View.extend({
             actionPanelView.update(this.model);
         }
 
-        $('#battlefield').trigger('addInventory', [this.model.getPosition()]);
+        var medipackModel = new InventoryItemModel();
+        medipackModel.generateId(this.model.getPosition());
+        medipackModel.setName('medipack');
+
+        var medipackView = new MedipackView({
+            model: medipackModel
+        });
+
+        medipackView.render();
+
+        this.battlefield.trigger('addInventoryItem', [medipackModel]);
     },
 
     /**
@@ -378,14 +395,6 @@ console.log('OK. Now start shooting');
 
         this.audioplayer[0].src = audiofiles.attack;
 
-/*
-        // render shot
-        $('#battlefield').append(
-            '<div class="' + selectedWeapon.name + ' ' + unique + ' ' + (this.model.get('isEnemy') ? 'enemy' : '') + '" style="position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + randValue) + 'px; left: ' + (position.x * 50 + 12) + 'px;"></div>'
-        );
-
-        shoot = $('.' + shotId);
-*/
         shoot.animate(
             {
                 left: (enemyPosition.x * 50) + 12,

@@ -18,6 +18,17 @@ var MapModel = Backbone.Model.extend({
     getSelectedUnitId: function () {
         return this.get('selectedUnitId');
     },
+    
+    /**
+     * Set the goal moving position for an unit.
+     * 
+     * @param object path
+     * 
+     * @return void
+     */
+    setGoalMovingPath: function (path) {
+		this.set({goalMovingPath: path});
+	},
 
     /**
      * Checks if an enemy is in range to attack.

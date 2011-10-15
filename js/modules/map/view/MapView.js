@@ -1,3 +1,4 @@
+'use strict';
 var MapView = Backbone.View.extend({
     /**
      * Object where to bind the map.
@@ -8,10 +9,9 @@ var MapView = Backbone.View.extend({
      * All binded map events.
      */
     events: {
-        'click .unit:not(.enemy)': 'selectUnit',
-        'click #battlefield': 'battlefieldAction',
-        'addInventory': 'addInventory',
-        'mousemove #battlefield:': 'displayWay'
+        'click #battlefield': 'dispatchClickEvent',
+        'mousemove #battlefield:': 'dispatchMouseMoveEvent',
+        'addInventoryItem': 'addInventoryItem'
     },
 
     /**
@@ -19,7 +19,7 @@ var MapView = Backbone.View.extend({
      *
      * @var object
      */
-    battlefield: null,
+    map: null,
 
     /**
      * contains all unit models
@@ -31,14 +31,13 @@ var MapView = Backbone.View.extend({
      */
     obstacleCollection: null,
 
+    /**
+     * contains all inventory item models
+     */
     inventoryCollection: null,
 
-    /**
-     * Block the events if the computer does its turn
-     */
+    // todo: remove me later
     blockEvents: false,
-
-    previousGoalPosition: null,
 
     /**
      * INIT
@@ -48,31 +47,28 @@ var MapView = Backbone.View.extend({
     initialize: function () {
         _.bindAll(
             this,
+            'dispatchClickEvent',
             'addUnits',
             'addObstacles',
-            'render',
-            'selectUnit',
-            'battlefieldAction',
-            'removeUnitFromCollection',
-            'addInventory',
-            'removeInventory',
-            'displayWay'
+            'addInventoryItem',
+            'removeUnit',
+            'removeInventoryItem',
+            'selectUnitAction',
+            'moveUnitAction',
+            'attackEnemyAction',
+            'dispatchMouseMoveEvent',
+            'addMovingPath',
+            'removeMovingPath',
+            'render'
         );
 
         this.unitCollection = new UnitCollection();
-
-        this.unitCollection.bind(
-            'change:destroyed',
-            this.removeUnitFromCollection
-        );
+        this.unitCollection.bind('change:remove', this.removeUnit);
 
         this.obstacleCollection = new ObstacleCollection();
 
         this.inventoryCollection = new InventoryCollection();
-        this.inventoryCollection.bind('change:remove', this.removeInventory);
-
-        this.addUnits(LevelOne.units);
-        this.addObstacles(LevelOne.obstacles);
+        this.inventoryCollection.bind('change:remove', this.removeInventoryItem);
     },
 
     /**
@@ -108,7 +104,7 @@ var MapView = Backbone.View.extend({
                 unitModel.setSounds(units[i].sounds);
                 unitModel.setBackgroundPosition(-100, 0);
 
-                this.unitCollection.add(unitModel, {at: id});
+                this.unitCollection.add(unitModel);
             }
         }
     },
@@ -136,230 +132,309 @@ var MapView = Backbone.View.extend({
             obstacleModel.setId(id);
             obstacleModel.setPosition(x, y);
 
-            this.obstacleCollection.add(obstacleModel, {at: id});
+            this.obstacleCollection.add(obstacleModel);
+        }
+    },
+
+    /**
+     * This method removes an unit from the unit collection.
+     * It happens if an unit dies on the battlefield.
+     *
+     * @param UnitModel unitModel
+     *
+     * @return void
+     */
+    removeUnit: function (unitModel) {
+        if (unitModel.isSelected()) {
+            this.model.setSelectedUnitId(null);
+        }
+
+        this.unitCollection.remove(unitModel, 'silent');
+    },
+
+    /**
+     * This method adds an inventory item to the inventory collection.
+     * It happens if an unit (not every unit) get killed an looses an
+     * item on the map.
+     *
+     * @param object event
+     * @param InventoryItemModel inventoryItemModel
+     *
+     * @return void
+     */
+    addInventoryItem: function (event, inventoryItemModel) {
+        this.inventoryCollection.add(inventoryItemModel);
+    },
+
+    /**
+     * This method removes an inventory item from the inventory collection.
+     * It happens if an unit collects an item.
+     *
+     * @param InventoryItemModel inventoryItemModel
+     *
+     * @return void
+     */
+    removeInventoryItem: function (inventoryItemModel) {
+        this.inventoryCollection.remove(inventoryItemModel, 'silent');
+    },
+
+    /**
+     * This method dispatches the click event on the map.
+     * It analyses the element which the user clicked and decide what action
+     * has to be done.
+     *
+     * @param object event
+     *
+     * @return void
+     */
+    dispatchClickEvent: function (event) {
+        // todo: remove from this class!!!
+        // block until computers turn is over
+        if (true === this.blockEvents) {
+            return;
+        }
+
+        var targetObject = $(event.target),
+            selectedUnitId = this.model.getSelectedUnitId();
+
+        // select obstacle
+        if (targetObject.hasClass('obstacle')) {
+            console.info('Selecting an obstacle is not implemented yet.');
+            // this.selectObstacleAction();
+            return;
+        }
+
+        // attack enemy
+        if (targetObject.hasClass('enemy') && selectedUnitId) {
+            this.attackEnemyAction(selectedUnitId, targetObject[0].id);
+            return;
+        }
+
+        // select unit
+        if (targetObject.hasClass('unit') && false === targetObject.hasClass('enemy')) {
+            this.selectUnitAction(targetObject[0].id);
+            return;
+        }
+
+        // select enemy
+        if (targetObject.hasClass('unit') && targetObject.hasClass('enemy')) {
+            console.info('Selecting an enemy is not implemented yet.');
+            //this.selectEnemyAction();
+            return;
+        }
+
+        // move unit
+        if (selectedUnitId) {
+            this.moveUnitAction(event.clientX, event.clientY);
+            return;
         }
     },
 
     /**
      * This method is called if an user clicked an unit.
-     * It marks the unit as selected and updates the action panel.
+     * It marks the clicked unit as selected.
      *
-     * @param event
+     * @param integer clickedUnitId
      *
      * @return void
      */
-    selectUnit: function (event) {
-console.log('+++ user clicked on an unit +++');
-        event.stopPropagation();
-        var selectedUnitId = this.model.getSelectedUnitId(),
-            selectedUnitModel,
-            unitModel,
-            id;
+    selectUnitAction: function (clickedUnitId) {
+        var currentSelectedUnitId = this.model.getSelectedUnitId(),
+            currentSelectedUnitModel,
+            clickedUnitModel;
+
+        // clicked unit is the same as the current selected unit -> exit;
+        if (currentSelectedUnitId && (currentSelectedUnitId === clickedUnitId)) {
+            return;
+        }
 
         // unselect current selected unit
-        if (selectedUnitId) {
-console.log('OK. Deselect current selected unit');
-            selectedUnitModel = this.unitCollection.get(selectedUnitId);
-            selectedUnitModel.unselect();
-        }
-console.log('OK. Select unit');
-        id = event.target.id;
-        this.model.setSelectedUnitId(id);
-
-        unitModel = this.unitCollection.get(id);
-        unitModel.select();
-    },
-
-    displayWay: function (event) {
-        var selectedUnitId = this.model.getSelectedUnitId(),
-            selectedUnitModel,
-            hoveredElement,
-            startPosition,
-            goalPosition,
-            wayPoints,
-            wayPoint,
-            index,
-            movingPath = $('.js-moving-path');
-
-        // no unit no way -> exit
-        if (!selectedUnitId) {
-            this.previousGoalPosition = null;
-            return;
+        if (currentSelectedUnitId) {
+            currentSelectedUnitModel = this.unitCollection.get(currentSelectedUnitId);
+            currentSelectedUnitModel.unselect();
         }
 
-        selectedUnitModel = this.unitCollection.get(selectedUnitId);
+        // publish the new selected unit to the map
+        this.model.setSelectedUnitId(clickedUnitId);
 
-        if (selectedUnitModel.get('isBusy')) {
-            this.previousGoalPosition = null;
-
-            if (movingPath.length > 0) {
-                movingPath.remove();
-            }
-            return;
-        }
-
-
-        hoveredElement = $(event.target);
-        // no free position on battefield -> exit
-        if (hoveredElement.hasClass('obstacle') || hoveredElement.hasClass('unit')) {
-            this.previousGoalPosition = null;
-
-            if (movingPath.length > 0) {
-                movingPath.remove();
-            }
-            return;
-        }
-
-        startPosition = selectedUnitModel.getPosition();
-        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
-
-        if (this.previousGoalPosition === goalPosition) {
-            this.previousGoalPosition = null;
-            return;
-        }
-        this.previousGoalPosition = goalPosition;
-
-        if (movingPath.length > 0) {
-            movingPath.remove();
-        }
-
-        wayPoints = this.model.getWayPoints(
-            this.obstacleCollection,
-            this.unitCollection,
-            startPosition,
-            goalPosition
-        );
-
-        // no path to hovered position
-        if (!wayPoints) {
-            this.previousGoalPosition = null;
-            return;
-        }
-
-        var html = [],
-            count = 0;
-        html.push('<div class="js-moving-path moving-path" style="left: '+(startPosition.x * 50)+'px; top: '+(startPosition.y * 50)+'px;"></div>');
-        for (index in wayPoints) {
-            if (count === selectedUnitModel.get('currentActionPoints')) {
-                break;
-            }
-            wayPoint = wayPoints[index];
-            html.push('<div class="js-moving-path moving-path" style="left: '+(wayPoint.row * 50)+'px; top: '+(wayPoint.col * 50)+'px;"></div>');
-
-            ++count;
-        }
-        $('#battlefield').append(html.join(''));
+        // mark clicked unit as selected
+        clickedUnitModel = this.unitCollection.get(clickedUnitId);
+        clickedUnitModel.select();
     },
 
     /**
-     * This method dispatches all events on the map.
-     * Events could be - click an unit - move an unit - attack an enemy - ...
+     * This method is called if an unit is selected and the user clicked
+     * somewhere on the map to move this selected unit to this position.
      *
-     * @param event
+     * @param integer coordX - current mouse position (X) on map
+     * @param integer coordY - current mouse position (Y) on map
      *
      * @return void
      */
-    battlefieldAction: function (event) {
-console.log('+++ user clicked on battlefield +++');
-        // block until computers turn is over
-        if (true === this.blockEvents) {
-console.log('FAIL. Events are blocked');
-            return;
-        }
-console.log('OK. Events are not blocked');
-        var selectedUnitId = this.model.getSelectedUnitId(),
-            selectedUnitModel,
-            clickedElement,
-            startPosition,
-            goalPosition,
-            enemyModel,
+    moveUnitAction: function (coordX, coordY) {
+        var currentSelectedUnitId = this.model.getSelectedUnitId(),
+            currentSelectedUnitModel = this.unitCollection.get(currentSelectedUnitId),
+            currentPosition = currentSelectedUnitModel.getPosition(),
+            goalPosition = Position.byCoordinates(coordX, coordY),
             wayPoints;
 
-        // no selected unit found
-        if (!selectedUnitId) {
-console.log('FAIL. No selected unit found');
+        if (currentSelectedUnitModel.get('isBusy')) {
             return;
         }
-console.log('OK. Found selected unit');
-        selectedUnitModel = this.unitCollection.get(selectedUnitId);
 
-        // unit is busy -> quit
-        if (selectedUnitModel.get('isBusy')) {
-console.log('FAIL. Selected unit is busy');
-            return;
-        }
-console.log('OK. Selected unit is not busy');
-        clickedElement = $(event.target);
-
-        // avoid moving over an obstacle
-        if (clickedElement.hasClass('obstacle')) {
-console.log('FAIL. User clicked on an obstacle');
-            return;
-        }
-console.log('OK. User does not clicked on an obstacle');
-        startPosition = selectedUnitModel.getPosition();
-        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
-
-        // user wants to attack an enemy
-        if (clickedElement.hasClass('enemy')) {
-console.log('OK. User click on an enemy to attack them');
-            enemyModel = this.unitCollection.get(event.target.id);
-
-            selectedUnitModel.attack(enemyModel);
-            // enemy will protect them self
-            enemyModel.attack(selectedUnitModel);
-console.log('OK. Attack enemy.');
-            return;
-        }
-console.log('OK. User wants to move the unit');
         wayPoints = this.model.getWayPoints(
             this.obstacleCollection,
             this.unitCollection,
-            startPosition,
+            currentPosition,
             goalPosition
         );
 
         // no path to clicked position
         if (!wayPoints) {
-console.log('FAIL. No way points to clicked position');
             return;
         }
 
-        selectedUnitModel.move(wayPoints);
+        currentSelectedUnitModel.move(wayPoints);
     },
 
     /**
-     * This method removes an unit model from collection. That happens if
-     * an unit is destroyed.
+     * This method is called if the user has a selected unit an
+     * clicked on an enemy to attack them. It starts the battle.
      *
-     * @param object unitModel - model of (i.e. destroyed) unit
+     * @param integer selectedUnitId
+     * @param integer enemyId
      *
      * @return void
      */
-    removeUnitFromCollection: function (unitModel) {
-        if (unitModel.isSelected()) {
-            this.model.setSelectedUnitId(null);
+    attackEnemyAction: function (selectedUnitId, enemyId) {
+        var selectedUnitModel = this.unitCollection.get(selectedUnitId),
+            enemyModel = this.unitCollection.get(enemyId);
+
+        if (selectedUnitModel.get('isBusy')) {
+            return;
         }
 
-        this.unitCollection.remove(unitModel);
+        selectedUnitModel.attack(enemyModel);
+
+        // enemy will protect them self
+        enemyModel.attack(selectedUnitModel);
     },
 
-    addInventory: function (event, position) {
-        var medipackModel = new InventoryModel();
-        medipackModel.generateId(position);
-        medipackModel.setName('medipack');
+    /**
+     * This method dispatches the mouse move event.
+     * It decides if an existing moving path of the unit has to be removed
+     * or a new one has to be added.
+     *
+     * @param object event
+     *
+     * @retun void
+     */
+    dispatchMouseMoveEvent: function (event) {
+        var currentSelectedUnitId = this.model.getSelectedUnitId(),
+            currentSelectedUnitModel,
+            hoveredElement,
+            currentPosition,
+            goalPosition;
 
-        this.inventoryCollection.add(medipackModel);
+        // no selected unit -> no way -> exit
+        if (!currentSelectedUnitId) {
+            this.model.setGoalMovingPath(null);
+            this.removeMovingPath();
+            return;
+        }
 
-        var medipackView = new MedipackView({
-            model: medipackModel
-        });
+        currentSelectedUnitModel = this.unitCollection.get(currentSelectedUnitId);
 
-        medipackView.render();
+        if (currentSelectedUnitModel.get('isBusy')) {
+            this.model.setGoalMovingPath(null);
+            this.removeMovingPath();
+            return;
+        }
+
+        hoveredElement = $(event.target);
+
+        // no free position on battefield -> exit
+        if (hoveredElement.hasClass('obstacle') || hoveredElement.hasClass('unit')) {
+            this.model.setGoalMovingPath(null);
+            this.removeMovingPath();
+            return;
+        }
+
+        currentPosition = currentSelectedUnitModel.getPosition();
+        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
+
+        if (currentPosition.x === goalPosition.x && currentPosition.y === goalPosition.y) {
+            return;
+        }
+
+        // goal position is same like previous one -> exit
+        if (this.model.get('goalMovingPath') === goalPosition) {
+            return;
+        }
+
+        this.model.setGoalMovingPath(goalPosition);
+
+        this.removeMovingPath();
+        this.addMovingPath(currentPosition, goalPosition, currentSelectedUnitModel.get('currentActionPoints'));
     },
 
-    removeInventory: function (inventoryModel) {
-        this.inventoryCollection.remove(inventoryModel, 'silent');
+    /**
+     * This method adds the moving path on the map to show the way the
+     * unit wants move.
+     *
+     * @param object currentPosition - current position of selected unit {x: ?, y: ?}
+     * @param object goalPosition - position where the units wants to move {x: ?, y: ?}
+     * @param integer currentActionPoints - to restrict the moving path to max action points of the unit
+     *
+     * @return void
+     */
+    addMovingPath: function (currentPosition, goalPosition, currentActionPoints) {
+        var html = [],
+            count = 0,
+            wayPoints,
+            currentWayPoint,
+            index;
+
+        wayPoints = this.model.getWayPoints(
+            this.obstacleCollection,
+            this.unitCollection,
+            currentPosition,
+            goalPosition
+        );
+
+        // no way point -> exit
+        if (!wayPoints) {
+            return;
+        }
+
+        html.push('<div class="js-moving-path moving-path" style="left: ' + (currentPosition.x * 50) + 'px; top: ' + (currentPosition.y * 50) + 'px;"></div>');
+        for (index in wayPoints) {
+            if (wayPoints.hasOwnProperty(index)) {
+                if (count === currentActionPoints) {
+                    break;
+                }
+                currentWayPoint = wayPoints[index];
+                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
+
+                count += 1;
+            }
+        }
+
+        this.map.append(html.join(''));
+    },
+
+    /**
+     * This method removes the rendered way of the unit.
+     * It happens if a new way point is set or an other unit is clicked, ...
+     *
+     * @return void
+     */
+    removeMovingPath: function () {
+        var movingPathObjs = $('.js-moving-path', this.map);
+
+        if (movingPathObjs.length > 0) {
+            movingPathObjs.remove();
+        }
     },
 
     /**
@@ -371,7 +446,7 @@ console.log('FAIL. No way points to clicked position');
         // render map
         this.el.append('<div id="battlefield"></div>');
 
-        this.battlefield = $('#battlefield');
+        this.map = $('#battlefield');
 
         var index,
             unitModel,
@@ -388,7 +463,7 @@ console.log('FAIL. No way points to clicked position');
                     model: unitModel
                 });
 
-                this.battlefield.append(unitView.render().el);
+                this.map.append(unitView.render().el);
             }
         }
 
@@ -400,1000 +475,8 @@ console.log('FAIL. No way points to clicked position');
                     model: obstacleModel
                 });
 
-                this.battlefield.append(obstacleView.render().el);
+                this.map.append(obstacleView.render().el);
             }
         }
     }
 });
-
-var LevelOne = {
-    obstacles: [
-{y: 0,x:8},
-{y: 0,x:9},
-{y: 0,x: 10},
-{y: 0,x: 11},
-{y: 0,x: 12},
-{y: 0,x: 33},
-{y: 0,x: 34},
-{y: 0,x: 35},
-{y: 0,x: 36},
-{y: 0,x: 37},
-{y: 0,x: 38},
-{y: 0,x: 39},
-{y: 1,x: 8},
-{y: 1,x: 9},
-{y: 1,x: 10},
-{y: 1,x: 11},
-{y: 1,x: 12},
-{y: 1,x: 18},
-{y: 1,x: 30},
-{y: 1,x: 31},
-{y: 1,x: 32},
-{y: 1,x: 33},
-{y: 1,x: 34},
-{y: 1,x: 35},
-{y: 1,x: 36},
-{y: 1,x: 37},
-{y: 1,x: 38},
-{y: 1,x: 39},
-{y: 2,x: 8},
-{y: 2,x: 9},
-{y: 2,x: 10},
-{y: 2,x: 11},
-{y: 2,x: 12},
-{y: 2,x: 13},
-{y: 2,x: 14},
-{y: 2,x: 17},
-{y: 2,x: 18},
-{y: 2,x: 19},
-{y: 2,x: 20},
-{y: 2,x: 21},
-{y: 2,x: 30},
-{y: 2,x: 31},
-{y: 2,x: 32},
-{y: 2,x: 33},
-{y: 2,x: 34},
-{y: 2,x: 35},
-{y: 2,x: 36},
-{y: 2,x: 37},
-{y: 2,x: 38},
-{y: 2,x: 39},
-{y: 3,x: 0},
-{y: 3,x: 3},
-{y: 3,x: 4},
-{y: 3,x: 5},
-{y: 3,x: 6},
-{y: 3,x: 7},
-{y: 3,x: 8},
-{y: 3,x: 9},
-{y: 3,x: 10},
-{y: 3,x: 11},
-{y: 3,x: 12},
-{y: 3,x: 13},
-{y: 3,x: 14},
-{y: 3,x: 17},
-{y: 3,x: 18},
-{y: 3,x: 19},
-{y: 3,x: 20},
-{y: 3,x: 21},
-{y: 3,x: 23},
-{y: 3,x: 24},
-{y: 3,x: 27},
-{y: 3,x: 28},
-{y: 3,x: 29},
-{y: 3,x: 30},
-{y: 3,x: 31},
-{y: 3,x: 32},
-{y: 3,x: 33},
-{y: 3,x: 34},
-{y: 3,x: 35},
-{y: 3,x: 36},
-{y: 3,x: 37},
-{y: 3,x: 38},
-{y: 3,x: 39},
-{y: 4,x: 0},
-{y: 4,x: 8},
-{y: 4,x: 9},
-{y: 4,x: 10},
-{y: 4,x: 11},
-{y: 4,x: 12},
-{y: 4,x: 13},
-{y: 4,x: 14},
-{y: 4,x: 17},
-{y: 4,x: 18},
-{y: 4,x: 19},
-{y: 4,x: 20},
-{y: 4,x: 23},
-{y: 4,x: 24},
-{y: 4,x: 27},
-{y: 4,x: 28},
-{y: 4,x: 29},
-{y: 4,x: 30},
-{y: 4,x: 31},
-{y: 4,x: 32},
-{y: 4,x: 33},
-{y: 4,x: 34},
-{y: 4,x: 35},
-{y: 4,x: 36},
-{y: 4,x: 37},
-{y: 4,x: 38},
-{y: 4,x: 39},
-{y: 5,x: 0},
-{y: 5,x: 1},
-{y: 5,x: 2},
-{y: 5,x: 3},
-{y: 5,x: 8},
-{y: 5,x: 9},
-{y: 5,x: 10},
-{y: 5,x: 11},
-{y: 5,x: 13},
-{y: 5,x: 14},
-{y: 5,x: 17},
-{y: 5,x: 18},
-{y: 5,x: 19},
-{y: 5,x: 20},
-{y: 5,x: 21},
-{y: 5,x: 28},
-{y: 5,x: 29},
-{y: 5,x: 30},
-{y: 5,x: 31},
-{y: 5,x: 32},
-{y: 5,x: 33},
-{y: 5,x: 34},
-{y: 5,x: 35},
-{y: 5,x: 36},
-{y: 5,x: 37},
-{y: 5,x: 38},
-{y: 5,x: 39},
-{y: 6,x: 0},
-{y: 6,x: 1},
-{y: 6,x: 2},
-{y: 6,x: 3},
-{y: 6,x: 4},
-{y: 6,x: 5},
-{y: 6,x: 6},
-{y: 6,x: 17},
-{y: 6,x: 18},
-{y: 6,x: 19},
-{y: 6,x: 20},
-{y: 6,x: 21},
-{y: 6,x: 30},
-{y: 6,x: 31},
-{y: 6,x: 32},
-{y: 6,x: 33},
-{y: 6,x: 34},
-{y: 6,x: 35},
-{y: 6,x: 36},
-{y: 6,x: 37},
-{y: 6,x: 38},
-{y: 6,x: 39},
-{y: 7,x: 0},
-{y: 7,x: 1},
-{y: 7,x: 2},
-{y: 7,x: 3},
-{y: 7,x: 4},
-{y: 7,x: 5},
-{y: 7,x: 6},
-{y: 7,x: 9},
-{y: 7,x: 11},
-{y: 7,x: 12},
-{y: 7,x: 13},
-{y: 7,x: 14},
-{y: 7,x: 15},
-{y: 7,x: 16},
-{y: 7,x: 17},
-{y: 7,x: 18},
-{y: 7,x: 19},
-{y: 7,x: 20},
-{y: 7,x: 21},
-{y: 7,x: 34},
-{y: 7,x: 35},
-{y: 7,x: 36},
-{y: 7,x: 37},
-{y: 7,x: 38},
-{y: 7,x: 39},
-{y: 8,x: 0},
-{y: 8,x: 1},
-{y: 8,x: 2},
-{y: 8,x: 3},
-{y: 8,x: 4},
-{y: 8,x: 5},
-{y: 8,x: 9},
-{y: 8,x: 10},
-{y: 8,x: 11},
-{y: 8,x: 12},
-{y: 8,x: 13},
-{y: 8,x: 14},
-{y: 8,x: 15},
-{y: 8,x: 16},
-{y: 8,x: 17},
-{y: 8,x: 28},
-{y: 8,x: 29},
-{y: 8,x: 34},
-{y: 8,x: 35},
-{y: 8,x: 36},
-{y: 8,x: 37},
-{y: 8,x: 38},
-{y: 8,x: 39},
-{y: 9,x: 0},
-{y: 9,x: 1},
-{y: 9,x: 2},
-{y: 9,x: 3},
-{y: 9,x: 4},
-{y: 9,x: 5},
-{y: 9,x: 6},
-{y: 9,x: 9},
-{y: 9,x: 10},
-{y: 9,x: 11},
-{y: 9,x: 12},
-{y: 9,x: 13},
-{y: 9,x: 14},
-{y: 9,x: 15},
-{y: 9,x: 16},
-{y: 9,x: 17},
-{y: 9,x: 28},
-{y: 9,x: 29},
-{y: 9,x: 37},
-{y: 9,x: 38},
-{y: 9,x: 39},
-{y: 10,x: 0},
-{y: 10,x: 1},
-{y: 10,x: 2},
-{y: 10,x: 3},
-{y: 10,x: 4},
-{y: 10,x: 5},
-{y: 10,x: 9},
-{y: 10,x: 10},
-{y: 10,x: 11},
-{y: 10,x: 12},
-{y: 10,x: 13},
-{y: 10,x: 14},
-{y: 10,x: 15},
-{y: 10,x: 16},
-{y: 10,x: 17},
-{y: 10,x: 21},
-{y: 10,x: 22},
-{y: 10,x: 23},
-{y: 10,x: 33},
-{y: 10,x: 34},
-{y: 10,x: 37},
-{y: 10,x: 38},
-{y: 10,x: 39},
-{y: 11,x: 0},
-{y: 11,x: 1},
-{y: 11,x: 2},
-{y: 11,x: 3},
-{y: 11,x: 7},
-{y: 11,x: 8},
-{y: 11,x: 9},
-{y: 11,x: 10},
-{y: 11,x: 11},
-{y: 11,x: 13},
-{y: 11,x: 14},
-{y: 11,x: 15},
-{y: 11,x: 17},
-{y: 11,x: 21},
-{y: 11,x: 22},
-{y: 11,x: 23},
-{y: 11,x: 33},
-{y: 11,x: 34},
-{y: 12,x: 0},
-{y: 12,x: 1},
-{y: 12,x: 2},
-{y: 12,x: 3},
-{y: 12,x: 21},
-{y: 12,x: 22},
-{y: 12,x: 23},
-{y: 12,x: 24},
-{y: 12,x: 25},
-{y: 12,x: 33},
-{y: 12,x: 34},
-{y: 13,x: 0},
-{y: 13,x: 1},
-{y: 13,x: 2},
-{y: 13,x: 3},
-{y: 13,x: 4},
-{y: 13,x: 5},
-{y: 13,x: 6},
-{y: 13,x: 9},
-{y: 13,x: 10},
-{y: 13,x: 11},
-{y: 13,x: 12},
-{y: 13,x: 13},
-{y: 13,x: 14},
-{y: 13,x: 15},
-{y: 13,x: 16},
-{y: 13,x: 17},
-{y: 13,x: 18},
-{y: 13,x: 19},
-{y: 13,x: 20},
-{y: 13,x: 21},
-{y: 13,x: 22},
-{y: 13,x: 23},
-{y: 13,x: 24},
-{y: 13,x: 25},
-{y: 13,x: 26},
-{y: 13,x: 27},
-{y: 13,x: 30},
-{y: 13,x: 31},
-{y: 13,x: 32},
-{y: 13,x: 33},
-{y: 14,x: 0},
-{y: 14,x: 1},
-{y: 14,x: 2},
-{y: 14,x: 3},
-{y: 14,x: 4},
-{y: 14,x: 5},
-{y: 14,x: 6},
-{y: 14,x: 19},
-{y: 14,x: 20},
-{y: 14,x: 21},
-{y: 14,x: 22},
-{y: 14,x: 23},
-{y: 14,x: 24},
-{y: 14,x: 25},
-{y: 14,x: 26},
-{y: 14,x: 27},
-{y: 14,x: 30},
-{y: 14,x: 31},
-{y: 14,x: 32},
-{y: 14,x: 36},
-{y: 14,x: 37},
-{y: 14,x: 38},
-{y: 14,x: 39},
-{y: 15,x: 0},
-{y: 15,x: 1},
-{y: 15,x: 2},
-{y: 15,x: 3},
-{y: 15,x: 4},
-{y: 15,x: 5},
-{y: 15,x: 6},
-{y: 15,x: 7},
-{y: 15,x: 10},
-{y: 15,x: 11},
-{y: 15,x: 17},
-{y: 15,x: 18},
-{y: 15,x: 19},
-{y: 15,x: 20},
-{y: 15,x: 21},
-{y: 15,x: 22},
-{y: 15,x: 23},
-{y: 15,x: 24},
-{y: 15,x: 25},
-{y: 15,x: 26},
-{y: 15,x: 27},
-{y: 15,x: 30},
-{y: 15,x: 31},
-{y: 16,x: 0},
-{y: 16,x: 1},
-{y: 16,x: 2},
-{y: 16,x: 3},
-{y: 16,x: 4},
-{y: 16,x: 5},
-{y: 16,x: 6},
-{y: 16,x: 7},
-{y: 16,x: 10},
-{y: 16,x: 11},
-{y: 16,x: 12},
-{y: 16,x: 13},
-{y: 16,x: 17},
-{y: 16,x: 18},
-{y: 16,x: 19},
-{y: 16,x: 20},
-{y: 16,x: 21},
-{y: 16,x: 27},
-{y: 16,x: 30},
-{y: 16,x: 31},
-{y: 17,x: 0},
-{y: 17,x: 1},
-{y: 17,x: 2},
-{y: 17,x: 3},
-{y: 17,x: 4},
-{y: 17,x: 5},
-{y: 17,x: 6},
-{y: 17,x: 7},
-{y: 17,x: 10},
-{y: 17,x: 11},
-{y: 17,x: 12},
-{y: 17,x: 13},
-{y: 17,x: 14},
-{y: 17,x: 17},
-{y: 17,x: 18},
-{y: 17,x: 19},
-{y: 17,x: 20},
-{y: 17,x: 21},
-{y: 17,x: 22},
-{y: 17,x: 27},
-{y: 17,x: 30},
-{y: 17,x: 31},
-{y: 17,x: 32},
-{y: 17,x: 33},
-{y: 17,x: 36},
-{y: 17,x: 37},
-{y: 18,x: 3},
-{y: 18,x: 4},
-{y: 18,x: 5},
-{y: 18,x: 6},
-{y: 18,x: 7},
-{y: 18,x: 10},
-{y: 18,x: 11},
-{y: 18,x: 12},
-{y: 18,x: 13},
-{y: 18,x: 14},
-{y: 18,x: 19},
-{y: 18,x: 20},
-{y: 18,x: 21},
-{y: 18,x: 22},
-{y: 18,x: 26},
-{y: 18,x: 27},
-{y: 18,x: 30},
-{y: 18,x: 31},
-{y: 18,x: 32},
-{y: 18,x: 33},
-{y: 18,x: 36},
-{y: 18,x: 37},
-{y: 19,x: 3},
-{y: 19,x: 4},
-{y: 19,x: 5},
-{y: 19,x: 6},
-{y: 19,x: 7},
-{y: 19,x: 11},
-{y: 19,x: 12},
-{y: 19,x: 13},
-{y: 19,x: 14},
-{y: 19,x: 30},
-{y: 19,x: 31},
-{y: 19,x: 32},
-{y: 19,x: 36},
-{y: 19,x: 37},
-{y: 20,x: 3},
-{y: 20,x: 4},
-{y: 20,x: 6},
-{y: 20,x: 7},
-{y: 20,x: 10},
-{y: 20,x: 11},
-{y: 20,x: 12},
-{y: 20,x: 13},
-{y: 20,x: 14},
-{y: 20,x: 15},
-{y: 20,x: 16},
-{y: 20,x: 17},
-{y: 20,x: 18},
-{y: 20,x: 19},
-{y: 20,x: 31},
-{y: 20,x: 32},
-{y: 20,x: 33},
-{y: 20,x: 36},
-{y: 20,x: 37},
-{y: 21,x: 10},
-{y: 21,x: 11},
-{y: 21,x: 12},
-{y: 21,x: 13},
-{y: 21,x: 14},
-{y: 21,x: 15},
-{y: 21,x: 16},
-{y: 21,x: 17},
-{y: 21,x: 18},
-{y: 21,x: 19},
-{y: 21,x: 21},
-{y: 21,x: 22},
-{y: 21,x: 23},
-{y: 21,x: 26},
-{y: 21,x: 27},
-{y: 21,x: 28},
-{y: 21,x: 29},
-{y: 21,x: 30},
-{y: 21,x: 31},
-{y: 21,x: 32},
-{y: 21,x: 33},
-{y: 21,x: 37},
-{y: 21,x: 38},
-{y: 21,x: 39},
-{y: 22,x: 3},
-{y: 22,x: 4},
-{y: 22,x: 5},
-{y: 22,x: 6},
-{y: 22,x: 7},
-{y: 22,x: 8},
-{y: 22,x: 9},
-{y: 22,x: 10},
-{y: 22,x: 11},
-{y: 22,x: 12},
-{y: 22,x: 13},
-{y: 22,x: 14},
-{y: 22,x: 15},
-{y: 22,x: 16},
-{y: 22,x: 17},
-{y: 22,x: 18},
-{y: 22,x: 19},
-{y: 22,x: 20},
-{y: 22,x: 21},
-{y: 22,x: 22},
-{y: 22,x: 23},
-{y: 22,x: 26},
-{y: 22,x: 27},
-{y: 22,x: 28},
-{y: 22,x: 29},
-{y: 22,x: 30},
-{y: 22,x: 36},
-{y: 22,x: 37},
-{y: 22,x: 38},
-{y: 22,x: 39},
-{y: 23,x: 0},
-{y: 23,x: 2},
-{y: 23,x: 3},
-{y: 23,x: 4},
-{y: 23,x: 5},
-{y: 23,x: 6},
-{y: 23,x: 7},
-{y: 23,x: 8},
-{y: 23,x: 9},
-{y: 23,x: 10},
-{y: 23,x: 11},
-{y: 23,x: 12},
-{y: 23,x: 13},
-{y: 23,x: 14},
-{y: 23,x: 15},
-{y: 23,x: 16},
-{y: 23,x: 17},
-{y: 23,x: 18},
-{y: 23,x: 19},
-{y: 23,x: 20},
-{y: 23,x: 21},
-{y: 23,x: 22},
-{y: 23,x: 23},
-{y: 23,x: 26},
-{y: 23,x: 27},
-{y: 23,x: 28},
-{y: 23,x: 29},
-{y: 23,x: 30},
-{y: 23,x: 36},
-{y: 23,x: 37},
-{y: 23,x: 38},
-{y: 23,x: 39},
-{y: 24,x: 0},
-{y: 24,x: 1},
-{y: 24,x: 2},
-{y: 24,x: 3},
-{y: 24,x: 4},
-{y: 24,x: 5},
-{y: 24,x: 6},
-{y: 24,x: 7},
-{y: 24,x: 8},
-{y: 24,x: 9},
-{y: 24,x: 10},
-{y: 24,x: 11},
-{y: 24,x: 12},
-{y: 24,x: 13},
-{y: 24,x: 14},
-{y: 24,x: 15},
-{y: 24,x: 16},
-{y: 24,x: 17},
-{y: 24,x: 18},
-{y: 24,x: 19},
-{y: 24,x: 20},
-{y: 24,x: 21},
-{y: 24,x: 22},
-{y: 24,x: 23},
-{y: 24,x: 24},
-{y: 24,x: 25},
-{y: 24,x: 26},
-{y: 24,x: 27},
-{y: 24,x: 28},
-{y: 24,x: 29},
-{y: 24,x: 30},
-{y: 24,x: 36},
-{y: 24,x: 37},
-{y: 24,x: 38},
-{y: 24,x: 39}
-],
-    units: [
-    {
-            position: {
-                x: 5,
-                y: 1
-            },
-            type: 'unit-human-mg',
-            armor: 100,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 6,
-                    y: 3
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 29,
-                y: 2
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 6,
-                    y: 3
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 29,
-                y: 6
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 6,
-                    y: 16
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 30,
-                y: 20
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 8,
-                    y: 7
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 26,
-                y: 16
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 8,
-                    y: 12
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 36,
-                y: 9
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 12,
-                    y: 5
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 18,
-                y: 8
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 12,
-                    y: 14
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 39,
-                y: 15
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: true,
-            speed: 200,
-            weapons: [MachineGunView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 12,
-                    y: 14
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        /*
-         * USERS UNITS
-         */
-        {
-            position: {
-                x: 0,
-                y: 0
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [MachineGunView, PistolView],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 1,
-                y: 0
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [MachineGunView, PistolView],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 6,
-                y: 0
-            },
-            type: 'unit-human-bazooka',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [BazookaView, PistolView],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 10,
-                y: 19
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [MachineGunView, PistolView],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 5,
-                y: 20
-            },
-            type: 'unit-human-mg',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [MachineGunView, PistolView],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 0,
-                y: 18
-            },
-            type: 'unit-human-bazooka',
-            armor: 1000,
-            actionPoints: 15,
-            isEnemy: false,
-            speed: 500,
-            weapons: [BazookaView, PistolView],
-            order: null,
-            sounds: {
-                move: 'audio/unit/soldierMG/move.wav',
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 27,
-                y: 2
-            },
-            type: 'defense-tower',
-            armor: 1000,
-            actionPoints: 10,
-            isEnemy: true,
-            speed: 0,
-            weapons: [DoubleBazookaView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 27,
-                    y: 2
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 27,
-                y: 8
-            },
-            type: 'defense-tower',
-            armor: 1000,
-            actionPoints: 10,
-            isEnemy: true,
-            speed: 0,
-            weapons: [DoubleBazookaView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 27,
-                    y: 8
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 27,
-                y: 9
-            },
-            type: 'defense-tower',
-            armor: 1000,
-            actionPoints: 10,
-            isEnemy: true,
-            speed: 0,
-            weapons: [DoubleBazookaView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 27,
-                    y: 9
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        },
-        {
-            position: {
-                x: 27,
-                y: 19
-            },
-            type: 'defense-tower',
-            armor: 1000,
-            actionPoints: 10,
-            isEnemy: true,
-            speed: 0,
-            weapons: [DoubleBazookaView],
-            order: {
-                action: 'protect',
-                positionToProtect: {
-                    x: 27,
-                    y: 19
-                },
-                protectionRange: 5
-            },
-            sounds: {
-                attack: 'audio/unit/soldierMG/attack.wav',
-                die: 'audio/unit/soldierMG/die.wav'
-            }
-        }
-    ]
-};
