@@ -410,12 +410,15 @@ var MapView = Backbone.View.extend({
         html.push('<div class="js-moving-path moving-path" style="left: ' + (currentPosition.x * 50) + 'px; top: ' + (currentPosition.y * 50) + 'px;"></div>');
         for (index in wayPoints) {
             if (wayPoints.hasOwnProperty(index)) {
-                if (count === currentActionPoints) {
-                    break;
-                }
                 currentWayPoint = wayPoints[index];
-                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
 
+                if (count > currentActionPoints) {
+                    html.push('<div class="js-moving-path moving-path not-available" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
+                    count += 1;
+                    continue;
+                }
+
+                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
                 count += 1;
             }
         }
