@@ -1,0 +1,76 @@
+<project name="hva" default="dist" basedir=".">
+    <description>
+        This build file handles the live deploy
+    </description>
+
+    <property name="css" location="css"/>
+    <property name="js" location="js"/>
+    <property name="images" location="images"/>
+    <property name="build" location="/tmp/build"/>
+
+    <target name="deploy">
+        <delete dir="${build}"/>
+        <mkdir dir="${build}"/>
+        <mkdir dir="${build}/js"/>
+        <copy todir="${build}">
+            <fileset dir="." casesensitive="yes">
+                <exclude name="**/js/"/>
+                <exclude name="**/css/"/>
+                <exclude name="**/.*/"/>
+                <exclude name="**/build.xml/"/>
+                <exclude name="**/compiler.jar/"/>
+                <exclude name="**/projects/"/>
+                <exclude name="**/index.html/"/>
+            </fileset>
+        </copy>
+
+        <echo message="concat js files ..."/>
+        <concat destfile="${build}/concated.js">
+            <fileset file="js/modules/actionPanel/model/ActionPanelModel.js"/>
+            <fileset file="js/modules/actionPanel/view/ActionPanelView.js"/>
+            <fileset file="js/modules/inventory/model/InventoryItemModel.js"/>
+            <fileset file="js/modules/inventory/view/AbstractInventoryItemView.js"/>
+            <fileset file="js/modules/inventory/view/MedipackView.js"/>
+            <fileset file="js/modules/unit/model/UnitModel.js"/>
+            <fileset file="js/modules/obstacle/model/ObstacleModel.js"/>
+            <fileset file="js/modules/map/model/UnitCollection.js"/>
+            <fileset file="js/modules/map/model/ObstacleCollection.js"/>
+            <fileset file="js/modules/map/model/InventoryCollection.js"/>
+            <fileset file="js/modules/weapon/model/WeaponModel.js"/>
+            <fileset file="js/modules/weapon/view/MachineGunView.js"/>
+            <fileset file="js/modules/weapon/view/BazookaView.js"/>
+            <fileset file="js/modules/weapon/view/PistolView.js"/>
+            <fileset file="js/modules/weapon/view/DoubleBazookaView.js"/>
+            <fileset file="js/modules/unit/view/UnitView.js"/>
+            <fileset file="js/modules/obstacle/view/ObstacleView.js"/>
+            <fileset file="js/modules/map/model/MapModel.js"/>
+            <fileset file="js/modules/map/view/MapView.js"/>
+            <fileset file="js/modules/helper/Position.js"/>
+            <fileset file="js/modules/helper/Mathematic.js"/>
+            <fileset file="js/modules/ai/model/AiFacade.js"/>
+            <fileset file="js/modules/ai/view/AiView.js"/>
+            <fileset file="js/modules/menu/model/MenuModel.js"/>
+            <fileset file="js/modules/menu/view/MenuView.js"/>
+        </concat>
+
+        <echo message="concat css files ..."/>
+        <concat destfile="${build}/css/concated.css">
+            <fileset dir="${css}"/>
+        </concat>
+
+        <echo message="compress concated js file ..."/>
+        <java jar="${basedir}/compiler.jar" fork="true">
+            <arg value="--js=${build}/concated.js"/>
+            <redirector output="${build}/js/hva.js"/>
+        </java>
+
+        <delete file="${build}/concated.js"/>
+        <move file="${build}/live_index.html" tofile="${build}/index.html"/>
+
+        <exec executable="scp">
+            <arg value="-r"/>
+            <arg value="${build}"/>
+            <arg value="root@dcu-testkiste01.pocci.cxo.name:/var/www/hva"/>
+        </exec>
+    </target>
+</project>

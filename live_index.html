@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>War-Time</title>
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="astar.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/concated.css" />
+    </head>
+    <body>
+        <audio autoplay="autoplay" id="js-sound-unit" src="" >
+            Your browser does not support the audio element.
+        </audio>
+
+        <audio autoplay="autoplay" id="js-sound-enemy" src="" >
+            Your browser does not support the audio element.
+        </audio>
+
+        <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.6/underscore-min.js"></script>
+        <script type="text/javascript" src="backbone.js"></script>
+        <script type="text/javascript" src="js/hva.js"></script>
+        <script type="text/javascript">
+        var actionPanelView,
+            mapView,
+            menuView;
+
+        console.log = function() {};
+
+        window.onload = function () {
+            menuView = new MenuView({
+                model: new MenuModel()
+            });
+        }
+        </script>
+    </body>
+</html>

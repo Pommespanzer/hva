@@ -18,7 +18,7 @@ var ActionPanelView = Backbone.View.extend({
         'click #js-end-turn': 'endTurn',
         'click #js-back-to-menu': 'backToMenu',
         'click .js-weapon': 'selectWeapon',
-        'click .js-inventory-item': 'selectInventory',
+        'click .js-inventory-item': 'selectInventory'
     },
 
     /**

@@ -1,4 +1,3 @@
-'use strict';
 var MapView = Backbone.View.extend({
     /**
      * Object where to bind the map.
@@ -412,7 +411,7 @@ var MapView = Backbone.View.extend({
             if (wayPoints.hasOwnProperty(index)) {
                 currentWayPoint = wayPoints[index];
 
-                if (count > currentActionPoints) {
+                if (count >= currentActionPoints) {
                     html.push('<div class="js-moving-path moving-path not-available" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
                     count += 1;
                     continue;
