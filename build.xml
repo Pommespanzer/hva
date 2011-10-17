@@ -10,8 +10,11 @@
 
     <target name="deploy">
         <delete dir="${build}"/>
+
         <mkdir dir="${build}"/>
         <mkdir dir="${build}/js"/>
+        <mkdir dir="${build}/css"/>
+
         <copy todir="${build}">
             <fileset dir="." casesensitive="yes">
                 <exclude name="**/js/"/>
@@ -54,7 +57,7 @@
         </concat>
 
         <echo message="concat css files ..."/>
-        <concat destfile="${build}/css/concated.css">
+        <concat destfile="${build}/concated.css">
             <fileset dir="${css}"/>
         </concat>
 
@@ -64,7 +67,15 @@
             <redirector output="${build}/js/hva.js"/>
         </java>
 
+        <echo message="compress concated css file ..."/>
+        <java jar="${basedir}/yuicompressor-2.4.6.jar" fork="true">
+            <arg value="${build}/concated.css"/>
+            <redirector output="${build}/css/hva.css"/>
+        </java>
+
         <delete file="${build}/concated.js"/>
+        <delete file="${build}/concated.css"/>
+
         <move file="${build}/live_index.html" tofile="${build}/index.html"/>
 
         <exec executable="scp">
