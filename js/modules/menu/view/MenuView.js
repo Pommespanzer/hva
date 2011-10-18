@@ -117,9 +117,8 @@ var MenuView = Backbone.View.extend({
     loadGame: function () {
         this.hide();
 
-        var data = this.model.load();
-
-        var battlefield = $('#battlefield'),
+        var data = this.model.load(),
+            battlefield = $('#battlefield'),
             actionPanel = $('#js-action-panel');
 
         if (battlefield.length === 0 && actionPanel.length === 0) {

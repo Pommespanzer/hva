@@ -139,12 +139,10 @@ var UnitModel = Backbone.Model.extend({
             i;
 
         for (i = 0; i < inventory.length; i += 1) {
-            if (inventory[i].get('id') !== inventoryItemId) {
-                continue;
+            if (inventory[i].get('id') === inventoryItemId) {
+                inventory[i].use(this);
+                break;
             }
-
-            inventory[i].use(this);
-            break;
         }
     },
 

@@ -113,7 +113,10 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     destroy: function () {
-        var audiofiles = this.model.get('sounds');
+        var audiofiles = this.model.get('sounds'),
+            medipackModel,
+            medipackView;
+
         this.audioplayer[0].src = audiofiles.die;
 
         $(this.el).remove();
@@ -123,11 +126,10 @@ var UnitView = Backbone.View.extend({
             actionPanelView.update(this.model);
         }
 
-        var medipackModel = new InventoryItemModel();
+        medipackModel = new InventoryItemModel();
         medipackModel.generateId(this.model.getPosition());
         medipackModel.setName('medipack');
-
-        var medipackView = new MedipackView({
+        medipackView = new MedipackView({
             model: medipackModel
         });
 
@@ -364,7 +366,17 @@ console.log('OK. Now start shooting');
      * @return void
      */
     _attack: function () {
-        var selectedWeapon = this.model.get('selectedWeapon');
+        var selectedWeapon = this.model.get('selectedWeapon'),
+            unique,
+            randValue,
+            position,
+            enemy,
+            enemyPosition,
+            angle,
+            distance,
+            _this,
+            audiofiles,
+            shoot;
 
         // not enough action points -> quit
         if ((this.model.getCurrentActionPoints() - selectedWeapon.model.get('actionPoints')) < 0) {
@@ -382,16 +394,16 @@ console.log('OK. Now start shooting');
 
         this.model.isBusy(true);
 
-        var unique = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),
-            randValue = 25,
-            position = this.model.getPosition(),
-            enemy = this.model.get('enemy'),
-            enemyPosition = enemy.getPosition(),
-            angle = Mathematic.getAngle(position, enemyPosition),
-            distance = Mathematic.getDistance(position, enemyPosition),
-            _this = this,
-            audiofiles = this.model.get('sounds'),
-            shoot = selectedWeapon.renderShot(position, angle, this.model.get('isEnemy'));;
+        unique = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999);
+        randValue = 25;
+        position = this.model.getPosition();
+        enemy = this.model.get('enemy');
+        enemyPosition = enemy.getPosition();
+        angle = Mathematic.getAngle(position, enemyPosition);
+        distance = Mathematic.getDistance(position, enemyPosition);
+        _this = this;
+        audiofiles = this.model.get('sounds');
+        shoot = selectedWeapon.renderShot(position, angle, this.model.get('isEnemy'));
 
         this.audioplayer[0].src = audiofiles.attack;
 

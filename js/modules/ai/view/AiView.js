@@ -86,6 +86,14 @@ console.log('+++ reset enemies +++');
      * @return void
      */
     nextUnit: function (oldUnitModel) {
+        var unitModel,
+            order,
+            position,
+            i,
+            selectedUnitId,
+            selectedUnitModel,
+            selectedUnitPosition;
+
         if (oldUnitModel instanceof UnitModel) {
             oldUnitModel.unbind('movingFinished');
             oldUnitModel.unbind('attackingFinished');
@@ -95,11 +103,6 @@ console.log('+++ next unit +++');
 console.log('OK. No units found -> end the turn');
             // collect enemies again because some could be dead allready
             this.resetEnemies();
-
-            var i,
-                selectedUnitId,
-                selectedUnitModel,
-                selectedUnitPosition;
 
             for (i in this.enemyModels) {
                 if (this.enemyModels.hasOwnProperty(i)) {
@@ -123,9 +126,9 @@ console.log('OK. No units found -> end the turn');
         $('#battlefield').css('cursor', 'progress');
 
 console.log('OK. Choose next unit');
-        var unitModel = this.unitModels.pop(),
-            order = unitModel.get('order'),
-            position = unitModel.getPosition();
+        unitModel = this.unitModels.pop();
+        order = unitModel.get('order');
+        position = unitModel.getPosition();
 
         // unit has no order, than search and destroy enemies
         if (!order) {

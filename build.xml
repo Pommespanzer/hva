@@ -12,10 +12,11 @@
         <delete dir="${build}"/>
 
         <mkdir dir="${build}"/>
-        <mkdir dir="${build}/js"/>
-        <mkdir dir="${build}/css"/>
+        <mkdir dir="${build}/hva"/>
+        <mkdir dir="${build}/hva/js"/>
+        <mkdir dir="${build}/hva/css"/>
 
-        <copy todir="${build}">
+        <copy todir="${build}/hva">
             <fileset dir="." casesensitive="yes">
                 <exclude name="**/js/"/>
                 <exclude name="**/css/"/>
@@ -24,11 +25,13 @@
                 <exclude name="**/compiler.jar/"/>
                 <exclude name="**/projects/"/>
                 <exclude name="**/index.html/"/>
+                <exclude name="**/jslint4java-2.0.0.jar/"/>
+                <exclude name="**/yuicompressor-2.4.6.jar/"/>
             </fileset>
         </copy>
 
         <echo message="concat js files ..."/>
-        <concat destfile="${build}/concated.js">
+        <concat destfile="${build}/hva/concated.js">
             <fileset file="js/modules/actionPanel/model/ActionPanelModel.js"/>
             <fileset file="js/modules/actionPanel/view/ActionPanelView.js"/>
             <fileset file="js/modules/inventory/model/InventoryItemModel.js"/>
@@ -56,32 +59,46 @@
             <fileset file="js/modules/menu/view/MenuView.js"/>
         </concat>
 
+        <echo message="jslint is checking js file ..."/>
+        <java jar="${basedir}/jslint4java-2.0.0.jar" fork="true">
+            <arg value="--white"/>
+            <arg value="--nomen"/>
+            <arg value="--continue"/>
+            <arg value="--browser"/>
+            <arg value="--predef"/>
+            <arg value="--undef Backbone,_,$$,astar,AiView,AiFacade,Position,Mathematic,menuView,AbstractInventoryItemView,actionPanelView,mapView,WeaponModel,LevelOne"/>
+            <arg value="--sloppy"/>
+            <arg value="--devel"/>
+            <arg value="--confusion"/>
+            <arg value="${build}/hva/concated.js"/>
+        </java>
+
         <echo message="concat css files ..."/>
-        <concat destfile="${build}/concated.css">
+        <concat destfile="${build}/hva/concated.css">
             <fileset dir="${css}"/>
         </concat>
 
         <echo message="compress concated js file ..."/>
         <java jar="${basedir}/compiler.jar" fork="true">
-            <arg value="--js=${build}/concated.js"/>
-            <redirector output="${build}/js/hva.js"/>
+            <arg value="--js=${build}/hva/concated.js"/>
+            <redirector output="${build}/hva/js/hva.js"/>
         </java>
 
         <echo message="compress concated css file ..."/>
         <java jar="${basedir}/yuicompressor-2.4.6.jar" fork="true">
-            <arg value="${build}/concated.css"/>
-            <redirector output="${build}/css/hva.css"/>
+            <arg value="${build}/hva/concated.css"/>
+            <redirector output="${build}/hva/css/hva.css"/>
         </java>
 
-        <delete file="${build}/concated.js"/>
-        <delete file="${build}/concated.css"/>
+        <delete file="${build}/hva/concated.js"/>
+        <delete file="${build}/hva/concated.css"/>
 
-        <move file="${build}/live_index.html" tofile="${build}/index.html"/>
+        <move file="${build}/hva/live_index.html" tofile="${build}/hva/index.html"/>
 
         <exec executable="scp">
             <arg value="-r"/>
-            <arg value="${build}"/>
-            <arg value="root@dcu-testkiste01.pocci.cxo.name:/var/www/hva"/>
+            <arg value="${build}/hva"/>
+            <arg value="root@dcu-testkiste01.pocci.cxo.name:/var/www"/>
         </exec>
     </target>
 </project>

@@ -185,14 +185,13 @@ var AiFacade = Backbone.Model.extend({
                     currentWayPoint = wayPoints[i];
                     startPosition = {x: currentWayPoint.row, y: currentWayPoint.col};
 
-                    // not in range and not in proper fire position
-                    if (false === this.inFirerange(startPosition, enemyPosition, weapon.model.get('range')) ||
-                        false === mapView.model.isShootingPossible(mapView.obstacleCollection, startPosition, enemyPosition)) {
-                        continue;
-                    }
+                    // in range and in proper fire position
+                    if (this.inFirerange(startPosition, enemyPosition, weapon.model.get('range')) &&
+                        mapView.model.isShootingPossible(mapView.obstacleCollection, startPosition, enemyPosition)) {
 
-                    slicePosition = i;
-                    break;
+                        slicePosition = i;
+                        break;
+                    }
                 }
 
                 // no way point is a proper fire position
@@ -280,14 +279,13 @@ var AiFacade = Backbone.Model.extend({
                     currentWayPoint = wayPoints[i];
                     startPosition = {x: currentWayPoint.row, y: currentWayPoint.col};
 
-                    // not in range and not in proper fire position
-                    if (false === this.inFirerange(startPosition, enemyPosition, weapon.model.get('range')) ||
-                        false === mapView.model.isShootingPossible(mapView.obstacleCollection, startPosition, enemyPosition)) {
-                        continue;
-                    }
+                    // in range and in proper fire position
+                    if (this.inFirerange(startPosition, enemyPosition, weapon.model.get('range')) &&
+                        mapView.model.isShootingPossible(mapView.obstacleCollection, startPosition, enemyPosition)) {
 
-                    slicePosition = i;
-                    break;
+                        slicePosition = i;
+                        break;
+                    }
                 }
 
                 // no way point is a proper fire position

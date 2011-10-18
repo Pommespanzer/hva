@@ -18,17 +18,17 @@ var MapModel = Backbone.Model.extend({
     getSelectedUnitId: function () {
         return this.get('selectedUnitId');
     },
-    
+
     /**
      * Set the goal moving position for an unit.
-     * 
+     *
      * @param object path
-     * 
+     *
      * @return void
      */
     setGoalMovingPath: function (path) {
-		this.set({goalMovingPath: path});
-	},
+        this.set({goalMovingPath: path});
+    },
 
     /**
      * Checks if an enemy is in range to attack.
@@ -44,9 +44,9 @@ var MapModel = Backbone.Model.extend({
             enemyPosition = enemy.getPosition(),
             selectedWeapon = unit.get('selectedWeapon'),
             range = selectedWeapon.model.get('range'),
-            rangeRight = position.x + range;
-            rangeLeft  = position.x - range;
-            rangeDown  = position.y + range;
+            rangeRight = position.x + range,
+            rangeLeft  = position.x - range,
+            rangeDown  = position.y + range,
             rangeUp    = position.y - range;
 
         if (((enemyPosition.x >= position.x && rangeRight >= enemyPosition.x) || (enemyPosition.x <= position.x && rangeLeft <= enemyPosition.x)) && ((enemyPosition.y >= position.y && rangeDown >= enemyPosition.y) || (enemyPosition.y <= position.y && rangeUp <= enemyPosition.y))) {
@@ -73,15 +73,17 @@ var MapModel = Backbone.Model.extend({
             enemyPosX = goalPosition.x + value,
             enemyPosY = goalPosition.y + value,
             ascent = 0,
-            n = 0;
+            n = 0,
+            key,
+            obstaclePosition,
+            yEingang,
+            xE;
 
         if (unitPosX !== enemyPosX) {
             ascent = (enemyPosY - unitPosY) / (enemyPosX - unitPosX);
             n = enemyPosY - (ascent * enemyPosX);
         }
 
-        var key,
-            obstaclePosition;
         for (key in obstacleCollection.models) {
             if (obstacleCollection.models.hasOwnProperty(key)) {
                 obstaclePosition = obstacleCollection.models[key].getPosition();
@@ -111,11 +113,11 @@ var MapModel = Backbone.Model.extend({
                 }
 
                 //var xEingang = obstaclePosition.x;
-                var yEingang = ascent * obstaclePosition.x + n;
+                yEingang = ascent * obstaclePosition.x + n;
                 //var xAusgang = obstaclePosition.x + 1;
                 //var yAusgang = ascent * (obstaclePosition.x + 1) + n;
 
-                var xE = (obstaclePosition.y - n) / ascent;
+                xE = (obstaclePosition.y - n) / ascent;
                 //var yE = obstaclePosition.y;
                 //var xA = (obstaclePosition.y - n) / ascent - 1;
                 //var yA = obstaclePosition.y + 1;
@@ -241,11 +243,13 @@ var MapModel = Backbone.Model.extend({
             matrix = [],
             unit,
             currentPosition = [],
-            x;
+            x,
+            y,
+            wayPoints,
+            trash;
 
         for (x = 0; x <= mapWidth; x += 1) {
             currentPosition = [];
-            var y;
             for (y = 0; y <= mapHeight; y += 1) {
                 // start position
                 if (x === startPosition.x && y === startPosition.y) {
@@ -278,13 +282,13 @@ var MapModel = Backbone.Model.extend({
             matrix.push(currentPosition);
         }
 
-        var wayPoints = astar(matrix, 'manhattan', false);
+        wayPoints = astar(matrix, 'manhattan', false);
 
         if (!wayPoints || wayPoints.length <= 1) {
             return false;
         }
 
-        var trash = wayPoints.shift();
+        trash = wayPoints.shift();
         trash = null;
 
         return wayPoints;

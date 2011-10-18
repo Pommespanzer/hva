@@ -125,7 +125,17 @@ var ActionPanelView = Backbone.View.extend({
 
         var weapons = $('#js-weapons'),
             status = $('#js-status'),
-            inventory = $('#js-inventory');
+            inventory = $('#js-inventory'),
+            armorQuotient = 100 / unitModel.getTotalArmor(),
+            newWidthArmor = unitModel.getCurrentArmor() * armorQuotient,
+            onePercent = 100 / unitModel.getTotalActionPoints(),
+            newWidthActionPoints = onePercent * unitModel.getCurrentActionPoints(),
+            allWeapons = unitModel.get('weapons'),
+            allInventoryItems = unitModel.get('inventory') || [],
+            weaponHtml = [],
+            statusHtml = [],
+            inventoryHtml = [],
+            i;
 
         // unit is dead -> remove all status
         if (unitModel.getCurrentArmor() <= 0) {
@@ -133,17 +143,6 @@ var ActionPanelView = Backbone.View.extend({
             status.html('');
             return;
         }
-
-        var armorQuotient = 100 / unitModel.getTotalArmor(),
-            newWidthArmor = unitModel.getCurrentArmor() * armorQuotient,
-            onePercent = 100 / unitModel.getTotalActionPoints(),
-            newWidthActionPoints = onePercent * unitModel.getCurrentActionPoints(),
-            allWeapons = unitModel.get('weapons'),
-            allInventoryItems = unitModel.get('inventory') ? unitModel.get('inventory') : [],
-            weaponHtml = [],
-            statusHtml = [],
-            inventoryHtml = [],
-            i;
 
         for (i = 0; i < allWeapons.length; i += 1) {
             weaponHtml.push('<li><a href="javascript:;" class="js-weapon" data-weaponNr=' + i + '>' + allWeapons[i].model.get('name') + '</a></li>');

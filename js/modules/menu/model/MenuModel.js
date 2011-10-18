@@ -8,9 +8,7 @@ var MenuModel = Backbone.Model.extend({
         try {
             localStorage.setItem('hva', JSON.stringify({units: units, obstacles: obstacles}));
         } catch (e) {
-            if (e == QUOTA_EXCEEDED_ERR) {
-                alert('Es konnte nicht gespeichert werden');
-            }
+            alert('Es konnte nicht gespeichert werden');
         }
     },
 
