@@ -71,9 +71,11 @@ var MapView = Backbone.View.extend({
     },
 
     /**
-     * This method adds all units to the map.
+     * This method adds all units to the unit collection.
+     * Its useful to identify the units on the map. In example if an user clicks
+     * an unit to know which unit model to load.
      *
-     * @param array units - array of all units
+     * @param array units - array of all units with their attributes
      *
      * @return void
      */
@@ -109,7 +111,8 @@ var MapView = Backbone.View.extend({
     },
 
     /**
-     * This method adds all obstacles to the map.
+     * This method adds all obstacles to obstacle collection.
+     * Its useful to identify where an unit is not able to walk.
      *
      * @param array obstacles - array of all obstacles
      *
@@ -307,12 +310,13 @@ var MapView = Backbone.View.extend({
      */
     attackEnemyAction: function (selectedUnitId, enemyId) {
         var selectedUnitModel = this.unitCollection.get(selectedUnitId),
-            enemyModel = this.unitCollection.get(enemyId);
+            enemyModel;
 
         if (selectedUnitModel.get('isBusy')) {
             return;
         }
 
+        enemyModel = this.unitCollection.get(enemyId);
         selectedUnitModel.attack(enemyModel);
 
         // enemy will protect them self
