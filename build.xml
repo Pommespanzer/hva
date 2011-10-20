@@ -43,6 +43,7 @@
             <fileset file="js/modules/map/model/ObstacleCollection.js"/>
             <fileset file="js/modules/map/model/InventoryCollection.js"/>
             <fileset file="js/modules/weapon/model/WeaponModel.js"/>
+            <fileset file="js/modules/weapon/view/AbstractWeaponView.js"/>
             <fileset file="js/modules/weapon/view/MachineGunView.js"/>
             <fileset file="js/modules/weapon/view/BazookaView.js"/>
             <fileset file="js/modules/weapon/view/PistolView.js"/>
@@ -90,7 +91,7 @@
             <redirector output="${build}/hva/css/hva.css"/>
         </java>
 
-        <delete file="${build}/hva/concated.js"/>
+        <!--<delete file="${build}/hva/concated.js"/>-->
         <delete file="${build}/hva/concated.css"/>
 
         <move file="${build}/hva/live_index.html" tofile="${build}/hva/index.html"/>

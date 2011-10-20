@@ -1,4 +1,8 @@
 var WeaponModel = Backbone.Model.extend({
+    setId: function (id) {
+        this.set({id: id});
+    },
+
     setRange: function (range) {
         this.set({range: range});
     },
@@ -21,5 +25,17 @@ var WeaponModel = Backbone.Model.extend({
 
     setFirespeed: function (firespeed) {
         this.set({firespeed: firespeed});
+    },
+
+    backToHolster: function () {
+        this.set({inUse: false});
+    },
+
+    use: function () {
+        this.set({inUse: true});
+    },
+
+    setPosition: function (position) {
+        this.set({position: position});
     }
 });

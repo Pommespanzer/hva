@@ -1,15 +1,8 @@
-var PistolView = Backbone.View.extend({
+var PistolView = AbstractWeaponView.extend({
     /**
-     * INIT
-     *
-     * @return void
+     * INIT - call by AbstractWeaponView
      */
-    initialize: function () {
-        _.bindAll(
-            this,
-            'renderShot'
-        );
-
+    init: function () {
         this.model.setName('p9');
         this.model.setRange(3);
         this.model.setActionPoints(1);
@@ -19,7 +12,13 @@ var PistolView = Backbone.View.extend({
     },
 
     /**
-     * This method rendes the shot for the ma
+     * This method rendes the shot on the map.
+     *
+     * @param object position - {x: ?, y: ?}
+     * @param float angle - angle of the shot
+     * @param bool isEnemy
+     *
+     * @return void
      */
     renderShot: function (position, angle, isEnemy) {
         var uniqueId = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),

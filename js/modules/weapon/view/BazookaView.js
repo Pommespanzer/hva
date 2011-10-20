@@ -1,15 +1,8 @@
-var BazookaView = Backbone.View.extend({
+var BazookaView = AbstractWeaponView.extend({
     /**
-     * INIT
-     *
-     * @return void
+     * INIT - call by AbstractWeaponView
      */
-    initialize: function () {
-        _.bindAll(
-            this,
-            'renderShot'
-        );
-
+    init: function () {
         this.model.setName('bazooka');
         this.model.setRange(7);
         this.model.setActionPoints(5);
@@ -19,7 +12,13 @@ var BazookaView = Backbone.View.extend({
     },
 
     /**
-     * This method rendes the shot for the ma
+     * This method renders the shot for the bazooka weapon.
+     *
+     * @param object position - {x: ?, y: ?}
+     * @param float angle - angle of the shot
+     * @param bool isEnemy
+     *
+     * @return void
      */
     renderShot: function (position, angle, isEnemy) {
         var uniqueId = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),

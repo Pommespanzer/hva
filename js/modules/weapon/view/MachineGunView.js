@@ -1,15 +1,8 @@
-var MachineGunView = Backbone.View.extend({
+var MachineGunView = AbstractWeaponView.extend({
     /**
-     * INIT
-     *
-     * @return void
+     * INIT - call by AbstractWeaponView
      */
-    initialize: function () {
-        _.bindAll(
-            this,
-            'renderShot'
-        );
-
+    init: function () {
         this.model.setName('mg');
         this.model.setRange(5);
         this.model.setActionPoints(2);

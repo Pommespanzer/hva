@@ -34,9 +34,6 @@ var UnitView = Backbone.View.extend({
             'select',
             'move',
             'attack',
-            'addFirerange',
-            'updateFirerange',
-            'removeFirerange',
             'changeWeapon',
             'destroy'
         );
@@ -53,57 +50,19 @@ var UnitView = Backbone.View.extend({
     },
 
     /**
-     * This method displays the fire range of the current selected unit.
-     *
-     * @return void
-     */
-    addFirerange: function () {
-        var weapon = this.model.get('selectedWeapon'),
-            padding = weapon.model.get('range') * 50,
-            position = this.model.getPosition(),
-            x = (position.x * 50 - padding),
-            y = (position.y * 50 - padding);
-
-        this.battlefield.append('<div id="fr-' + this.model.get('id') + '" class="firerange" style="top: ' + y + 'px; left: ' + x + 'px; padding: ' + padding + 'px"></div>');
-    },
-
-    /**
-     * This method updates (repaint) the fire range of the current selected unit.
-     * This happens if an unit moves or unit change the current weapon.
-     *
-     * @param integer x
-     * @param integer y
-     *
-     * @return void
-     */
-    updateFirerange: function (x, y) {
-        var weapon = this.model.get('selectedWeapon'),
-            padding = weapon.model.get('range') * 50;
-
-        $('#fr-' + this.model.get('id')).css({left: (x - padding), top: (y - padding)});
-    },
-
-    /**
-     * This method removes the fire range of the current selected unit.
-     * This happens if the unit dies or the user select an other unit.
-     *
-     * @return void
-     */
-    removeFirerange: function () {
-        $('#fr-' + this.model.get('id')).remove();
-    },
-
-    /**
-     * This method is called if the user changes his weapon.
+     * This method is called if the user changes the weapon of an unit.
      *
      * @param Object UnitModel
-     * @param Object weapon
+     * @param Object newWeapon - new selected weapon
      *
      * @return void
      */
-    changeWeapon: function (unitModel, weapon) {
-        this.removeFirerange();
-        this.addFirerange();
+    changeWeapon: function (unitModel, newWeapon) {
+        var prevWeapon = unitModel.get('previousWeapon');
+        prevWeapon.model.backToHolster();
+
+        newWeapon.model.setPosition(unitModel.getPosition());
+        newWeapon.model.use();
     },
 
     /**
@@ -114,6 +73,7 @@ var UnitView = Backbone.View.extend({
      */
     destroy: function () {
         var audiofiles = this.model.get('sounds'),
+            currentWeapon = this.model.get('selectedWeapon'),
             medipackModel,
             medipackView;
 
@@ -122,7 +82,7 @@ var UnitView = Backbone.View.extend({
         $(this.el).remove();
 
         if (this.model.isSelected()) {
-            this.removeFirerange();
+            currentWeapon.model.backToHolster();
             actionPanelView.update(this.model);
         }
 
@@ -147,12 +107,15 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     select: function (unitModel, value) {
+        var currentWeapon = this.model.get('selectedWeapon');
+
         if (true === value) {
             // mark unit as selected
             $(this.el).addClass('selected');
 
-            // render fire range
-            this.addFirerange();
+            // load weapon
+            currentWeapon.model.setPosition(this.model.getPosition());
+            currentWeapon.model.use();
 
             // update the action panel
             actionPanelView.update(unitModel);
@@ -160,7 +123,8 @@ var UnitView = Backbone.View.extend({
         }
 
         $(this.el).removeClass('selected');
-        this.removeFirerange();
+        // remove weapon
+        currentWeapon.model.backToHolster();
     },
 
     /**
@@ -253,7 +217,8 @@ var UnitView = Backbone.View.extend({
             startPosition = unitModel.getPosition(),
             goalPosition = {x: x, y: y},
             inventoryModel,
-            angle = Mathematic.getAngle(startPosition, goalPosition);
+            angle = Mathematic.getAngle(startPosition, goalPosition),
+            currentWeapon = unitModel.get('selectedWeapon');
 
         // rotate unit in right position
         unit.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
@@ -271,7 +236,7 @@ var UnitView = Backbone.View.extend({
                     var x = parseInt(fx.elem.style.left, 10),
                         y = parseInt(fx.elem.style.top, 10);
 
-                    _this.updateFirerange(x, y);
+                    currentWeapon.model.setPosition({x: x, y: y});
                 },
                 complete: function () {
                     // set new position

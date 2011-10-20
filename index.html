@@ -39,6 +39,7 @@
         <script type="text/javascript" src="js/modules/map/model/InventoryCollection.js"></script>
 
         <script type="text/javascript" src="js/modules/weapon/model/WeaponModel.js"></script>
+        <script type="text/javascript" src="js/modules/weapon/view/AbstractWeaponView.js"></script>
         <script type="text/javascript" src="js/modules/weapon/view/MachineGunView.js"></script>
         <script type="text/javascript" src="js/modules/weapon/view/BazookaView.js"></script>
         <script type="text/javascript" src="js/modules/weapon/view/PistolView.js"></script>
@@ -64,7 +65,7 @@
             mapView,
             menuView;
 
-        console.log = function() {};
+        //console.log = function() {};
 
         window.onload = function () {
             menuView = new MenuView({
