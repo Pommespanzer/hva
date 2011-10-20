@@ -91,7 +91,7 @@
             <redirector output="${build}/hva/css/hva.css"/>
         </java>
 
-        <!--<delete file="${build}/hva/concated.js"/>-->
+        <delete file="${build}/hva/concated.js"/>
         <delete file="${build}/hva/concated.css"/>
 
         <move file="${build}/hva/live_index.html" tofile="${build}/hva/index.html"/>
