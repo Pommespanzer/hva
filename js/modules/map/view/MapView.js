@@ -223,9 +223,10 @@ var MapView = Backbone.View.extend({
 
         var targetObject = $(event.target),
             selectedUnitId = this.model.getSelectedUnitId();
+            goalPosition = Position.byCoordinates(event.clientX, event.clientY);
 
         // select obstacle
-        if (targetObject.hasClass('obstacle')) {
+        if (this.obstacleCollection.get(goalPosition.x + '_' + goalPosition.y)) {
             console.info('Selecting an obstacle is not implemented yet.');
             // this.selectObstacleAction();
             return;
@@ -380,16 +381,16 @@ var MapView = Backbone.View.extend({
         }
 
         hoveredElement = $(event.target);
+        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
 
         // no free position on battefield -> exit
-        if (hoveredElement.hasClass('obstacle') || hoveredElement.hasClass('unit')) {
+        if (this.obstacleCollection.get(goalPosition.x + '_' + goalPosition.y) || hoveredElement.hasClass('unit')) {
             this.model.setGoalMovingPath(null);
             this.removeMovingPath();
             return;
         }
 
         currentPosition = currentSelectedUnitModel.getPosition();
-        goalPosition = Position.byCoordinates(event.clientX, event.clientY);
 
         if (currentPosition.x === goalPosition.x && currentPosition.y === goalPosition.y) {
             return;
@@ -469,7 +470,7 @@ var MapView = Backbone.View.extend({
     },
 
     /**
-     * This method renders the map and all containing elements (units, obstacles , ...)
+     * This method renders the map and all containing elements.
      *
      * @return void
      */
@@ -495,18 +496,6 @@ var MapView = Backbone.View.extend({
                 });
 
                 this.map.append(unitView.render().el);
-            }
-        }
-
-        // render obstacles on the map
-        for (index in this.obstacleCollection.models) {
-            if (this.obstacleCollection.models.hasOwnProperty(index)) {
-                obstacleModel = this.obstacleCollection.models[index];
-                obstacleView = new ObstacleView({
-                    model: obstacleModel
-                });
-
-                this.map.append(obstacleView.render().el);
             }
         }
     }
