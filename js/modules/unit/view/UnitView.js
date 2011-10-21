@@ -63,6 +63,8 @@ var UnitView = Backbone.View.extend({
 
         newWeapon.model.setPosition(unitModel.getPosition());
         newWeapon.model.use();
+
+        actionPanelView.update(unitModel);
     },
 
     /**
@@ -190,6 +192,15 @@ var UnitView = Backbone.View.extend({
      * @return void
      */
     move: function (unitModel, wayPoints) {
+        // interruption by user
+        if (true === unitModel.get('interrupted')) {
+            unitModel.setInterrupted(false);
+            unitModel.isBusy(false);
+            unitModel.move(false);
+            this.stopMovingSprite();
+            return;
+        }
+
         // REMOVE ME
         if (unitModel.get('type') === 'defense-tower') {
             unitModel.isBusy(false);
@@ -202,7 +213,7 @@ var UnitView = Backbone.View.extend({
         this.startMovingSprite();
 
         // goal reached or not enough action points for moving -> quit
-        if (wayPoints.length === 0 || unitModel.getCurrentActionPoints() === 0) {
+        if (!wayPoints || wayPoints.length === 0 || unitModel.getCurrentActionPoints() === 0) {
             unitModel.isBusy(false);
             this.stopMovingSprite();
             unitModel.trigger('movingFinished');

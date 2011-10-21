@@ -135,6 +135,9 @@ var ActionPanelView = Backbone.View.extend({
             weaponHtml = [],
             statusHtml = [],
             inventoryHtml = [],
+            currentWeapon = unitModel.get('selectedWeapon'),
+            shotsLeft = Math.floor(unitModel.getCurrentActionPoints() / currentWeapon.model.get('actionPoints')),
+            maxShots = Math.floor(unitModel.getTotalActionPoints() / currentWeapon.model.get('actionPoints')),
             i;
 
         // unit is dead -> remove all status
@@ -143,7 +146,7 @@ var ActionPanelView = Backbone.View.extend({
             status.html('');
             return;
         }
-
+// todo: remove weapon and inventory out of the update method
         for (i = 0; i < allWeapons.length; i += 1) {
             weaponHtml.push('<li><a href="javascript:;" class="js-weapon" data-weaponNr=' + i + '>' + allWeapons[i].model.get('name') + '</a></li>');
         }
@@ -155,7 +158,6 @@ var ActionPanelView = Backbone.View.extend({
         }
         inventory.html(inventoryHtml.join(''));
 
-
         statusHtml.push('<li>');
         statusHtml.push('<div class="max-armor">');
         statusHtml.push('<div class="current-armor" style="width: ' + newWidthArmor + '%"></div>');
@@ -163,6 +165,8 @@ var ActionPanelView = Backbone.View.extend({
         statusHtml.push('</li>');
 
         statusHtml.push('<li>');
+        statusHtml.push('<span>Schuss: <b>' + shotsLeft + '/' + maxShots + '</b></span><br/>');
+        statusHtml.push('<span>Bewegungsreichweite: <b>' + unitModel.getCurrentActionPoints() + ' Felder</b></span>');
         statusHtml.push('<div class="max-action-points">');
         statusHtml.push('<div class="current-action-points" style="width: ' + newWidthActionPoints + '%"></div>');
         statusHtml.push('</div>');

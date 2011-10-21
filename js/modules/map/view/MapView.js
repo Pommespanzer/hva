@@ -58,6 +58,7 @@ var MapView = Backbone.View.extend({
             'dispatchMouseMoveEvent',
             'addMovingPath',
             'removeMovingPath',
+            'interruptActions',
             'render'
         );
 
@@ -68,6 +69,30 @@ var MapView = Backbone.View.extend({
 
         this.inventoryCollection = new InventoryCollection();
         this.inventoryCollection.bind('change:remove', this.removeInventoryItem);
+
+        this.el.bind('keydown', this.interruptActions);
+    },
+
+    /**
+     * This method sets the interrupt signal to the unit models.
+     * It works just for units with the status "isBusy".
+     *
+     * @param object event
+     *
+     * @return void
+     */
+    interruptActions: function (event) {
+        // ESC handling
+        if (event.which === 27) {
+            var i;
+            for (i = 0; i < this.unitCollection.models.length; i += 1) {
+                // interrupting busy units -> works not for enemies.
+                if (this.unitCollection.models[i].get('isBusy') && false === this.unitCollection.models[i].get('isEnemy')) {
+                    this.unitCollection.models[i].setInterrupted(true);
+                }
+            }
+            return;
+        }
     },
 
     /**

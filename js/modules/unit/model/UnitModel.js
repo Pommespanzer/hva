@@ -15,6 +15,10 @@ var UnitModel = Backbone.Model.extend({
         this.set({backgroundPosition: {x: x, y: y}});
     },
 
+    setInterrupted: function (interrupted) {
+        this.set({interrupted: interrupted});
+    },
+
     getPosition: function () {
         return this.get('position');
     },
