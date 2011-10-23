@@ -363,6 +363,7 @@ var MapView = Backbone.View.extend({
             currentSelectedUnitModel,
             hoveredElement,
             currentPosition,
+            currentWeapon,
             goalPosition;
 
         // no selected unit -> no way -> exit
@@ -404,7 +405,9 @@ var MapView = Backbone.View.extend({
         this.model.setGoalMovingPath(goalPosition);
 
         this.removeMovingPath();
-        this.addMovingPath(currentPosition, goalPosition, currentSelectedUnitModel.get('currentActionPoints'));
+
+        currentWeapon = currentSelectedUnitModel.get('selectedWeapon');
+        this.addMovingPath(currentPosition, goalPosition, currentSelectedUnitModel.get('currentActionPoints'), currentWeapon.model.get('actionPoints'));
     },
 
     /**
@@ -414,15 +417,17 @@ var MapView = Backbone.View.extend({
      * @param object currentPosition - current position of selected unit {x: ?, y: ?}
      * @param object goalPosition - position where the units wants to move {x: ?, y: ?}
      * @param integer currentActionPoints - to restrict the moving path to max action points of the unit
+     * @param integer weaponActionPoints
      *
      * @return void
      */
-    addMovingPath: function (currentPosition, goalPosition, currentActionPoints) {
+    addMovingPath: function (currentPosition, goalPosition, currentActionPoints, weaponActionPoints) {
         var html = [],
             count = 0,
             wayPoints,
             currentWayPoint,
-            index;
+            index,
+            possibleShots;
 
         wayPoints = this.model.getWayPoints(
             this.obstacleCollection,
@@ -447,7 +452,8 @@ var MapView = Backbone.View.extend({
                     continue;
                 }
 
-                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
+                possibleShots = Math.floor((currentActionPoints- (count+1)) / weaponActionPoints);
+                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;">' + possibleShots + '</div>');
                 count += 1;
             }
         }

@@ -26,7 +26,7 @@
 }
 
 .unit.unit-human-mg {
-    background-image: url(../images/test3.png);
+    background-image: url(../images/test6.png);
     background-repeat: no-repeat;
     background-position: -100px 0px;
     -webkit-transform: rotate(0deg);
@@ -36,12 +36,12 @@
     cursor: crosshair;
 }
 .unit.enemy.unit-human-mg {
-    background-image: url(../images/test4.png);
+    background-image: url(../images/test8.png);
     background-repeat: no-repeat;
 }
 
 .unit.unit-human-bazooka {
-    background-image: url(../images/test5.png);
+    background-image: url(../images/test7.png);
     background-repeat: no-repeat;
     background-position: -100px 0px;
     -webkit-transform: rotate(0deg);
