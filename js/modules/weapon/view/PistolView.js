@@ -5,8 +5,8 @@ var PistolView = AbstractWeaponView.extend({
     init: function () {
         this.model.setName('p9');
         this.model.setRange(3);
-        this.model.setActionPoints(1);
-        this.model.setFirepower(50);
+        this.model.setActionPoints(3);
+        this.model.setFirepower(100);
         this.model.setFirespeed(200);
         this.model.setImage('');
     },
@@ -23,7 +23,7 @@ var PistolView = AbstractWeaponView.extend({
     renderShot: function (position, angle, isEnemy) {
         var uniqueId = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),
             clazz = this.model.get('name') + ' ' + uniqueId + ' ' + (isEnemy ? 'enemy' : ''),
-            style = 'position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + 25) + 'px; left: ' + (position.x * 50 + 12) + 'px';
+            style = 'position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 25 + 12) + 'px; left: ' + (position.x * 25 + 6) + 'px';
 
         // render shot
         $('#battlefield').append(

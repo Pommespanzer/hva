@@ -14,8 +14,16 @@ var Position = {
             positionX = x - mapOffset.left + pageX,
             positionY = y - mapOffset.top + pageY;
 
-        x = Math.floor(positionX / 50);
-        y = Math.floor(positionY / 50);
+        x = Math.floor(positionX / 25);
+        y = Math.floor(positionY / 25);
+
+        if (y > 23) {
+            y = 23;
+        }
+
+        if (x > 31) {
+            x = 31;
+        }
 
         return {
             x: x,

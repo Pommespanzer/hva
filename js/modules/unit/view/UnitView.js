@@ -35,7 +35,8 @@ var UnitView = Backbone.View.extend({
             'move',
             'attack',
             'changeWeapon',
-            'destroy'
+            'destroy',
+            'changeArmor'
         );
 
         this.battlefield = $('#battlefield');
@@ -45,6 +46,7 @@ var UnitView = Backbone.View.extend({
         this.model.bind('attack', this.attack);
         this.model.bind('change:remove', this.destroy);
         this.model.bind('change:selectedWeapon', this.changeWeapon);
+        this.model.bind('change:currentArmor', this.changeArmor);
 
         this.audioplayer = $('#js-sound-' + (this.model.get('isEnemy') ? 'enemy' : 'unit'));
     },
@@ -113,7 +115,7 @@ var UnitView = Backbone.View.extend({
 
         if (true === value) {
             // mark unit as selected
-            $(this.el).addClass('selected');
+            $('.unit', this.el).addClass('selected');
 
             // load weapon
             currentWeapon.model.setPosition(this.model.getPosition());
@@ -124,7 +126,7 @@ var UnitView = Backbone.View.extend({
             return;
         }
 
-        $(this.el).removeClass('selected');
+        $('.unit', this.el).removeClass('selected');
         // remove weapon
         currentWeapon.model.backToHolster();
     },
@@ -140,23 +142,23 @@ var UnitView = Backbone.View.extend({
             return;
         }
 
-        var value = 50,
-            currentPosition = -100,
-            unit = $(this.el),
+        var value = 25,
+            currentPosition = -50,
+            unit = $('.unit', this.el),
             audiofiles = this.model.get('sounds'),
             _this = this;
 
         this.movingSpriteAction = window.setInterval(function () {
-            if (currentPosition === -200) {
+            if (currentPosition === -100) {
                 // play the audio file here, because of the good delay
                 _this.audioplayer[0].src = audiofiles.move;
-                value = 50;
+                value = 25;
             }
 
             if (currentPosition === 0) {
                 // play the audio file here, because of the good delay
                 _this.audioplayer[0].src = audiofiles.move;
-                value = -50;
+                value = -25;
             }
 
             currentPosition += value;
@@ -175,7 +177,7 @@ var UnitView = Backbone.View.extend({
             return;
         }
 
-        var unit = $(this.el);
+        var unit = $('.unit', this.el);
         unit.css('background-position', '-100px 0');
         this.model.setBackgroundPosition(-100, 0);
 
@@ -232,13 +234,13 @@ var UnitView = Backbone.View.extend({
             currentWeapon = unitModel.get('selectedWeapon');
 
         // rotate unit in right position
-        unit.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
-        unit.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
+        $('.unit', unit).css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
+        $('.unit', unit).css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
         unit.animate(
             {
-                'left': (x * 50),
-                'top': (y * 50)
+                'left': (x * 25),
+                'top': (y * 25)
             },
             {
                 duration: unitModel.get('speed'),
@@ -288,7 +290,7 @@ console.log('FAIL. Attack animation still in progress');
             return;
         }
 
-        var value = 50,
+        var value = 25,
             unit = $(this.el),
             backgroundPosition = this.model.get('backgroundPosition'),
             position = this.model.getPosition(),
@@ -297,8 +299,8 @@ console.log('FAIL. Attack animation still in progress');
             angle = Mathematic.getAngle(position, enemyPosition);
 
         // rotate unit in right position
-        unit.css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
-        unit.css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
+        $('.unit', unit).css('-webkit-transform', 'rotate(' + (angle + 90) + 'deg)');
+        $('.unit', unit).css('-moz-transform', 'rotate(' + (angle + 90) + 'deg)');
 
         // enemy out of range? -> quit
         if (false === mapView.model.isEnemyInRange(this.model, enemy)) {
@@ -322,7 +324,7 @@ console.log('FAIL. Attack animation still in progress');
         this.attackingSpriteAction = window.setInterval($.proxy(function () {
 console.log('OK. Attacking sprite change');
 
-            if (backgroundPosition.x === -350) {
+            if (backgroundPosition.x === -175) {
 console.log('OK. Now start shooting');
                 window.clearInterval(this.attackingSpriteAction);
                 this.attackingSpriteAction = null;
@@ -332,7 +334,7 @@ console.log('OK. Now start shooting');
             }
             backgroundPosition.x -= value;
             this.model.setBackgroundPosition(backgroundPosition.x, backgroundPosition.y);
-            unit.css('background-position', backgroundPosition.x + 'px ' + backgroundPosition.y + 'px');
+            $('.unit', unit).css('background-position', backgroundPosition.x + 'px ' + backgroundPosition.y + 'px');
         }, this), 100);
     },
 
@@ -385,8 +387,8 @@ console.log('OK. Now start shooting');
 
         shoot.animate(
             {
-                left: (enemyPosition.x * 50) + 12,
-                top: (enemyPosition.y * 50) + 25
+                left: (enemyPosition.x * 25) + 6,
+                top: (enemyPosition.y * 25) + 12
             },
             {
                 duration: selectedWeapon.model.get('firespeed'),
@@ -416,24 +418,39 @@ console.log('OK. Now start shooting');
         );
     },
 
+    changeArmor: function (unitModel) {
+        var armorQuotient = 100 / unitModel.getTotalArmor(),
+            newWidthArmor = unitModel.getCurrentArmor() * armorQuotient;
+
+        $('.js-current-armor', $('#' + unitModel.get('id')).parent()).css('width', newWidthArmor + '%');
+    },
+
     /**
      * This method renders the unit on the battlefield.
      *
      * @return void
      */
     render: function () {
-        this.el.id = this.model.get('id');
-        this.el.className = this.model.get('type') + ' unit';
-
+        //this.el.id = this.model.get('id');
+        this.el.className = 'foo';
+        //this.el.className = this.model.get('type') + ' unit';
+        /*
         if (this.model.get('isEnemy')) {
             this.el.className += ' enemy';
         }
+        */
 
-        var position = this.model.getPosition();
-        this.el.style.left = (position.x * 50) + 'px';
-        this.el.style.top = (position.y * 50) + 'px';
+        var position = this.model.getPosition(),
+            className = this.model.get('type') + ' unit';
 
-        $(this.el).html('&nbsp;');
+        if (this.model.get('isEnemy')) {
+            className += ' enemy';
+        }
+
+        this.el.style.left = (position.x * 25) + 'px';
+        this.el.style.top = (position.y * 25) + 'px';
+
+        $(this.el).html('<div id="' + this.model.get('id') + '" class="' + className + '"></div><div class="js-max-armor max-armor"><div class="js-current-armor current-armor"></div></div>');
 
         return this;
     }

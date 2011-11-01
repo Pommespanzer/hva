@@ -441,19 +441,19 @@ var MapView = Backbone.View.extend({
             return;
         }
 
-        html.push('<div class="js-moving-path moving-path" style="left: ' + (currentPosition.x * 50) + 'px; top: ' + (currentPosition.y * 50) + 'px;"></div>');
+        html.push('<div class="js-moving-path moving-path" style="left: ' + (currentPosition.x * 25) + 'px; top: ' + (currentPosition.y * 25) + 'px;"></div>');
         for (index in wayPoints) {
             if (wayPoints.hasOwnProperty(index)) {
                 currentWayPoint = wayPoints[index];
 
                 if (count >= currentActionPoints) {
-                    html.push('<div class="js-moving-path moving-path not-available" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;"></div>');
+                    html.push('<div class="js-moving-path moving-path not-available" style="left: ' + (currentWayPoint.row * 25) + 'px; top: ' + (currentWayPoint.col * 25) + 'px;"></div>');
                     count += 1;
                     continue;
                 }
 
                 possibleShots = Math.floor((currentActionPoints- (count+1)) / weaponActionPoints);
-                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 50) + 'px; top: ' + (currentWayPoint.col * 50) + 'px;">' + possibleShots + '</div>');
+                html.push('<div class="js-moving-path moving-path" style="left: ' + (currentWayPoint.row * 25) + 'px; top: ' + (currentWayPoint.col * 25) + 'px;">' + possibleShots + '</div>');
                 count += 1;
             }
         }

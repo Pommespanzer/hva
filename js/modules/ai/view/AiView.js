@@ -116,7 +116,6 @@ console.log('OK. No units found -> end the turn');
                 selectedUnitModel = mapView.unitCollection.get(selectedUnitId);
                 selectedUnitPosition = selectedUnitModel.getPosition();
                 actionPanelView.update(selectedUnitModel);
-                window.scrollTo(selectedUnitPosition.x * 50, selectedUnitPosition.y * 50) ;
             }
             actionPanelView.showEndTurnLink();
             $('#battlefield').css('cursor', 'auto');
@@ -137,8 +136,6 @@ console.log('FAIL. Unit has no order -> next unit');
             this.nextUnit(unitModel);
             return;
         }
-
-        window.scrollTo(position.x * 50, position.y * 50) ;
 
 console.log('OK. Unit start with the order');
         this.doAction(unitModel, order);

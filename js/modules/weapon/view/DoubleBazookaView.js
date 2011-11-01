@@ -5,7 +5,7 @@ var DoubleBazookaView = AbstractWeaponView.extend({
     init: function () {
         this.model.setName('bazooka');
         this.model.setRange(6);
-        this.model.setActionPoints(5);
+        this.model.setActionPoints(10);
         this.model.setFirepower(800);
         this.model.setFirespeed(300);
         this.model.setImage('');
@@ -23,8 +23,8 @@ var DoubleBazookaView = AbstractWeaponView.extend({
     renderShot: function (position, angle, isEnemy) {
         var uniqueId = Math.ceil(new Date().getMilliseconds() * Math.random() * 99999999999),
             clazz = this.model.get('name') + ' ' + uniqueId + ' ' + (isEnemy ? 'enemy' : ''),
-            styleShot1 = 'position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + 10) + 'px; left: ' + (position.x * 50 + 10) + 'px',
-            styleShot2 = 'position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 50 + 40) + 'px; left: ' + (position.x * 50 + 10) + 'px';
+            styleShot1 = 'position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 25 + 5) + 'px; left: ' + (position.x * 25 + 5) + 'px',
+            styleShot2 = 'position: absolute; -moz-transform: rotate(' + angle + 'deg); -webkit-transform: rotate(' + angle + 'deg); top: ' + (position.y * 25 + 20) + 'px; left: ' + (position.x * 25 + 5) + 'px';
 
         // render shot
         $('#battlefield').append(

@@ -1,9 +1,27 @@
-.unit {
+.foo {
     position: absolute;
-    width: 50px;
-    height: 50px;
     margin: 0 auto;
     z-index: 2;
+}
+
+.unit {
+    /*position: absolute;*/
+    width: 25px;
+    height: 25px;
+
+
+}
+
+.foo .max-armor {
+    height: 4px;
+    width: 100%;
+    background-color: red;
+}
+
+.foo .current-armor {
+    background-color: green;
+    width: 100%;
+    height: 4px;
 }
 
 .unit.selected {
@@ -20,13 +38,13 @@
 
 .unit.defense-tower {
     background-color: none;
-    background-image: url(../images/tower.png);
+    background-image: url(../images/EnemyTower.png);
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
 }
 
 .unit.unit-human-mg {
-    background-image: url(../images/test6.png);
+    background-image: url(../images/MG.png);
     background-repeat: no-repeat;
     background-position: -100px 0px;
     -webkit-transform: rotate(0deg);
@@ -36,12 +54,12 @@
     cursor: crosshair;
 }
 .unit.enemy.unit-human-mg {
-    background-image: url(../images/test8.png);
+    background-image: url(../images/EnemyMG.png);
     background-repeat: no-repeat;
 }
 
 .unit.unit-human-bazooka {
-    background-image: url(../images/test7.png);
+    background-image: url(../images/Bazooka.png);
     background-repeat: no-repeat;
     background-position: -100px 0px;
     -webkit-transform: rotate(0deg);
@@ -100,8 +118,8 @@
     -webkit-border-radius: 100%;
     -moz-border-radius: 100%;
     border-radius: 100%;
-    width: 50px;
-    height: 50px;
+    width: 25px;
+    height: 25px;
     position: absolute;
     z-index: 1;
 }

@@ -52,10 +52,10 @@ var AbstractWeaponView = Backbone.View.extend({
      * @return void
      */
     addFirerange: function () {
-        var padding = this.model.get('range') * 50,
+        var padding = this.model.get('range') * 25,
             position = this.model.get('position'),
-            x = (position.x * 50 - padding),
-            y = (position.y * 50 - padding);
+            x = (position.x * 25 - padding),
+            y = (position.y * 25 - padding);
 
         $('#battlefield').append(
             '<div id="fr-' + this.model.get('id') + '" class="firerange" style="top: ' + y + 'px; left: ' + x + 'px; padding: ' + padding + 'px"></div>'
@@ -69,7 +69,7 @@ var AbstractWeaponView = Backbone.View.extend({
      * @return void
      */
     updateFirerange: function (weaponModel, position) {
-        var padding = weaponModel.get('range') * 50;
+        var padding = weaponModel.get('range') * 25;
         $('#fr-' + weaponModel.get('id')).css({left: (position.x - padding), top: (position.y - padding)});
     },
 

@@ -238,8 +238,8 @@ var MapModel = Backbone.Model.extend({
      * @return void
      */
     getWayPoints: function (obstacles, units, startPosition, goalPosition) {
-        var mapWidth  = 39,
-            mapHeight = 24,
+        var mapWidth  = 31,
+            mapHeight = 23,
             matrix = [],
             unit,
             currentPosition = [],
